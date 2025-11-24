@@ -4,23 +4,34 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    [Header("Health")]
-    [SerializeField] Slider healthSlider;
-    [SerializeField] HealthComponent playerHealth;
 
-    [Header("Score")]
-    [SerializeField] TextMeshProUGUI scoreText;
-    ScoreManager scoreManager;
+    [SerializeField] private TextMeshProUGUI gameVersionText;
+    [SerializeField] private PlayerController playerController;
+    [SerializeField] private Slider playerHealthSlider;
 
+    [SerializeField] private TextMeshProUGUI scoreText;
+    private ScoreManager scoreManager;
     void Start()
     {
-        scoreManager = FindFirstObjectByType<ScoreManager>();
-        healthSlider.maxValue = playerHealth.GetHealth();
+        if (gameVersionText != null)
+        {
+            gameVersionText.text = $"Version {Application.version}";
+        }
+
+        if (scoreManager != null && playerController != null)
+        {
+            scoreManager = FindFirstObjectByType<ScoreManager>();
+            playerHealthSlider.maxValue = playerController.GetMaxHealth();
+        }
     }
 
     void Update()
     {
-        scoreText.text = scoreManager.GetScore().ToString();
-        healthSlider.value = playerHealth.GetHealth();
+        if (scoreManager != null && playerController != null)
+        {
+            scoreText.text = scoreManager.GetScore().ToString();
+            playerHealthSlider.value = playerController.GetHealth();
+        }
+
     }
 }

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 40036df359487e84cadad23b7deb7025
+guid: ac584a9552f91bf49a9b0b7f11601e9c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5516489554572398240
-    second: mined-underwater-bg_0
+      213: 948915474911033074
+    second: mined-underwater-icon_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -113,12 +113,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: mined-underwater-bg_0
+      name: mined-underwater-icon_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1536
+        width: 1024
         height: 1024
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0613f8c4afd7173b0800000000000000
-      internalID: -5516489554572398240
+      spriteID: 2f671fbc8993b2d00800000000000000
+      internalID: 948915474911033074
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      mined-underwater-bg_0: -5516489554572398240
+      mined-underwater-icon_0: 948915474911033074
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

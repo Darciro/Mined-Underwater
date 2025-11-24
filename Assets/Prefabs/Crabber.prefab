@@ -102,8 +102,7 @@ GameObject:
   - component: {fileID: 2055528897550069431}
   - component: {fileID: -8308993427441550251}
   - component: {fileID: -8940646064718974936}
-  - component: {fileID: 8028551717072831355}
-  - component: {fileID: 8755559954312386244}
+  - component: {fileID: 1212700179851347306}
   m_Layer: 7
   m_Name: Crabber
   m_TagString: Untagged
@@ -203,7 +202,7 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: -0.05}
   m_Radius: 0.4
---- !u!114 &8028551717072831355
+--- !u!114 &1212700179851347306
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -212,25 +211,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 7079647665775305750}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 653ac2e3283acd74c8c47a37a825fd32, type: 3}
+  m_Script: {fileID: 11500000, guid: 442e5edb6cc426a4e8ee93fbf7b1830d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Health
-  isPlayer: 0
-  scoreValue: 2
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyController
   health: 50
+  damageAmount: 20
+  scoreValue: 1
   hitParticles: {fileID: 8713912631512916485, guid: 55690877c568c7b41b85da6d2f1eb09f, type: 3}
-  useCameraShake: 1
-  shakeIntensity: 1
---- !u!114 &8755559954312386244
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7079647665775305750}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a8ca216b195f4a45a11265f03be9c47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DamageDealer
-  damage: 10
+  moveSpeed: 3

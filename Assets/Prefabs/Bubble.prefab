@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7351526263737347105}
   - component: {fileID: 3200379236966696740}
   - component: {fileID: 7337419395305721199}
-  - component: {fileID: 7884577117628582195}
+  - component: {fileID: -9175672872133008123}
   m_Layer: 6
   m_Name: Bubble
   m_TagString: Player
@@ -98,7 +98,7 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.2
---- !u!114 &7884577117628582195
+--- !u!114 &-9175672872133008123
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -107,10 +107,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 4726458354242316765}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a8ca216b195f4a45a11265f03be9c47, type: 3}
+  m_Script: {fileID: 11500000, guid: 6a1f9738f4d80764cab97a8754e983fd, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DamageDealer
-  damage: 100
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectileDamage
+  damage: 10
+  isPlayerProjectile: 1
 --- !u!1 &5135332753049278812
 GameObject:
   m_ObjectHideFlags: 0

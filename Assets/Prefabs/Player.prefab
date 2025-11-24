@@ -14,8 +14,6 @@ GameObject:
   - component: {fileID: 5341539718660984040}
   - component: {fileID: 636701796848935023}
   - component: {fileID: 1053969477154174451}
-  - component: {fileID: -2072883205601912257}
-  - component: {fileID: -6863665983752366220}
   - component: {fileID: 6987011519227159127}
   m_Layer: 6
   m_Name: Player
@@ -195,44 +193,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851c79fc23c25814b81e045284a8200d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  acceleration: 5
-  deceleration: 5
   maxSpeed: 5
-  leftBoundPadding: 0
-  rightBoundPadding: 0
-  upBoundPadding: 0
-  downBoundPadding: 0
---- !u!114 &-2072883205601912257
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3000242852470298123}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 653ac2e3283acd74c8c47a37a825fd32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Health
-  isPlayer: 1
-  scoreValue: 0
-  health: 100
+  joystick: {fileID: 0}
+  health: 50
+  maxHealth: 50
+  damageAmount: 10
   hitParticles: {fileID: 8713912631512916485, guid: 55690877c568c7b41b85da6d2f1eb09f, type: 3}
   useCameraShake: 1
-  shakeIntensity: 2
---- !u!114 &-6863665983752366220
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3000242852470298123}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a8ca216b195f4a45a11265f03be9c47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DamageDealer
-  damage: 10
+  shakeIntensity: 1
 --- !u!114 &6987011519227159127
 MonoBehaviour:
   m_ObjectHideFlags: 0
