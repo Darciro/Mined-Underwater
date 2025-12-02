@@ -1,39 +1,34 @@
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    [Header("Movement")]
-    [SerializeField] private float maxSpeed = 5f;
-    [SerializeField] private Joystick joystick;
-
-    [Header("Health & Combat")]
-    [SerializeField] private int health = 50;
+    [Header("Stats")]
     [SerializeField] private int maxHealth = 50;
-    [SerializeField] private int damageAmount = 10;
-    [SerializeField] private ParticleSystem hitParticles;
-    [SerializeField] private bool useCameraShake = true;
-    [SerializeField] private CameraShakeIntensity shakeIntensity = CameraShakeIntensity.Medium;
+    [SerializeField] private int currentHealth;
+    [SerializeField] private float speed = 5f;
 
+    [Header("Movement Boundaries")]
+    [SerializeField] private float minY = -4f;
+    [SerializeField] private float maxY = 4f;
+
+    [Header("Configuration")]
+    [SerializeField] private Joystick joystick;
+    [SerializeField] private GameObject damagePopupPrefab;
+    [SerializeField] private Canvas parentCanvas;
+    // [SerializeField] private ParticleSystem hitParticles;
+
+    private CameraShakeIntensityEnum shakeIntensity = CameraShakeIntensityEnum.Medium;
     private ProjectileComponent playerProjectile;
     private InputAction moveAction;
     private InputAction fireAction;
     private Vector2 moveDirection;
     private Rigidbody2D rb;
     private Animator animator;
-    private bool useToggleFire = false;
     private LevelManager levelManager;
 
     private readonly int moveX = Animator.StringToHash("MoveX");
-    private readonly int MoveY = Animator.StringToHash("MoveY");
-
-    private enum CameraShakeIntensity
-    {
-        Light,
-        Medium,
-        Heavy
-    }
+    private readonly int moveY = Animator.StringToHash("MoveY");
 
     private void Awake()
     {
@@ -47,13 +42,13 @@ public class PlayerController : MonoBehaviour
         fireAction = InputSystem.actions.FindAction("Attack");
         playerProjectile = GetComponent<ProjectileComponent>();
         levelManager = FindFirstObjectByType<LevelManager>();
-        health = maxHealth;
+        currentHealth = maxHealth;
     }
 
     private void Update()
     {
         ReadInput();
-        FireProjectile();
+        HandleFireProjectile();
     }
 
     private void FixedUpdate()
@@ -63,7 +58,12 @@ public class PlayerController : MonoBehaviour
 
     private void Move()
     {
-        rb.MovePosition(rb.position + moveDirection * (maxSpeed * Time.fixedDeltaTime));
+        Vector2 newPosition = rb.position + moveDirection * (speed * Time.fixedDeltaTime);
+
+        // Clamp the Y position within the boundaries
+        newPosition.y = Mathf.Clamp(newPosition.y, minY, maxY);
+
+        rb.MovePosition(newPosition);
     }
 
     private void ReadInput()
@@ -74,21 +74,12 @@ public class PlayerController : MonoBehaviour
         moveDirection = (inputSystemDir + joystickDir).normalized;
 
         animator.SetFloat(moveX, moveDirection.x);
-        animator.SetFloat(MoveY, moveDirection.y);
+        animator.SetFloat(moveY, moveDirection.y);
     }
 
-    private void FireProjectile()
+    private void HandleFireProjectile()
     {
-        if (!useToggleFire)
-        {
-            playerProjectile.isFiring = fireAction.IsPressed();
-        }
-    }
-
-    public void ToggleFire()
-    {
-        useToggleFire = true;
-        playerProjectile.isFiring = !playerProjectile.isFiring;
+        playerProjectile.isFiring = fireAction.IsPressed();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -97,38 +88,52 @@ public class PlayerController : MonoBehaviour
 
         if (enemy != null)
         {
-            TakeDamage(enemy.GetDamage());
-            PlayHitParticles();
-            enemy.Hit();
-            AudioManager.instance.PlayDamageSFX();
+            TakeDamage(enemy.DamageAmount);
+            // PlayHitParticles();
+
+            if (AudioManager.instance != null)
+            {
+                AudioManager.instance.PlayDamageSFX();
+            }
         }
     }
 
     public void TakeDamage(int damage)
     {
-        health -= damage;
+        currentHealth -= damage;
+        ShowDamagePopup(damage, transform.position + Vector3.up * 0.5f);
 
-        // Trigger camera shake when taking damage
-        if (useCameraShake && CameraShakeManager.Instance != null)
+        if (CameraShakeManager.Instance != null)
         {
             switch (shakeIntensity)
             {
-                case CameraShakeIntensity.Light:
+                case CameraShakeIntensityEnum.Light:
                     CameraShakeManager.Instance.ShakeLight();
                     break;
-                case CameraShakeIntensity.Medium:
+                case CameraShakeIntensityEnum.Medium:
                     CameraShakeManager.Instance.ShakeMedium();
                     break;
-                case CameraShakeIntensity.Heavy:
+                case CameraShakeIntensityEnum.Heavy:
                     CameraShakeManager.Instance.ShakeHeavy();
                     break;
             }
         }
 
-        if (health <= 0)
+        if (currentHealth <= 0)
         {
             Die();
         }
+    }
+
+    private void ShowDamagePopup(int damageAmount, Vector3 worldPosition)
+    {
+        // Convert world position to canvas position
+        Vector2 screenPos = Camera.main.WorldToScreenPoint(worldPosition);
+
+        GameObject popupGO = Instantiate(damagePopupPrefab, parentCanvas.transform);
+        popupGO.GetComponent<RectTransform>().position = screenPos;
+
+        popupGO.GetComponent<DamagePopup>().Setup(damageAmount);
     }
 
     private void Die()
@@ -140,18 +145,18 @@ public class PlayerController : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private void PlayHitParticles()
+    /* private void PlayHitParticles()
     {
         if (hitParticles != null)
         {
             ParticleSystem particles = Instantiate(hitParticles, transform.position, Quaternion.identity);
             Destroy(particles, particles.main.duration + particles.main.startLifetime.constantMax);
         }
-    }
+    } */
 
     public int GetHealth()
     {
-        return health;
+        return currentHealth;
     }
 
     public int GetMaxHealth()
@@ -159,8 +164,4 @@ public class PlayerController : MonoBehaviour
         return maxHealth;
     }
 
-    public int GetDamage()
-    {
-        return damageAmount;
-    }
 }

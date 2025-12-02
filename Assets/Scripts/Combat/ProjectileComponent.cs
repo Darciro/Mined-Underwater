@@ -36,10 +36,17 @@ public class ProjectileComponent : MonoBehaviour
             GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
 
             Rigidbody2D projectileRB = projectile.GetComponent<Rigidbody2D>();
-            projectileRB.linearVelocityX = projectileSpeed;
+            if (projectileRB != null)
+            {
+                projectileRB.linearVelocity = new Vector2(projectileSpeed, 0f);
+            }
 
             Destroy(projectile, projectileLifetime);
-            AudioManager.instance.PlayShootingSFX();
+
+            if (AudioManager.instance != null)
+            {
+                AudioManager.instance.PlayShootingSFX();
+            }
 
             yield return new WaitForSeconds(fireRate);
         }

@@ -2,19 +2,26 @@ using UnityEngine;
 
 public class BackgroundScrollerBehaviour : MonoBehaviour
 {
-    [SerializeField] Vector2 moveSpeed;
+    [SerializeField] private Vector2 moveSpeed;
 
-    Vector2 offset;
-    Material material;
+    private Vector2 offset;
+    private Material material;
 
-    void Start()
+    private void Start()
     {
-        material = GetComponent<SpriteRenderer>().material;
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            material = spriteRenderer.material;
+        }
     }
 
-    void Update()
+    private void Update()
     {
-        offset += moveSpeed * Time.deltaTime;
-        material.mainTextureOffset = offset;
+        if (material != null)
+        {
+            offset += moveSpeed * Time.deltaTime;
+            material.mainTextureOffset = offset;
+        }
     }
 }

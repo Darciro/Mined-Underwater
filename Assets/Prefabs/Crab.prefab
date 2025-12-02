@@ -99,7 +99,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 886168396419518417}
-  - component: {fileID: 2055528897550069431}
   - component: {fileID: -8594148064865962535}
   - component: {fileID: -8134063556143204816}
   - component: {fileID: 496414670166247658}
@@ -126,19 +125,6 @@ Transform:
   - {fileID: 2179654293538720217}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2055528897550069431
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7079647665775305750}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77a0c6f83f9e49a4f80e40cb88fa72a6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Pathfinding
-  waveConfig: {fileID: 11400000, guid: fd54e1e4409bfe849b2df68957031845, type: 2}
 --- !u!50 &-8594148064865962535
 Rigidbody2D:
   serializedVersion: 5

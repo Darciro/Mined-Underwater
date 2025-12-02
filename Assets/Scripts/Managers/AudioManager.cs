@@ -38,11 +38,12 @@ public class AudioManager : MonoBehaviour
         PlayAudioClip(damageClip, damageVolume);
     }
 
-    void PlayAudioClip(AudioClip clip, float volume)
+    private void PlayAudioClip(AudioClip clip, float volume)
     {
         if (clip != null)
         {
-            AudioSource.PlayClipAtPoint(clip, Camera.main.transform.position, volume);
+            Vector3 position = Camera.main != null ? Camera.main.transform.position : Vector3.zero;
+            AudioSource.PlayClipAtPoint(clip, position, volume);
         }
     }
 }

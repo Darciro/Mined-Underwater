@@ -4,34 +4,53 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-
     [SerializeField] private TextMeshProUGUI gameVersionText;
     [SerializeField] private PlayerController playerController;
     [SerializeField] private Slider playerHealthSlider;
-
+    [SerializeField] private TextMeshProUGUI playerHealthtext;
     [SerializeField] private TextMeshProUGUI scoreText;
-    private ScoreManager scoreManager;
-    void Start()
-    {
-        if (gameVersionText != null)
-        {
-            gameVersionText.text = $"Version {Application.version}";
-        }
 
-        if (scoreManager != null && playerController != null)
+    private ScoreManager scoreManager;
+
+    private void Start()
+    {
+        GameVersionSetup();
+        UpdatePlayerHealth();
+
+        /* scoreManager = FindFirstObjectByType<ScoreManager>();
+
+        if (playerController != null && playerHealthSlider != null)
         {
-            scoreManager = FindFirstObjectByType<ScoreManager>();
             playerHealthSlider.maxValue = playerController.GetMaxHealth();
-        }
+            playerHealthSlider.value = playerController.GetHealth();
+        } */
+
+
     }
 
-    void Update()
+    private void Update()
     {
-        if (scoreManager != null && playerController != null)
+        UpdatePlayerHealth();
+    }
+
+    private void GameVersionSetup()
+    {
+        if (gameVersionText != null) gameVersionText.text = $"Version {Application.version}";
+    }
+
+    private void UpdatePlayerHealth()
+    {
+        if (playerHealthSlider != null)
         {
-            scoreText.text = scoreManager.GetScore().ToString();
-            playerHealthSlider.value = playerController.GetHealth();
+            playerHealthSlider.value = (float)playerController.GetHealth() / playerController.GetMaxHealth();
         }
 
+        if (playerHealthtext != null)
+        {
+            int currentHealth = playerController.GetHealth();
+            if (currentHealth < 0) currentHealth = 0;
+
+            playerHealthtext.text = $"{currentHealth} / {playerController.GetMaxHealth()}";
+        }
     }
 }

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyController : MonoBehaviour
@@ -8,6 +7,8 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private int damageAmount = 10;
     [SerializeField] private int scoreValue = 1;
     [SerializeField] private ParticleSystem hitParticles;
+
+    public int DamageAmount => damageAmount;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
@@ -74,10 +75,14 @@ public class EnemyController : MonoBehaviour
 
         if (player != null)
         {
-            TakeDamage(player.GetDamage());
-            PlayHitParticles();
             player.TakeDamage(damageAmount);
-            AudioManager.instance.PlayDamageSFX();
+            PlayHitParticles();
+            Die();
+
+            if (AudioManager.instance != null)
+            {
+                AudioManager.instance.PlayDamageSFX();
+            }
         }
     }
 
@@ -101,33 +106,13 @@ public class EnemyController : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void Hit()
-    {
-        PlayHitParticles();
-        Destroy(gameObject);
-    }
-
     private void PlayHitParticles()
     {
         if (hitParticles != null)
         {
             ParticleSystem particles = Instantiate(hitParticles, transform.position, Quaternion.identity);
-            Destroy(particles, particles.main.duration + particles.main.startLifetime.constantMax);
+            float lifetime = particles.main.duration + particles.main.startLifetime.constantMax;
+            Destroy(particles.gameObject, lifetime);
         }
-    }
-
-    public int GetHealth()
-    {
-        return health;
-    }
-
-    public int GetDamage()
-    {
-        return damageAmount;
-    }
-
-    public int GetScoreValue()
-    {
-        return scoreValue;
     }
 }
