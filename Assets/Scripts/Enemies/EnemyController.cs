@@ -12,59 +12,68 @@ public class EnemyController : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float verticalSpeed = 2f;
+    [SerializeField] private float minY = -4f;
+    [SerializeField] private float maxY = 4f;
+    [SerializeField] private float changeDirectionTime = 2f;
 
-    private WaveConfigSO waveConfig;
-    private Transform[] waypoints;
-    private int waypointIndex = 0;
     private ScoreManager scoreManager;
+    private float verticalDirection;
+    private float directionTimer;
 
     private void Start()
     {
         scoreManager = FindFirstObjectByType<ScoreManager>();
-        InitializePathfinding();
+        InitializeRandomMovement();
     }
 
     private void Update()
     {
-        FollowPath();
+        MoveEnemy();
     }
 
-    private void InitializePathfinding()
+    private void InitializeRandomMovement()
     {
-        EnemySpawner spawner = FindFirstObjectByType<EnemySpawner>();
-        if (spawner != null)
-        {
-            waveConfig = spawner.GetCurrentWave();
-            if (waveConfig != null)
-            {
-                waypoints = waveConfig.GetWaypoints();
-                moveSpeed = waveConfig.GetEnemyMoveSpeed();
-                transform.position = waypoints[waypointIndex].position;
-            }
-        }
+        // Start with random vertical direction
+        verticalDirection = Random.Range(0, 2) == 0 ? -1f : 1f;
+        directionTimer = changeDirectionTime;
     }
 
-    private void FollowPath()
+    private void MoveEnemy()
     {
-        if (waypoints == null || waypoints.Length == 0)
+        // Move constantly to the left
+        transform.position += Vector3.left * moveSpeed * Time.deltaTime;
+
+        // Random vertical movement
+        directionTimer -= Time.deltaTime;
+        if (directionTimer <= 0f)
         {
-            return;
+            // Change direction randomly
+            verticalDirection = Random.Range(0, 2) == 0 ? -1f : 1f;
+            directionTimer = changeDirectionTime;
         }
 
-        if (waypointIndex < waypoints.Length)
-        {
-            Vector3 targetPosition = waypoints[waypointIndex].position;
-            float delta = moveSpeed * Time.deltaTime;
-            transform.position = Vector2.MoveTowards(transform.position, targetPosition, delta);
+        // Apply vertical movement
+        Vector3 newPosition = transform.position;
+        newPosition.y += verticalDirection * verticalSpeed * Time.deltaTime;
 
-            if (transform.position == targetPosition)
-            {
-                waypointIndex++;
-            }
-        }
-        else
+        // Clamp vertical position and reverse direction if hitting boundaries
+        if (newPosition.y <= minY)
         {
-            // Reached the end of the path, destroy the enemy
+            newPosition.y = minY;
+            verticalDirection = 1f;
+        }
+        else if (newPosition.y >= maxY)
+        {
+            newPosition.y = maxY;
+            verticalDirection = -1f;
+        }
+
+        transform.position = newPosition;
+
+        // Destroy enemy if it goes too far left (off-screen)
+        if (transform.position.x < -15f)
+        {
             Destroy(gameObject);
         }
     }
