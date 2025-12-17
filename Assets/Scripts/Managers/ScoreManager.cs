@@ -3,6 +3,7 @@ using UnityEngine;
 public class ScoreManager : MonoBehaviour
 {
     private int score = 0;
+    private int eggsCollected = 0;
 
     public int GetScore()
     {
@@ -18,5 +19,20 @@ public class ScoreManager : MonoBehaviour
     public void ResetScore()
     {
         score = 0;
+    }
+
+    public int GetEggsCollected()
+    {
+        return eggsCollected;
+    }
+
+    public void AddEgg()
+    {
+        eggsCollected++;
+    }
+
+    public void ResetEggs()
+    {
+        eggsCollected = 0;
     }
 }

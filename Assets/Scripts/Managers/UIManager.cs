@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Slider playerHealthSlider;
     [SerializeField] private TextMeshProUGUI playerHealthtext;
     [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI eggsText;
 
     private ScoreManager scoreManager;
 
@@ -16,21 +17,13 @@ public class UIManager : MonoBehaviour
     {
         GameVersionSetup();
         UpdatePlayerHealth();
-
-        /* scoreManager = FindFirstObjectByType<ScoreManager>();
-
-        if (playerController != null && playerHealthSlider != null)
-        {
-            playerHealthSlider.maxValue = playerController.GetMaxHealth();
-            playerHealthSlider.value = playerController.GetHealth();
-        } */
-
-
+        scoreManager = FindFirstObjectByType<ScoreManager>();
     }
 
     private void Update()
     {
         UpdatePlayerHealth();
+        UpdateEggsCounter();
     }
 
     private void GameVersionSetup()
@@ -51,6 +44,14 @@ public class UIManager : MonoBehaviour
             if (currentHealth < 0) currentHealth = 0;
 
             playerHealthtext.text = $"{currentHealth} / {playerController.GetMaxHealth()}";
+        }
+    }
+
+    private void UpdateEggsCounter()
+    {
+        if (eggsText != null && scoreManager != null)
+        {
+            eggsText.text = scoreManager.GetEggsCollected().ToString();
         }
     }
 }

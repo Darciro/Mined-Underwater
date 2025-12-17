@@ -12,9 +12,13 @@ public class SpawnerManager : MonoBehaviour
         public float minInterval = 1f;
         public float maxInterval = 3f;
         public int maxAlive = 0;    // 0 = unlimited
+
+        [Header("Position Override")]
+        public float positionX = 0f;
+        public float positionY = 0f;
+
         [HideInInspector] public int currentAlive;
     }
-
     [Header("Spawner Settings")]
     public float xOffset = 2f;     // how far outside the camera to spawn
 
@@ -95,9 +99,10 @@ public class SpawnerManager : MonoBehaviour
 
         GameObject prefab = channel.prefabs[Random.Range(0, channel.prefabs.Count)];
 
-        float randomY = GetRandomYInsideCamera();
+        float spawnX = channel.positionX != 0 ? channel.positionX : transform.position.x;
+        float spawnY = channel.positionY != 0 ? channel.positionY : GetRandomYInsideCamera();
 
-        Vector3 pos = new Vector3(transform.position.x, randomY, 0);
+        Vector3 pos = new Vector3(spawnX, spawnY, 0);
         GameObject instance = Instantiate(prefab, pos, Quaternion.identity);
 
         // Track alive for maxAlive setting

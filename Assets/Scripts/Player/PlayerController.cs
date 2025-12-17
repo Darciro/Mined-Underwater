@@ -8,6 +8,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int currentHealth;
     [SerializeField] private float speed = 5f;
 
+    [Header("Defense")]
+    [SerializeField] private float damageReductionPercentage = 50f; // Percentage of damage reduction when defending
+
+    [Header("Invincibility")]
+    [SerializeField] private float invincibilityDuration = 0.5f; // Duration of invincibility frames in seconds
+    [SerializeField] private float flashInterval = 0.1f; // How often the player flashes (in seconds)
+
     [Header("Movement Boundaries")]
     [SerializeField] private float minY = -4f;
     [SerializeField] private float maxY = 4f;
@@ -15,8 +22,8 @@ public class PlayerController : MonoBehaviour
     [Header("Configuration")]
     [SerializeField] private Joystick joystick;
     [SerializeField] private GameObject damagePopupPrefab;
-    [SerializeField] private Canvas parentCanvas;
-    // [SerializeField] private ParticleSystem hitParticles;
+
+    private Canvas parentCanvas;
 
     private CameraShakeIntensityEnum shakeIntensity = CameraShakeIntensityEnum.Medium;
     private ProjectileComponent playerProjectile;
@@ -26,6 +33,11 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private Animator animator;
     private LevelManager levelManager;
+    private bool isDefending = false;
+    private bool isInvincible = false;
+    private SpriteRenderer spriteRenderer;
+    private bool wasFireButtonPressedLastFrame = false;
+    private bool firePressedOverride = false;
 
     private readonly int moveX = Animator.StringToHash("MoveX");
     private readonly int moveY = Animator.StringToHash("MoveY");
@@ -34,6 +46,7 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void Start()
@@ -43,12 +56,24 @@ public class PlayerController : MonoBehaviour
         playerProjectile = GetComponent<ProjectileComponent>();
         levelManager = FindFirstObjectByType<LevelManager>();
         currentHealth = maxHealth;
+
+        GameObject canvasGO = GameObject.Find("UI");
+        if (canvasGO == null)
+        {
+            Debug.LogWarning("PlayerController: Could not find Canvas with name 'UI' in scene!");
+            return;
+        }
+        parentCanvas = canvasGO.GetComponent<Canvas>();
+        if (parentCanvas == null)
+        {
+            Debug.LogWarning("PlayerController: Found 'UI' GameObject but it has no Canvas component!");
+        }
     }
 
     private void Update()
     {
         ReadInput();
-        HandleFireProjectile();
+        FireProjectile();
     }
 
     private void FixedUpdate()
@@ -58,7 +83,18 @@ public class PlayerController : MonoBehaviour
 
     private void Move()
     {
-        Vector2 newPosition = rb.position + moveDirection * (speed * Time.fixedDeltaTime);
+        float currentSpeed = speed;
+
+        // Check if player is defending (moving backward)
+        isDefending = moveDirection.x < 0;
+
+        // Reduce speed to a quarter when moving backward
+        if (moveDirection.x < 0)
+        {
+            currentSpeed *= 0.25f;
+        }
+
+        Vector2 newPosition = rb.position + moveDirection * (currentSpeed * Time.fixedDeltaTime);
 
         // Clamp the Y position within the boundaries
         newPosition.y = Mathf.Clamp(newPosition.y, minY, maxY);
@@ -77,19 +113,50 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat(moveY, moveDirection.y);
     }
 
-    private void HandleFireProjectile()
+    // Allows UI buttons to simulate a fire press
+    public void SimulateFireButtonPress()
     {
-        playerProjectile.isFiring = fireAction.IsPressed();
+        firePressedOverride = true;
+    }
+
+    private void FireProjectile()
+    {
+        bool isFireButtonPressed = fireAction.IsPressed() || firePressedOverride;
+        bool fireButtonJustPressed = isFireButtonPressed && !wasFireButtonPressedLastFrame;
+
+        // Cannot fire projectiles while defending
+        playerProjectile.isFiring = !isDefending && fireButtonJustPressed;
+        if (playerProjectile.isFiring) animator.Play("Bite");
+
+        firePressedOverride = false;
+        wasFireButtonPressedLastFrame = isFireButtonPressed;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // Check for egg pickup
+        if (other.CompareTag("Egg"))
+        {
+            ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
+            if (scoreManager != null)
+            {
+                scoreManager.AddEgg();
+            }
+            Destroy(other.gameObject);
+            return;
+        }
+
+        // Skip damage during invincibility frames
+        if (isInvincible)
+        {
+            return;
+        }
+
         EnemyController enemy = other.GetComponent<EnemyController>();
 
         if (enemy != null)
         {
             TakeDamage(enemy.DamageAmount);
-            // PlayHitParticles();
 
             if (AudioManager.instance != null)
             {
@@ -100,24 +167,19 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        currentHealth -= damage;
-        ShowDamagePopup(damage, transform.position + Vector3.up * 0.5f);
-
-        if (CameraShakeManager.Instance != null)
+        // Apply damage reduction if defending
+        int finalDamage = damage;
+        if (isDefending)
         {
-            switch (shakeIntensity)
-            {
-                case CameraShakeIntensityEnum.Light:
-                    CameraShakeManager.Instance.ShakeLight();
-                    break;
-                case CameraShakeIntensityEnum.Medium:
-                    CameraShakeManager.Instance.ShakeMedium();
-                    break;
-                case CameraShakeIntensityEnum.Heavy:
-                    CameraShakeManager.Instance.ShakeHeavy();
-                    break;
-            }
+            finalDamage = Mathf.RoundToInt(damage * (1f - damageReductionPercentage / 100f));
         }
+
+        currentHealth -= finalDamage;
+        ShowDamagePopup(finalDamage, transform.position + Vector3.up * 0.5f);
+
+        // Start invincibility frames
+        StartCoroutine(InvincibilityFrames());
+        CameraShakeManager.Instance.ShakeHeavy();
 
         if (currentHealth <= 0)
         {
@@ -127,6 +189,12 @@ public class PlayerController : MonoBehaviour
 
     private void ShowDamagePopup(int damageAmount, Vector3 worldPosition)
     {
+        if (damagePopupPrefab == null || parentCanvas == null)
+        {
+            Debug.LogWarning("PlayerController: damagePopupPrefab or parentCanvas not assigned!");
+            return;
+        }
+
         // Convert world position to canvas position
         Vector2 screenPos = Camera.main.WorldToScreenPoint(worldPosition);
 
@@ -145,15 +213,6 @@ public class PlayerController : MonoBehaviour
         Destroy(gameObject);
     }
 
-    /* private void PlayHitParticles()
-    {
-        if (hitParticles != null)
-        {
-            ParticleSystem particles = Instantiate(hitParticles, transform.position, Quaternion.identity);
-            Destroy(particles, particles.main.duration + particles.main.startLifetime.constantMax);
-        }
-    } */
-
     public int GetHealth()
     {
         return currentHealth;
@@ -162,6 +221,34 @@ public class PlayerController : MonoBehaviour
     public int GetMaxHealth()
     {
         return maxHealth;
+    }
+
+    private System.Collections.IEnumerator InvincibilityFrames()
+    {
+        isInvincible = true;
+        float elapsedTime = 0f;
+        bool isVisible = true;
+
+        while (elapsedTime < invincibilityDuration)
+        {
+            // Toggle visibility for flashing effect
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.enabled = isVisible;
+            }
+
+            isVisible = !isVisible;
+            elapsedTime += flashInterval;
+            yield return new WaitForSeconds(flashInterval);
+        }
+
+        // Ensure sprite is visible at the end
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = true;
+        }
+
+        isInvincible = false;
     }
 
 }

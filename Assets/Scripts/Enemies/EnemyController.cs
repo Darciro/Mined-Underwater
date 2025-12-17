@@ -80,7 +80,7 @@ public class EnemyController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        PlayerController player = other.GetComponent<PlayerController>();
+        /* PlayerController player = other.GetComponent<PlayerController>();
 
         if (player != null)
         {
@@ -92,12 +92,14 @@ public class EnemyController : MonoBehaviour
             {
                 AudioManager.instance.PlayDamageSFX();
             }
-        }
+        } */
     }
 
     public void TakeDamage(int damage)
     {
         health -= damage;
+
+        CameraShakeManager.Instance.ShakeMedium();
 
         if (health <= 0)
         {
