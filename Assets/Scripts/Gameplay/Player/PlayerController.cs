@@ -19,14 +19,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float minY = -4f;
     [SerializeField] private float maxY = 4f;
 
+    [Header("Combat")]
+    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private float projectileSpeed = 10f;
+    [SerializeField] private float projectileLifetime = 1f;
+    [SerializeField] private float fireRate = 0.75f;
+
     [Header("Configuration")]
     [SerializeField] private Joystick joystick;
     [SerializeField] private GameObject damagePopupPrefab;
 
     private Canvas parentCanvas;
-
-    private CameraShakeIntensityEnum shakeIntensity = CameraShakeIntensityEnum.Medium;
-    private ProjectileComponent playerProjectile;
+    private float nextFireTime;
     private InputAction moveAction;
     private InputAction fireAction;
     private Vector2 moveDirection;
@@ -53,7 +57,6 @@ public class PlayerController : MonoBehaviour
     {
         moveAction = InputSystem.actions.FindAction("Move");
         fireAction = InputSystem.actions.FindAction("Attack");
-        playerProjectile = GetComponent<ProjectileComponent>();
         levelManager = FindFirstObjectByType<LevelManager>();
         currentHealth = maxHealth;
 
@@ -122,14 +125,36 @@ public class PlayerController : MonoBehaviour
     private void FireProjectile()
     {
         bool isFireButtonPressed = fireAction.IsPressed() || firePressedOverride;
-        bool fireButtonJustPressed = isFireButtonPressed && !wasFireButtonPressedLastFrame;
+        bool wantsToFire = !isDefending && isFireButtonPressed;
 
-        // Cannot fire projectiles while defending
-        playerProjectile.isFiring = !isDefending && fireButtonJustPressed;
-        if (playerProjectile.isFiring) animator.Play("Bite");
+        if (wantsToFire && Time.time >= nextFireTime)
+        {
+            FireOnce();
+            nextFireTime = Time.time + fireRate;
+        }
 
         firePressedOverride = false;
         wasFireButtonPressedLastFrame = isFireButtonPressed;
+    }
+
+    private void FireOnce()
+    {
+        animator.Play("Bite");
+
+        GameObject projectile = Instantiate(projectilePrefab, transform.position + Vector3.right * 1.5f, Quaternion.identity);
+
+        Rigidbody2D projectileRB = projectile.GetComponent<Rigidbody2D>();
+        if (projectileRB != null)
+        {
+            projectileRB.linearVelocity = new Vector2(projectileSpeed, 0f);
+        }
+
+        Destroy(projectile, projectileLifetime);
+
+        if (AudioManager.instance != null)
+        {
+            AudioManager.instance.PlayShootingSFX();
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)

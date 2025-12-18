@@ -2,11 +2,20 @@ using UnityEngine;
 
 public class ProjectileDamage : MonoBehaviour
 {
-    [SerializeField] private int damage = 10;
+    [Header("Damage")]
+    [SerializeField] private int minDamage = 1;
+    [SerializeField] private int maxDamage = 10;
     [SerializeField] private bool isPlayerProjectile = true;
     [SerializeField] private GameObject damagePopupPrefab;
 
     private Canvas parentCanvas;
+    private int rolledDamage;
+
+    private void Awake()
+    {
+        NormalizeDamageRange();
+        RollDamage();
+    }
 
     private void Start()
     {
@@ -31,8 +40,8 @@ public class ProjectileDamage : MonoBehaviour
             EnemyController enemy = other.GetComponent<EnemyController>();
             if (enemy != null)
             {
-                enemy.TakeDamage(damage);
-                ShowDamagePopup(damage, other.transform.position + Vector3.up * 0.5f);
+                enemy.TakeDamage(rolledDamage);
+                ShowDamagePopup(rolledDamage, other.transform.position + Vector3.up * 0.5f);
                 Destroy(gameObject);
             }
         }
@@ -42,11 +51,36 @@ public class ProjectileDamage : MonoBehaviour
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null)
             {
-                player.TakeDamage(damage);
-                ShowDamagePopup(damage, other.transform.position + Vector3.up * 0.5f);
+                player.TakeDamage(rolledDamage);
+                ShowDamagePopup(rolledDamage, other.transform.position + Vector3.up * 0.5f);
                 Destroy(gameObject);
             }
         }
+    }
+
+    private void NormalizeDamageRange()
+    {
+        if (minDamage < 1) minDamage = 1;
+        if (maxDamage < 1) maxDamage = 1;
+
+        if (maxDamage < minDamage)
+        {
+            (minDamage, maxDamage) = (maxDamage, minDamage);
+        }
+    }
+
+    private void RollDamage()
+    {
+        NormalizeDamageRange();
+
+        // Unity int Random.Range is min inclusive, max exclusive.
+        if (maxDamage == int.MaxValue)
+        {
+            rolledDamage = Random.Range(minDamage, maxDamage);
+            return;
+        }
+
+        rolledDamage = Random.Range(minDamage, maxDamage + 1);
     }
 
     private void ShowDamagePopup(int damageAmount, Vector3 worldPosition)
@@ -68,11 +102,20 @@ public class ProjectileDamage : MonoBehaviour
 
     public int GetDamage()
     {
-        return damage;
+        return rolledDamage;
     }
 
     public void SetDamage(int newDamage)
     {
-        damage = newDamage;
+        minDamage = newDamage;
+        maxDamage = newDamage;
+        rolledDamage = newDamage;
+    }
+
+    public void SetDamageRange(int newMinDamage, int newMaxDamage)
+    {
+        minDamage = newMinDamage;
+        maxDamage = newMaxDamage;
+        RollDamage();
     }
 }

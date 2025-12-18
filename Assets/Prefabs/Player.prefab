@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2238475050764396392}
   - component: {fileID: -5334176140805590217}
   - component: {fileID: 903207113608276202}
+  - component: {fileID: 9113102817872220038}
   - component: {fileID: 5341539718660984040}
   - component: {fileID: 636701796848935023}
   - component: {fileID: 1053969477154174451}
@@ -30,13 +31,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3000242852470298123}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: -3.93, y: 0.02, z: 0}
+  m_LocalScale: {x: 1.3, y: 1.3, z: 1.3}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!50 &-5334176140805590217
 Rigidbody2D:
   serializedVersion: 5
@@ -101,6 +102,17 @@ CapsuleCollider2D:
   m_Offset: {x: 0.068002835, y: 0.046956893}
   m_Size: {x: 1.1632141, y: 0.58225983}
   m_Direction: 1
+--- !u!247 &9113102817872220038
+ConstantForce2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3000242852470298123}
+  m_Enabled: 1
+  m_Force: {x: 0, y: 0}
+  m_RelativeForce: {x: 100, y: 0}
+  m_Torque: 10
 --- !u!95 &5341539718660984040
 Animator:
   serializedVersion: 7
@@ -194,14 +206,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851c79fc23c25814b81e045284a8200d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  maxHealth: 100
+  maxHealth: 50
   currentHealth: 0
   speed: 5
-  minY: -4
-  maxY: 4
+  damageReductionPercentage: 50
+  invincibilityDuration: 0.5
+  flashInterval: 0.1
+  minY: -6
+  maxY: 8
   joystick: {fileID: 0}
-  damagePopupPrefab: {fileID: 0}
-  parentCanvas: {fileID: 0}
+  damagePopupPrefab: {fileID: 8386932574030945141, guid: 3944d0652e5f1784088a9de13651a74b, type: 3}
 --- !u!114 &6987011519227159127
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -216,6 +230,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileComponent
   projectilePrefab: {fileID: 4726458354242316765, guid: 4451e6d1d1d65ea48a2581d3063b197b, type: 3}
   projectileSpeed: 10
-  projectileLifetime: 5
+  projectileLifetime: 1
   fireRate: 0.5
   isFiring: 0

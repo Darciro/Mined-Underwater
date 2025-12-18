@@ -111,7 +111,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a1f9738f4d80764cab97a8754e983fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileDamage
-  damage: 10
+  minDamage: 5
+  maxDamage: 10
   isPlayerProjectile: 1
   damagePopupPrefab: {fileID: 8386932574030945141, guid: 3944d0652e5f1784088a9de13651a74b, type: 3}
 --- !u!1 &5135332753049278812

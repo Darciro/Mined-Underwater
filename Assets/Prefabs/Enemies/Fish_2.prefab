@@ -31,8 +31,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.465, y: -2.044, z: 0}
-  m_LocalScale: {x: 0.47851, y: 0.47851, z: 0.47851}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -178,8 +178,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -2.4015186, y: -0.119432025}
-  m_Size: {x: 8.5502, y: 3.398696}
+  m_Offset: {x: -2.6240623, y: 1.0914237}
+  m_Size: {x: 7.0295696, y: 2.8532665}
   m_Direction: 1
 --- !u!114 &7283114411197419164
 MonoBehaviour:
@@ -193,12 +193,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 442e5edb6cc426a4e8ee93fbf7b1830d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
-  health: 10
-  damageAmount: 20
-  scoreValue: 1
+  health: 15
+  minDamageAmount: 5
+  maxDamageAmount: 10
+  scoreValue: 5
   hitParticles: {fileID: 8713912631512916485, guid: 55690877c568c7b41b85da6d2f1eb09f, type: 3}
   moveSpeed: 5
-  verticalSpeed: 2
+  verticalSpeed: 0.5
   minY: -4
   maxY: 4
-  changeDirectionTime: 2
+  changeDirectionTime: 3

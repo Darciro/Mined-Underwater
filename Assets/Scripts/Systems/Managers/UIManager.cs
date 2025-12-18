@@ -10,19 +10,24 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI playerHealthtext;
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI eggsText;
+    [Header("Pause")]
+    [SerializeField] private GameObject pausePanel; // Optional UI overlay to show when paused
 
     private ScoreManager scoreManager;
+    private bool isPaused = false;
 
     private void Start()
     {
         GameVersionSetup();
         UpdatePlayerHealth();
         scoreManager = FindFirstObjectByType<ScoreManager>();
+        SetPaused(false);
     }
 
     private void Update()
     {
         UpdatePlayerHealth();
+        UpdateScore();
         UpdateEggsCounter();
     }
 
@@ -52,6 +57,33 @@ public class UIManager : MonoBehaviour
         if (eggsText != null && scoreManager != null)
         {
             eggsText.text = scoreManager.GetEggsCollected().ToString();
+        }
+    }
+
+    private void UpdateScore()
+    {
+        if (scoreText != null && scoreManager != null)
+        {
+            scoreText.text = scoreManager.GetScore().ToString();
+        }
+    }
+
+    // Called by the Pause/Resume UI button
+    public void TogglePause()
+    {
+        SetPaused(!isPaused);
+    }
+
+    private void SetPaused(bool pause)
+    {
+        if (isPaused == pause) return;
+        isPaused = pause;
+
+        Time.timeScale = pause ? 0f : 1f;
+
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(pause);
         }
     }
 }

@@ -4,11 +4,12 @@ public class EnemyController : MonoBehaviour
 {
     [Header("Health & Combat")]
     [SerializeField] private int health = 50;
-    [SerializeField] private int damageAmount = 10;
+    [SerializeField] private int minDamageAmount = 10;
+    [SerializeField] private int maxDamageAmount = 10;
     [SerializeField] private int scoreValue = 1;
     [SerializeField] private ParticleSystem hitParticles;
 
-    public int DamageAmount => damageAmount;
+    public int DamageAmount => RollDamageAmount();
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
@@ -23,8 +24,14 @@ public class EnemyController : MonoBehaviour
 
     private void Start()
     {
+        NormalizeDamageRange();
         scoreManager = FindFirstObjectByType<ScoreManager>();
         InitializeRandomMovement();
+    }
+
+    private void OnValidate()
+    {
+        NormalizeDamageRange();
     }
 
     private void Update()
@@ -84,7 +91,7 @@ public class EnemyController : MonoBehaviour
 
         if (player != null)
         {
-            player.TakeDamage(damageAmount);
+            player.TakeDamage(DamageAmount);
             PlayHitParticles();
             Die();
 
@@ -93,6 +100,30 @@ public class EnemyController : MonoBehaviour
                 AudioManager.instance.PlayDamageSFX();
             }
         } */
+    }
+
+    private void NormalizeDamageRange()
+    {
+        if (minDamageAmount < 1) minDamageAmount = 1;
+        if (maxDamageAmount < 1) maxDamageAmount = 1;
+
+        if (maxDamageAmount < minDamageAmount)
+        {
+            (minDamageAmount, maxDamageAmount) = (maxDamageAmount, minDamageAmount);
+        }
+    }
+
+    private int RollDamageAmount()
+    {
+        NormalizeDamageRange();
+
+        // Unity int Random.Range is min inclusive, max exclusive.
+        if (maxDamageAmount == int.MaxValue)
+        {
+            return Random.Range(minDamageAmount, maxDamageAmount);
+        }
+
+        return Random.Range(minDamageAmount, maxDamageAmount + 1);
     }
 
     public void TakeDamage(int damage)
