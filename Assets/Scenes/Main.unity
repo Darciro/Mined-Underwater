@@ -575,7 +575,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1053969477154174451, guid: ed6ea99bfece5d341b22033d58cf4cea, type: 3}
       propertyPath: fireRate
-      value: 0.75
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1053969477154174451, guid: ed6ea99bfece5d341b22033d58cf4cea, type: 3}
       propertyPath: joystick
@@ -585,6 +585,10 @@ PrefabInstance:
       propertyPath: maxHealth
       value: 25
       objectReference: {fileID: 0}
+    - target: {fileID: 1053969477154174451, guid: ed6ea99bfece5d341b22033d58cf4cea, type: 3}
+      propertyPath: healPopupPrefab
+      value: 
+      objectReference: {fileID: 8386932574030945141, guid: 6795e1eb00e0d454a955a4af9fcf2e46, type: 3}
     - target: {fileID: 1053969477154174451, guid: ed6ea99bfece5d341b22033d58cf4cea, type: 3}
       propertyPath: projectileSpeed
       value: 15
@@ -4003,43 +4007,69 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpawnerManager
   xOffset: 2
   verticalPadding: 1
-  channels:
+  categories:
   - id: Enemies
     prefabs:
-    - {fileID: 8895167228765654315, guid: 7d7bebfc23a4f6f479978675f192c437, type: 3}
-    - {fileID: 8591909063767616375, guid: fbb25642ae562914e9d9a7723771b3d4, type: 3}
-    - {fileID: 1368450285661821294, guid: 7ffa37c3280d90848a0a34156216e54f, type: 3}
-    - {fileID: 1368450285661821294, guid: ce2b9005ad193704cb6de7c020498710, type: 3}
-    - {fileID: 4002973947527691230, guid: cf6a860dccac6624d9e2cae5dfd0b3fb, type: 3}
-    minInterval: 1
+    - prefab: {fileID: 8895167228765654315, guid: 7d7bebfc23a4f6f479978675f192c437, type: 3}
+      weight: 75
+    - prefab: {fileID: 8591909063767616375, guid: fbb25642ae562914e9d9a7723771b3d4, type: 3}
+      weight: 20
+    - prefab: {fileID: 1368450285661821294, guid: 7ffa37c3280d90848a0a34156216e54f, type: 3}
+      weight: 35
+    - prefab: {fileID: 1368450285661821294, guid: 7ffa37c3280d90848a0a34156216e54f, type: 3}
+      weight: 100
+    - prefab: {fileID: 4002973947527691230, guid: cf6a860dccac6624d9e2cae5dfd0b3fb, type: 3}
+      weight: 10
+    minInterval: 0.1
     maxInterval: 3
     maxAlive: 99
+    overrideX: 0
+    overrideY: 0
     positionX: 0
     positionY: 0
-    currentAlive: 0
-  - id: Egg
-    prefabs:
-    - {fileID: 3289658432319805963, guid: b507cd9834aeccc4da083160b0404803, type: 3}
-    minInterval: 2
-    maxInterval: 4
-    maxAlive: 99
-    positionX: 0
-    positionY: 0
-    currentAlive: 0
   - id: Algae
     prefabs:
-    - {fileID: 6302121137921910542, guid: fe36c1d7d4afe744a9f6a13d7202bdd0, type: 3}
-    - {fileID: 5688472207543062955, guid: a6849fb2867735c47b00921db485910c, type: 3}
-    - {fileID: 7584417016382597454, guid: 10f22d83bb64e2f409ea3a54b9ff15fa, type: 3}
-    - {fileID: 5892558693161547608, guid: c2b1da7d8a76c3c4da56506ba2095b71, type: 3}
-    - {fileID: 3444672872854437698, guid: 7c4345e2afc528e408440f469e634fde, type: 3}
-    - {fileID: 5749775487112885830, guid: 41e360c2c3cb262428d94d2a52f9bb40, type: 3}
-    minInterval: 5
-    maxInterval: 10
+    - prefab: {fileID: 6302121137921910542, guid: fe36c1d7d4afe744a9f6a13d7202bdd0, type: 3}
+      weight: 10
+    - prefab: {fileID: 5688472207543062955, guid: a6849fb2867735c47b00921db485910c, type: 3}
+      weight: 10
+    - prefab: {fileID: 7584417016382597454, guid: 10f22d83bb64e2f409ea3a54b9ff15fa, type: 3}
+      weight: 10
+    - prefab: {fileID: 5892558693161547608, guid: c2b1da7d8a76c3c4da56506ba2095b71, type: 3}
+      weight: 10
+    - prefab: {fileID: 3444672872854437698, guid: 7c4345e2afc528e408440f469e634fde, type: 3}
+      weight: 10
+    - prefab: {fileID: 5749775487112885830, guid: 41e360c2c3cb262428d94d2a52f9bb40, type: 3}
+      weight: 10
+    minInterval: 1
+    maxInterval: 5
     maxAlive: 99
+    overrideX: 0
+    overrideY: 1
     positionX: 0
     positionY: -4
-    currentAlive: 0
+  - id: Eggs
+    prefabs:
+    - prefab: {fileID: 3289658432319805963, guid: b507cd9834aeccc4da083160b0404803, type: 3}
+      weight: 10
+    minInterval: 1
+    maxInterval: 5
+    maxAlive: 99
+    overrideX: 0
+    overrideY: 0
+    positionX: 0
+    positionY: 0
+  - id: Pickups
+    prefabs:
+    - prefab: {fileID: 6576482441310453641, guid: c4c7a9960ba7c594a9fa996925163675, type: 3}
+      weight: 10
+    minInterval: 10
+    maxInterval: 30
+    maxAlive: 99
+    overrideX: 0
+    overrideY: 0
+    positionX: 0
+    positionY: 0
 --- !u!1 &1875579023
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,6 +1,10 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(SpriteRenderer))]
 public class PlayerController : MonoBehaviour
 {
     [Header("Stats")]
@@ -28,6 +32,7 @@ public class PlayerController : MonoBehaviour
     [Header("Configuration")]
     [SerializeField] private Joystick joystick;
     [SerializeField] private GameObject damagePopupPrefab;
+    [SerializeField] private GameObject healPopupPrefab;
 
     private Canvas parentCanvas;
     private float nextFireTime;
@@ -43,6 +48,11 @@ public class PlayerController : MonoBehaviour
     private bool wasFireButtonPressedLastFrame = false;
     private bool firePressedOverride = false;
 
+    private Coroutine invincibilityCoroutine;
+    private Camera cachedMainCamera;
+    private bool hasLoggedMissingInputActions;
+    private bool hasLoggedMissingCamera;
+
     private readonly int moveX = Animator.StringToHash("MoveX");
     private readonly int moveY = Animator.StringToHash("MoveY");
 
@@ -51,25 +61,46 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        CacheInputActions();
+    }
+
+    private void OnEnable()
+    {
+        // In case the InputSystem isn't ready in Awake (domain reload / scene load order), try again.
+        if (moveAction == null || fireAction == null)
+        {
+            CacheInputActions();
+        }
+    }
+
+    private void OnDisable()
+    {
+        firePressedOverride = false;
+        wasFireButtonPressedLastFrame = false;
     }
 
     private void Start()
     {
-        moveAction = InputSystem.actions.FindAction("Move");
-        fireAction = InputSystem.actions.FindAction("Attack");
         levelManager = FindFirstObjectByType<LevelManager>();
         currentHealth = maxHealth;
+
+        cachedMainCamera = Camera.main;
 
         GameObject canvasGO = GameObject.Find("UI");
         if (canvasGO == null)
         {
             Debug.LogWarning("PlayerController: Could not find Canvas with name 'UI' in scene!");
-            return;
+            // Keep running; damage popups will simply be skipped.
         }
-        parentCanvas = canvasGO.GetComponent<Canvas>();
-        if (parentCanvas == null)
+
+        if (canvasGO != null)
         {
-            Debug.LogWarning("PlayerController: Found 'UI' GameObject but it has no Canvas component!");
+            parentCanvas = canvasGO.GetComponent<Canvas>();
+            if (parentCanvas == null)
+            {
+                Debug.LogWarning("PlayerController: Found 'UI' GameObject but it has no Canvas component!");
+            }
         }
     }
 
@@ -88,11 +119,8 @@ public class PlayerController : MonoBehaviour
     {
         float currentSpeed = speed;
 
-        // Check if player is defending (moving backward)
-        isDefending = moveDirection.x < 0;
-
-        // Reduce speed to a quarter when moving backward
-        if (moveDirection.x < 0)
+        // Reduce speed to a quarter when moving backward.
+        if (isDefending)
         {
             currentSpeed *= 0.25f;
         }
@@ -107,10 +135,27 @@ public class PlayerController : MonoBehaviour
 
     private void ReadInput()
     {
-        Vector2 inputSystemDir = moveAction.ReadValue<Vector2>();
-        Vector2 joystickDir = new Vector2(joystick.Horizontal, joystick.Vertical);
+        Vector2 inputSystemDir = Vector2.zero;
+        if (moveAction != null)
+        {
+            inputSystemDir = moveAction.ReadValue<Vector2>();
+        }
+        else
+        {
+            LogMissingInputActionsOnce();
+        }
 
-        moveDirection = (inputSystemDir + joystickDir).normalized;
+        Vector2 joystickDir = Vector2.zero;
+        if (joystick != null)
+        {
+            joystickDir = new Vector2(joystick.Horizontal, joystick.Vertical);
+        }
+
+        Vector2 combined = inputSystemDir + joystickDir;
+        moveDirection = combined.sqrMagnitude > 0f ? combined.normalized : Vector2.zero;
+
+        // Check if player is defending (moving backward).
+        isDefending = moveDirection.x < 0f;
 
         animator.SetFloat(moveX, moveDirection.x);
         animator.SetFloat(moveY, moveDirection.y);
@@ -124,9 +169,33 @@ public class PlayerController : MonoBehaviour
 
     private void FireProjectile()
     {
-        bool isFireButtonPressed = fireAction.IsPressed() || firePressedOverride;
-        bool wantsToFire = !isDefending && isFireButtonPressed;
+        bool pressedThisFrame = false;
 
+        if (firePressedOverride)
+        {
+            pressedThisFrame = true;
+        }
+        else if (fireAction != null)
+        {
+            // Prefer Input System edge-trigger if available.
+            if (fireAction.enabled)
+            {
+                pressedThisFrame = fireAction.WasPressedThisFrame();
+            }
+            else
+            {
+                // Fallback: edge detect via IsPressed to avoid breaking when the action isn't enabled.
+                bool isPressedNow = fireAction.IsPressed();
+                pressedThisFrame = isPressedNow && !wasFireButtonPressedLastFrame;
+                wasFireButtonPressedLastFrame = isPressedNow;
+            }
+        }
+        else
+        {
+            LogMissingInputActionsOnce();
+        }
+
+        bool wantsToFire = pressedThisFrame && !isDefending;
         if (wantsToFire && Time.time >= nextFireTime)
         {
             FireOnce();
@@ -134,11 +203,16 @@ public class PlayerController : MonoBehaviour
         }
 
         firePressedOverride = false;
-        wasFireButtonPressedLastFrame = isFireButtonPressed;
     }
 
     private void FireOnce()
     {
+        if (projectilePrefab == null)
+        {
+            Debug.LogWarning("PlayerController: projectilePrefab not assigned.");
+            return;
+        }
+
         animator.Play("Bite");
 
         GameObject projectile = Instantiate(projectilePrefab, transform.position + Vector3.right * 1.5f, Quaternion.identity);
@@ -171,11 +245,21 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Skip damage during invincibility frames
-        if (isInvincible)
+        // Check for heart pickup
+        if (other.CompareTag("Heart"))
         {
+            int healAmount = Mathf.Min(3, maxHealth - currentHealth);
+            if (healAmount > 0)
+            {
+                currentHealth += healAmount;
+                ShowHealPopup(healAmount, transform.position + Vector3.up * 0.5f);
+            }
+            Destroy(other.gameObject);
             return;
         }
+
+        // Skip damage during invincibility frames.
+        if (isInvincible) return;
 
         EnemyController enemy = other.GetComponent<EnemyController>();
 
@@ -192,19 +276,33 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        // Keep invincibility logic centralized so all damage sources respect it.
+        if (isInvincible) return;
+
         // Apply damage reduction if defending
         int finalDamage = damage;
         if (isDefending)
         {
-            finalDamage = Mathf.RoundToInt(damage * (1f - damageReductionPercentage / 100f));
+            float reduction01 = Mathf.Clamp01(damageReductionPercentage / 100f);
+            finalDamage = Mathf.RoundToInt(damage * (1f - reduction01));
         }
 
         currentHealth -= finalDamage;
         ShowDamagePopup(finalDamage, transform.position + Vector3.up * 0.5f);
 
         // Start invincibility frames
-        StartCoroutine(InvincibilityFrames());
-        CameraShakeManager.Instance.ShakeHeavy();
+        if (invincibilityCoroutine != null)
+        {
+            StopCoroutine(invincibilityCoroutine);
+            invincibilityCoroutine = null;
+        }
+        invincibilityCoroutine = StartCoroutine(InvincibilityFrames());
+
+        // Camera shake manager might not exist in all scenes.
+        if (CameraShakeManager.Instance != null)
+        {
+            CameraShakeManager.Instance.ShakeHeavy();
+        }
 
         if (currentHealth <= 0)
         {
@@ -221,12 +319,74 @@ public class PlayerController : MonoBehaviour
         }
 
         // Convert world position to canvas position
-        Vector2 screenPos = Camera.main.WorldToScreenPoint(worldPosition);
+        if (cachedMainCamera == null)
+        {
+            cachedMainCamera = Camera.main;
+            if (cachedMainCamera == null)
+            {
+                LogMissingCameraOnce();
+                return;
+            }
+        }
+
+        Vector2 screenPos = cachedMainCamera.WorldToScreenPoint(worldPosition);
 
         GameObject popupGO = Instantiate(damagePopupPrefab, parentCanvas.transform);
-        popupGO.GetComponent<RectTransform>().position = screenPos;
 
-        popupGO.GetComponent<DamagePopup>().Setup(damageAmount);
+        RectTransform rectTransform = popupGO.GetComponent<RectTransform>();
+        if (rectTransform != null)
+        {
+            rectTransform.position = screenPos;
+        }
+
+        DamagePopup popup = popupGO.GetComponent<DamagePopup>();
+        if (popup != null)
+        {
+            popup.Setup(damageAmount);
+        }
+        else
+        {
+            Debug.LogWarning("PlayerController: damagePopupPrefab is missing DamagePopup component.");
+        }
+    }
+
+    private void ShowHealPopup(int healAmount, Vector3 worldPosition)
+    {
+        if (healPopupPrefab == null || parentCanvas == null)
+        {
+            // Keep quiet if not configured; healing still works.
+            return;
+        }
+
+        if (cachedMainCamera == null)
+        {
+            cachedMainCamera = Camera.main;
+            if (cachedMainCamera == null)
+            {
+                LogMissingCameraOnce();
+                return;
+            }
+        }
+
+        Vector2 screenPos = cachedMainCamera.WorldToScreenPoint(worldPosition);
+
+        GameObject popupGO = Instantiate(healPopupPrefab, parentCanvas.transform);
+
+        RectTransform rectTransform = popupGO.GetComponent<RectTransform>();
+        if (rectTransform != null)
+        {
+            rectTransform.position = screenPos;
+        }
+
+        HealPopup popup = popupGO.GetComponent<HealPopup>();
+        if (popup != null)
+        {
+            popup.Setup(healAmount);
+        }
+        else
+        {
+            Debug.LogWarning("PlayerController: healPopupPrefab is missing HealPopup component.");
+        }
     }
 
     private void Die()
@@ -248,32 +408,73 @@ public class PlayerController : MonoBehaviour
         return maxHealth;
     }
 
-    private System.Collections.IEnumerator InvincibilityFrames()
+    private IEnumerator InvincibilityFrames()
     {
         isInvincible = true;
         float elapsedTime = 0f;
+        float flashTimer = 0f;
         bool isVisible = true;
 
+        // Avoid allocating WaitForSeconds repeatedly; use a frame-driven timer.
         while (elapsedTime < invincibilityDuration)
         {
-            // Toggle visibility for flashing effect
-            if (spriteRenderer != null)
+            float delta = Time.deltaTime;
+            elapsedTime += delta;
+            flashTimer += delta;
+
+            if (flashInterval > 0f && flashTimer >= flashInterval)
             {
-                spriteRenderer.enabled = isVisible;
+                flashTimer = 0f;
+                isVisible = !isVisible;
+                if (spriteRenderer != null)
+                {
+                    spriteRenderer.enabled = isVisible;
+                }
             }
 
-            isVisible = !isVisible;
-            elapsedTime += flashInterval;
-            yield return new WaitForSeconds(flashInterval);
+            yield return null;
         }
 
-        // Ensure sprite is visible at the end
         if (spriteRenderer != null)
         {
             spriteRenderer.enabled = true;
         }
 
         isInvincible = false;
+        invincibilityCoroutine = null;
+    }
+
+    private void CacheInputActions()
+    {
+        // Using InputSystem.actions is a project-level decision; we just safely read from it.
+        if (InputSystem.actions == null)
+        {
+            moveAction = null;
+            fireAction = null;
+            LogMissingInputActionsOnce();
+            return;
+        }
+
+        moveAction = InputSystem.actions.FindAction("Move");
+        fireAction = InputSystem.actions.FindAction("Attack");
+        if (moveAction == null || fireAction == null)
+        {
+            LogMissingInputActionsOnce();
+        }
+    }
+
+    private void LogMissingInputActionsOnce()
+    {
+        if (hasLoggedMissingInputActions) return;
+        hasLoggedMissingInputActions = true;
+        Debug.LogWarning("PlayerController: Missing InputSystem actions. Expected actions named 'Move' and 'Attack' on InputSystem.actions.");
+    }
+
+    private void LogMissingCameraOnce()
+    {
+        if (hasLoggedMissingCamera) return;
+        hasLoggedMissingCamera = true;
+        Debug.LogWarning("PlayerController: No MainCamera found (tagged 'MainCamera'). Damage popups require a camera to convert world-to-screen.");
     }
 
 }

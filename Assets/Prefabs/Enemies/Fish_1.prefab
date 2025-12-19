@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 6233474713269265239}
   - component: {fileID: 6464436784990840956}
   - component: {fileID: 6485306637459026378}
-  - component: {fileID: 4138094660303561816}
   - component: {fileID: 5059813107743759386}
+  - component: {fileID: 5583938949108510863}
   m_Layer: 7
   m_Name: Fish_1
   m_TagString: Untagged
@@ -144,8 +144,30 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!68 &4138094660303561816
-EdgeCollider2D:
+--- !u!114 &5059813107743759386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8895167228765654315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 442e5edb6cc426a4e8ee93fbf7b1830d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyController
+  health: 10
+  minDamageAmount: 3
+  maxDamageAmount: 5
+  scoreValue: 3
+  hitParticles: {fileID: 8713912631512916485, guid: 55690877c568c7b41b85da6d2f1eb09f, type: 3}
+  moveSpeed: 6
+  verticalSpeed: 1
+  minY: -4
+  maxY: 4
+  changeDirectionTime: 2
+--- !u!70 &5583938949108510863
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -174,41 +196,10 @@ EdgeCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_EdgeRadius: 0
-  m_Points:
-  - {x: -6.6824293, y: 0.2998051}
-  - {x: -0.7493233, y: 2.711185}
-  - {x: 6.579856, y: -0.56805784}
-  - {x: -3.5617762, y: -2.5562608}
-  - {x: -6.6846013, y: 0.32515308}
-  m_AdjacentStartPoint: {x: 0, y: 0}
-  m_AdjacentEndPoint: {x: 0, y: 0}
-  m_UseAdjacentStartPoint: 0
-  m_UseAdjacentEndPoint: 0
---- !u!114 &5059813107743759386
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8895167228765654315}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 442e5edb6cc426a4e8ee93fbf7b1830d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyController
-  health: 10
-  minDamageAmount: 3
-  maxDamageAmount: 5
-  scoreValue: 3
-  hitParticles: {fileID: 8713912631512916485, guid: 55690877c568c7b41b85da6d2f1eb09f, type: 3}
-  moveSpeed: 6
-  verticalSpeed: 1
-  minY: -4
-  maxY: 4
-  changeDirectionTime: 2
+  m_Offset: {x: -3.735229, y: -0.25367635}
+  m_Size: {x: 5.5675573, y: 3.0872583}
+  m_Direction: 1

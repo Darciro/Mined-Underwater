@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3755150402325167411}
   - component: {fileID: 8873944585640990603}
   - component: {fileID: -9085159427605530041}
-  - component: {fileID: 8584970189585557173}
+  - component: {fileID: 5246796406883948218}
   - component: {fileID: 5024570761815671873}
   m_Layer: 0
   m_Name: Fish_5
@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
+  m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -144,8 +144,8 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!68 &8584970189585557173
-EdgeCollider2D:
+--- !u!70 &5246796406883948218
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -174,25 +174,13 @@ EdgeCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_EdgeRadius: 0
-  m_Points:
-  - {x: -6.4143105, y: 1.834468}
-  - {x: -5.278957, y: 2.1483407}
-  - {x: -2.700371, y: 1.5065477}
-  - {x: -1.042725, y: 0.73321533}
-  - {x: -0.0114684105, y: 0.1970939}
-  - {x: -0.34569624, y: -0.18993992}
-  - {x: -6.222714, y: 1.2123885}
-  - {x: -6.406117, y: 1.8251961}
-  m_AdjacentStartPoint: {x: 0, y: 0}
-  m_AdjacentEndPoint: {x: 0, y: 0}
-  m_UseAdjacentStartPoint: 0
-  m_UseAdjacentEndPoint: 0
+  m_Offset: {x: -2.750307, y: 1.3827673}
+  m_Size: {x: 7.2820754, y: 1.4160016}
+  m_Direction: 1
 --- !u!114 &5024570761815671873
 MonoBehaviour:
   m_ObjectHideFlags: 0
