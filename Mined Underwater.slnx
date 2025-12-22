@@ -5,5 +5,4 @@
   <Project Path="Lofelt.NiceVibrations.Demo.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Lofelt.NiceVibrations.Editor.csproj" />
-  <Project Path="Assembly-CSharp-Editor.csproj" />
 </Solution>

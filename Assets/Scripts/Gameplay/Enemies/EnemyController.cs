@@ -130,7 +130,7 @@ public class EnemyController : MonoBehaviour
     {
         health -= damage;
 
-        CameraShakeManager.Instance.ShakeMedium();
+        CameraShakeManager.Instance.ShakeHeavy();
 
         if (health <= 0)
         {

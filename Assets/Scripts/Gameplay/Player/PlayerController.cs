@@ -33,10 +33,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private UIButtonHold defenseButtonHold;
 
 
-    [Header("Configuration")]
-    [Tooltip("If disabled, joystick input is ignored and the player constantly moves forward on X (endless runner).")]
-    [SerializeField] private bool enableJoystick = true;
-    [SerializeField] private Joystick joystick;
     [Header("Mobile Input")]
     [Tooltip("Swipe sensitivity. This is the number of screen pixels you need to swipe in one frame to reach full input (1.0).\nLower value = more responsive (less swipe needed). Higher value = less responsive.\nExample: 50 = very sensitive, 80 = default, 150+ = subtle.")]
     [SerializeField] private float swipePixelsForMaxInput = 80f;
@@ -64,11 +60,7 @@ public class PlayerController : MonoBehaviour
     private bool hasLoggedMissingCamera;
 
     private Vector2 primaryTouchStartPos;
-
-    // Continuous touch movement tracking (left side of screen)
     private bool isMovementTouchActive;
-    private Vector2 movementTouchStartWorldPos;
-    private Vector2 movementTouchTargetOffset;
 
     private readonly int moveX = Animator.StringToHash("MoveX");
     private readonly int moveY = Animator.StringToHash("MoveY");
@@ -139,25 +131,16 @@ public class PlayerController : MonoBehaviour
     {
         float currentSpeed = speed;
 
-        // Reduce speed to a quarter when moving backward.
+        // Reduce speed to a quarter when defending
         if (isDefending)
         {
             currentSpeed *= 0.25f;
         }
 
-        Vector2 newPosition;
-
-        if (!enableJoystick)
-        {
-            // Endless runner mode: constant forward movement on X, while allowing vertical movement.
-            newPosition = rb.position;
-            newPosition.x += currentSpeed * Time.fixedDeltaTime;
-            newPosition.y += moveDirection.y * (currentSpeed * Time.fixedDeltaTime);
-        }
-        else
-        {
-            newPosition = rb.position + moveDirection * (currentSpeed * Time.fixedDeltaTime);
-        }
+        // Endless runner mode: constant forward movement on X, while allowing vertical movement
+        Vector2 newPosition = rb.position;
+        newPosition.x += currentSpeed * Time.fixedDeltaTime;
+        newPosition.y += moveDirection.y * (currentSpeed * Time.fixedDeltaTime);
 
         // Clamp the Y position within the boundaries
         newPosition.y = Mathf.Clamp(newPosition.y, minY, maxY);
@@ -179,34 +162,13 @@ public class PlayerController : MonoBehaviour
 
         Vector2 swipeDir = ReadSwipeDirection();
 
-        Vector2 joystickDir = Vector2.zero;
-        if (enableJoystick && joystick != null)
-        {
-            joystickDir = new Vector2(joystick.Horizontal, joystick.Vertical);
-        }
+        // Endless runner mode: always move forward on X
+        bool defendingInput = inputSystemDir.x < -0.1f || defenseHoldActive;
+        isDefending = defendingInput;
+        float vertical = inputSystemDir.y + swipeDir.y;
+        moveDirection = new Vector2(1f, Mathf.Clamp(vertical, -1f, 1f));
 
-        if (!enableJoystick)
-        {
-            // Endless runner mode: always move forward on X.
-            bool defendingInput = inputSystemDir.x < -0.1f || defenseHoldActive;
-            isDefending = defendingInput;
-            float vertical = inputSystemDir.y + swipeDir.y;
-            moveDirection = new Vector2(1f, Mathf.Clamp(vertical, -1f, 1f));
-
-            animator.SetFloat(moveX, isDefending ? -1f : 1f);
-            animator.SetFloat(moveY, moveDirection.y);
-            return;
-        }
-
-        Vector2 combined = inputSystemDir + joystickDir + swipeDir;
-        if (defenseHoldActive)
-        {
-            // Force a left input while holding the defense button
-            combined.x = -1f;
-        }
-        moveDirection = combined.sqrMagnitude > 0f ? combined.normalized : Vector2.zero;
-        isDefending = moveDirection.x < 0f;
-        animator.SetFloat(moveX, moveDirection.x);
+        animator.SetFloat(moveX, isDefending ? -1f : 1f);
         animator.SetFloat(moveY, moveDirection.y);
     }
 
