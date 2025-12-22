@@ -1,6 +1,8 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
@@ -28,9 +30,16 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float projectileSpeed = 10f;
     [SerializeField] private float projectileLifetime = 1f;
     [SerializeField] private float fireRate = 0.75f;
+    [SerializeField] private UIButtonHold defenseButtonHold;
+
 
     [Header("Configuration")]
+    [Tooltip("If disabled, joystick input is ignored and the player constantly moves forward on X (endless runner).")]
+    [SerializeField] private bool enableJoystick = true;
     [SerializeField] private Joystick joystick;
+    [Header("Mobile Input")]
+    [Tooltip("Swipe sensitivity. This is the number of screen pixels you need to swipe in one frame to reach full input (1.0).\nLower value = more responsive (less swipe needed). Higher value = less responsive.\nExample: 50 = very sensitive, 80 = default, 150+ = subtle.")]
+    [SerializeField] private float swipePixelsForMaxInput = 80f;
     [SerializeField] private GameObject damagePopupPrefab;
     [SerializeField] private GameObject healPopupPrefab;
 
@@ -47,11 +56,19 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private bool wasFireButtonPressedLastFrame = false;
     private bool firePressedOverride = false;
+    private bool defenseHoldActive = false;
 
     private Coroutine invincibilityCoroutine;
     private Camera cachedMainCamera;
     private bool hasLoggedMissingInputActions;
     private bool hasLoggedMissingCamera;
+
+    private Vector2 primaryTouchStartPos;
+
+    // Continuous touch movement tracking (left side of screen)
+    private bool isMovementTouchActive;
+    private Vector2 movementTouchStartWorldPos;
+    private Vector2 movementTouchTargetOffset;
 
     private readonly int moveX = Animator.StringToHash("MoveX");
     private readonly int moveY = Animator.StringToHash("MoveY");
@@ -82,6 +99,9 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        defenseButtonHold.onHoldDown += HandleDefenseHold;
+        defenseButtonHold.onHoldRelease += HandleDefenseRelease;
+
         levelManager = FindFirstObjectByType<LevelManager>();
         currentHealth = maxHealth;
 
@@ -125,7 +145,19 @@ public class PlayerController : MonoBehaviour
             currentSpeed *= 0.25f;
         }
 
-        Vector2 newPosition = rb.position + moveDirection * (currentSpeed * Time.fixedDeltaTime);
+        Vector2 newPosition;
+
+        if (!enableJoystick)
+        {
+            // Endless runner mode: constant forward movement on X, while allowing vertical movement.
+            newPosition = rb.position;
+            newPosition.x += currentSpeed * Time.fixedDeltaTime;
+            newPosition.y += moveDirection.y * (currentSpeed * Time.fixedDeltaTime);
+        }
+        else
+        {
+            newPosition = rb.position + moveDirection * (currentSpeed * Time.fixedDeltaTime);
+        }
 
         // Clamp the Y position within the boundaries
         newPosition.y = Mathf.Clamp(newPosition.y, minY, maxY);
@@ -145,18 +177,35 @@ public class PlayerController : MonoBehaviour
             LogMissingInputActionsOnce();
         }
 
+        Vector2 swipeDir = ReadSwipeDirection();
+
         Vector2 joystickDir = Vector2.zero;
-        if (joystick != null)
+        if (enableJoystick && joystick != null)
         {
             joystickDir = new Vector2(joystick.Horizontal, joystick.Vertical);
         }
 
-        Vector2 combined = inputSystemDir + joystickDir;
+        if (!enableJoystick)
+        {
+            // Endless runner mode: always move forward on X.
+            bool defendingInput = inputSystemDir.x < -0.1f || defenseHoldActive;
+            isDefending = defendingInput;
+            float vertical = inputSystemDir.y + swipeDir.y;
+            moveDirection = new Vector2(1f, Mathf.Clamp(vertical, -1f, 1f));
+
+            animator.SetFloat(moveX, isDefending ? -1f : 1f);
+            animator.SetFloat(moveY, moveDirection.y);
+            return;
+        }
+
+        Vector2 combined = inputSystemDir + joystickDir + swipeDir;
+        if (defenseHoldActive)
+        {
+            // Force a left input while holding the defense button
+            combined.x = -1f;
+        }
         moveDirection = combined.sqrMagnitude > 0f ? combined.normalized : Vector2.zero;
-
-        // Check if player is defending (moving backward).
         isDefending = moveDirection.x < 0f;
-
         animator.SetFloat(moveX, moveDirection.x);
         animator.SetFloat(moveY, moveDirection.y);
     }
@@ -165,6 +214,18 @@ public class PlayerController : MonoBehaviour
     public void SimulateFireButtonPress()
     {
         firePressedOverride = true;
+    }
+
+    private void HandleDefenseHold()
+    {
+        // Simulate holding left/defending
+        defenseHoldActive = true;
+    }
+
+    private void HandleDefenseRelease()
+    {
+        // Stop simulating left/defending
+        defenseHoldActive = false;
     }
 
     private void FireProjectile()
@@ -177,17 +238,24 @@ public class PlayerController : MonoBehaviour
         }
         else if (fireAction != null)
         {
-            // Prefer Input System edge-trigger if available.
-            if (fireAction.enabled)
+            // On mobile (with touchscreen), completely ignore the fire action to prevent touch from triggering it.
+            // Only use the UI button (SimulateFireButtonPress) for firing.
+            bool hasTouchscreen = Touchscreen.current != null;
+
+            if (!hasTouchscreen)
             {
-                pressedThisFrame = fireAction.WasPressedThisFrame();
-            }
-            else
-            {
-                // Fallback: edge detect via IsPressed to avoid breaking when the action isn't enabled.
-                bool isPressedNow = fireAction.IsPressed();
-                pressedThisFrame = isPressedNow && !wasFireButtonPressedLastFrame;
-                wasFireButtonPressedLastFrame = isPressedNow;
+                // Desktop/non-touch: allow Input System fire action (keyboard, gamepad, etc.)
+                if (fireAction.enabled)
+                {
+                    pressedThisFrame = fireAction.WasPressedThisFrame();
+                }
+                else
+                {
+                    // Fallback: edge detect via IsPressed to avoid breaking when the action isn't enabled.
+                    bool isPressedNow = fireAction.IsPressed();
+                    pressedThisFrame = isPressedNow && !wasFireButtonPressedLastFrame;
+                    wasFireButtonPressedLastFrame = isPressedNow;
+                }
             }
         }
         else
@@ -203,6 +271,72 @@ public class PlayerController : MonoBehaviour
         }
 
         firePressedOverride = false;
+    }
+
+    private Vector2 ReadSwipeDirection()
+    {
+        if (Touchscreen.current == null)
+        {
+            isMovementTouchActive = false;
+            return Vector2.zero;
+        }
+
+        TouchControl touch = Touchscreen.current.primaryTouch;
+        float screenMidX = Screen.width * 0.5f;
+
+        if (touch.press.wasPressedThisFrame)
+        {
+            Vector2 touchScreenPos = touch.position.ReadValue();
+
+            if (touchScreenPos.x < screenMidX)
+            {
+                if (EventSystem.current != null)
+                {
+                    int touchId = touch.touchId.ReadValue();
+                    if (EventSystem.current.IsPointerOverGameObject(touchId))
+                    {
+                        isMovementTouchActive = false;
+                        return Vector2.zero;
+                    }
+                }
+
+                isMovementTouchActive = true;
+                primaryTouchStartPos = touchScreenPos;
+            }
+            else
+            {
+                isMovementTouchActive = false;
+            }
+        }
+
+        if (touch.press.wasReleasedThisFrame)
+        {
+            isMovementTouchActive = false;
+            return Vector2.zero;
+        }
+
+        if (isMovementTouchActive && touch.press.isPressed)
+        {
+            Vector2 currentPos = touch.position.ReadValue();
+
+            if (currentPos.x >= screenMidX)
+            {
+                isMovementTouchActive = false;
+                return Vector2.zero;
+            }
+
+            Vector2 delta = currentPos - primaryTouchStartPos;
+
+            float maxSwipe = Mathf.Max(1f, swipePixelsForMaxInput); // Prevent divide-by-zero
+            Vector2 normalizedInput = new Vector2(
+                Mathf.Clamp(delta.x / maxSwipe, -1f, 1f),
+                Mathf.Clamp(delta.y / maxSwipe, -1f, 1f)
+            );
+
+            return normalizedInput;
+        }
+
+        return Vector2.zero;
     }
 
     private void FireOnce()
