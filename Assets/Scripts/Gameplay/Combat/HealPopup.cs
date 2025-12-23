@@ -1,41 +1,14 @@
-using TMPro;
 using UnityEngine;
 
-public class HealPopup : MonoBehaviour
+/// <summary>
+/// Displays healing numbers with Text Animator effects.
+/// Uses bounce animation for positive feedback.
+/// </summary>
+public class HealPopup : TextAnimatorPopupBase
 {
-    [SerializeField] private float floatSpeed = 40f;
-    [SerializeField] private float fadeDuration = 1f;
-
-    private TextMeshProUGUI text;
-    private RectTransform rectTransform;
-    private Color startColor;
-    private float lifetime;
-
     public void Setup(int healAmount)
     {
-        if (text == null)
-            text = GetComponent<TextMeshProUGUI>();
-
-        if (rectTransform == null)
-            rectTransform = GetComponent<RectTransform>();
-
-        text.text = $"+{healAmount}";
-        startColor = text.color;
-        lifetime = 0f;
-    }
-
-    private void Update()
-    {
-        lifetime += Time.deltaTime;
-
-        rectTransform.anchoredPosition += new Vector2(0, floatSpeed) * Time.deltaTime;
-
-        float alpha = Mathf.Lerp(1f, 0f, lifetime / fadeDuration);
-        text.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
-
-        if (lifetime >= fadeDuration)
-        {
-            Destroy(gameObject);
-        }
+        // Use bounce effect for healing with + prefix
+        SetupNumeric(healAmount, "+", "bounce");
     }
 }

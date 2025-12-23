@@ -8,6 +8,7 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private int maxDamageAmount = 10;
     [SerializeField] private int scoreValue = 1;
     [SerializeField] private ParticleSystem hitParticles;
+    [SerializeField] private GameObject scorePopupPrefab;
 
     public int DamageAmount => RollDamageAmount();
 
@@ -21,12 +22,23 @@ public class EnemyController : MonoBehaviour
     private ScoreManager scoreManager;
     private float verticalDirection;
     private float directionTimer;
+    private Canvas parentCanvas;
+    private Camera cachedMainCamera;
 
     private void Start()
     {
         NormalizeDamageRange();
         scoreManager = FindFirstObjectByType<ScoreManager>();
         InitializeRandomMovement();
+
+        // Find UI canvas for popups
+        GameObject canvasGO = GameObject.Find("UI");
+        if (canvasGO != null)
+        {
+            parentCanvas = canvasGO.GetComponent<Canvas>();
+        }
+
+        cachedMainCamera = Camera.main;
     }
 
     private void OnValidate()
@@ -144,6 +156,7 @@ public class EnemyController : MonoBehaviour
         {
             scoreManager.ModifyScore(scoreValue);
         }
+        ShowScorePopup(scoreValue, transform.position);
         PlayHitParticles();
         Destroy(gameObject);
     }
@@ -155,6 +168,29 @@ public class EnemyController : MonoBehaviour
             ParticleSystem particles = Instantiate(hitParticles, transform.position, Quaternion.identity);
             float lifetime = particles.main.duration + particles.main.startLifetime.constantMax;
             Destroy(particles.gameObject, lifetime);
+        }
+    }
+
+    private void ShowScorePopup(int score, Vector3 worldPosition)
+    {
+        if (scorePopupPrefab == null || parentCanvas == null || cachedMainCamera == null)
+        {
+            return;
+        }
+
+        Vector2 screenPos = cachedMainCamera.WorldToScreenPoint(worldPosition);
+        GameObject popupGO = Instantiate(scorePopupPrefab, parentCanvas.transform);
+
+        RectTransform rectTransform = popupGO.GetComponent<RectTransform>();
+        if (rectTransform != null)
+        {
+            rectTransform.position = screenPos;
+        }
+
+        ScorePopup popup = popupGO.GetComponent<ScorePopup>();
+        if (popup != null)
+        {
+            popup.Setup(score);
         }
     }
 }

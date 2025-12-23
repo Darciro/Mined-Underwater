@@ -38,6 +38,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float swipePixelsForMaxInput = 80f;
     [SerializeField] private GameObject damagePopupPrefab;
     [SerializeField] private GameObject healPopupPrefab;
+    [SerializeField] private GameObject eggCollectionPopupPrefab;
 
     private Canvas parentCanvas;
     private float nextFireTime;
@@ -362,6 +363,7 @@ public class PlayerController : MonoBehaviour
             {
                 scoreManager.AddEgg();
             }
+            ShowEggCollectionPopup(transform.position + Vector3.up * 0.5f);
             Destroy(other.gameObject);
             return;
         }
@@ -507,6 +509,40 @@ public class PlayerController : MonoBehaviour
         else
         {
             Debug.LogWarning("PlayerController: healPopupPrefab is missing HealPopup component.");
+        }
+    }
+
+    private void ShowEggCollectionPopup(Vector3 worldPosition)
+    {
+        if (eggCollectionPopupPrefab == null || parentCanvas == null)
+        {
+            return;
+        }
+
+        if (cachedMainCamera == null)
+        {
+            cachedMainCamera = Camera.main;
+            if (cachedMainCamera == null)
+            {
+                LogMissingCameraOnce();
+                return;
+            }
+        }
+
+        Vector2 screenPos = cachedMainCamera.WorldToScreenPoint(worldPosition);
+
+        GameObject popupGO = Instantiate(eggCollectionPopupPrefab, parentCanvas.transform);
+
+        RectTransform rectTransform = popupGO.GetComponent<RectTransform>();
+        if (rectTransform != null)
+        {
+            rectTransform.position = screenPos;
+        }
+
+        EggCollectionPopup popup = popupGO.GetComponent<EggCollectionPopup>();
+        if (popup != null)
+        {
+            popup.Setup();
         }
     }
 
