@@ -49,6 +49,7 @@ public class PlayerController : MonoBehaviour
     private LevelManager levelManager;
     private bool isDefending = false;
     private bool isInvincible = false;
+    private bool isDead = false;
     private SpriteRenderer spriteRenderer;
     private bool wasFireButtonPressedLastFrame = false;
     private bool firePressedOverride = false;
@@ -72,6 +73,7 @@ public class PlayerController : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         CacheInputActions();
+        EnableInputActions();
     }
 
     private void OnEnable()
@@ -81,12 +83,29 @@ public class PlayerController : MonoBehaviour
         {
             CacheInputActions();
         }
+
+        // Important: these are retrieved from InputSystem.actions (a global asset).
+        // If they were disabled on death, they stay disabled across scene reloads unless we re-enable them.
+        EnableInputActions();
     }
 
     private void OnDisable()
     {
         firePressedOverride = false;
         wasFireButtonPressedLastFrame = false;
+    }
+
+    private void EnableInputActions()
+    {
+        if (moveAction != null && !moveAction.enabled)
+        {
+            moveAction.Enable();
+        }
+
+        if (fireAction != null && !fireAction.enabled)
+        {
+            fireAction.Enable();
+        }
     }
 
     private void Start()
@@ -175,7 +194,10 @@ public class PlayerController : MonoBehaviour
     // Allows UI buttons to simulate a fire press
     public void SimulateFireButtonPress()
     {
-        firePressedOverride = true;
+        if (!isDead)
+        {
+            firePressedOverride = true;
+        }
     }
 
     private void HandleDefenseHold()
@@ -192,6 +214,9 @@ public class PlayerController : MonoBehaviour
 
     private void FireProjectile()
     {
+        // Don't fire if the player is dead
+        if (isDead) return;
+
         bool pressedThisFrame = false;
 
         if (firePressedOverride)
@@ -487,11 +512,33 @@ public class PlayerController : MonoBehaviour
 
     private void Die()
     {
+        isDead = true;
+        animator.Play("Die");
+
+        // Disable all input actions
+        if (moveAction != null) moveAction.Disable();
+        if (fireAction != null) fireAction.Disable();
+
+        // Clear any queued UI-driven input.
+        firePressedOverride = false;
+        defenseHoldActive = false;
+        moveDirection = Vector2.zero;
+
+        // Disable colliders
+        Collider2D[] colliders = GetComponents<Collider2D>();
+        foreach (Collider2D collider in colliders)
+        {
+            collider.enabled = false;
+        }
+
+        // Disable Rigidbody physics
+        rb.constraints = RigidbodyConstraints2D.FreezeAll;
+        rb.linearVelocity = Vector2.zero;
+
         if (levelManager != null)
         {
             levelManager.LoadGameOver();
         }
-        Destroy(gameObject);
     }
 
     public int GetHealth()

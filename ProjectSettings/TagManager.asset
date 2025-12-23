@@ -7,6 +7,7 @@ TagManager:
   - ParallaxBackground
   - Egg
   - Heart
+  - Mine
   layers:
   - Default
   - TransparentFX
