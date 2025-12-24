@@ -31,6 +31,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float projectileLifetime = 1f;
     [SerializeField] private float fireRate = 0.75f;
     [SerializeField] private UIButtonHold defenseButtonHold;
+    [SerializeField] protected ParticleSystem deathParticles;
 
 
     [Header("Mobile Input")]
@@ -72,6 +73,11 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if (deathParticles != null)
+        {
+            deathParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
 
         CacheInputActions();
         EnableInputActions();
@@ -563,6 +569,15 @@ public class PlayerController : MonoBehaviour
 
     private void Die()
     {
+        // Play particles
+        if (deathParticles != null)
+        {
+            ParticleSystem particleInstance = Instantiate(deathParticles, transform.position, transform.rotation);
+            particleInstance.transform.parent = null;
+            particleInstance.Play();
+            Destroy(particleInstance.gameObject, particleInstance.main.duration);
+        }
+
         isDead = true;
         animator.Play("Die");
 
