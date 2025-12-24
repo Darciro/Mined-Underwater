@@ -115,6 +115,7 @@ GameObject:
   - component: {fileID: 4344227986561132926}
   - component: {fileID: 2355660871737179335}
   - component: {fileID: 3412871385504267242}
+  - component: {fileID: 3127197224878124426}
   m_Layer: 0
   m_Name: Egg
   m_TagString: Egg
@@ -272,6 +273,23 @@ ConstantForce2D:
   m_Force: {x: 0, y: 0}
   m_RelativeForce: {x: -1, y: 0}
   m_Torque: 0
+--- !u!114 &3127197224878124426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3289658432319805963}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f20629b69106c9447b477400e1c69a79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeartPickup
+  pickupParticles: {fileID: 19882686, guid: 491da4be801efb948b57d5aa03918aa6, type: 3}
+  pickupSFX: {fileID: 0}
+  spriteRenderer: {fileID: 4242004743405554547, guid: c4c7a9960ba7c594a9fa996925163675, type: 3}
+  triggerCollider: {fileID: 7273580071213596829, guid: c4c7a9960ba7c594a9fa996925163675, type: 3}
+  healAmount: 3
 --- !u!1 &4306151032317638150
 GameObject:
   m_ObjectHideFlags: 0

@@ -8,6 +8,9 @@ TagManager:
   - Egg
   - Heart
   - Mine
+  - Missile
+  - Target
+  - Enemy
   layers:
   - Default
   - TransparentFX

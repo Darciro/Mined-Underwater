@@ -85,7 +85,7 @@ public class UIManager : MonoBehaviour
 
     #endregion
 
-    #region Health
+    #region Health UI
 
     private void UpdatePlayerHealth()
     {
@@ -107,7 +107,7 @@ public class UIManager : MonoBehaviour
 
     #endregion
 
-    #region Score & Eggs (Text Animator compliant)
+    #region Score UI
 
     private void RefreshScore(bool force)
     {
@@ -142,6 +142,10 @@ public class UIManager : MonoBehaviour
         if (scoreTextAnimator != null)
             scoreTextAnimator.SetText(score.ToString());
     }
+
+    #endregion
+
+    #region Eggs UI
 
     private void RefreshEggs(bool force)
     {

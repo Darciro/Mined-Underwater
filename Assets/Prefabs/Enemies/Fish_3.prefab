@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -8404096101040725608}
   m_Layer: 0
   m_Name: Fish_3
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -198,6 +198,7 @@ MonoBehaviour:
   maxDamageAmount: 7
   scoreValue: 2
   hitParticles: {fileID: 8713912631512916485, guid: 55690877c568c7b41b85da6d2f1eb09f, type: 3}
+  scorePopupPrefab: {fileID: 0}
   moveSpeed: 7
   verticalSpeed: 1
   minY: -4

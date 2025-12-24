@@ -473,6 +473,21 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void Heal(int amount)
+    {
+        if (amount <= 0) return;
+
+        int healed = Mathf.Min(amount, maxHealth - currentHealth);
+        if (healed <= 0) return;
+
+        currentHealth += healed;
+
+        ShowHealPopup(
+            healed,
+            transform.position + Vector3.up * 0.5f
+        );
+    }
+
     private void ShowHealPopup(int healAmount, Vector3 worldPosition)
     {
         if (healPopupPrefab == null || parentCanvas == null)

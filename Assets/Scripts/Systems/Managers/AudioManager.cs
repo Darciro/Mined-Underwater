@@ -38,6 +38,11 @@ public class AudioManager : MonoBehaviour
         PlayAudioClip(damageClip, damageVolume);
     }
 
+    public void PlaySFX(AudioClip clip, float volume = 1f)
+    {
+        PlayAudioClip(clip, volume);
+    }
+
     private void PlayAudioClip(AudioClip clip, float volume)
     {
         if (clip != null)
