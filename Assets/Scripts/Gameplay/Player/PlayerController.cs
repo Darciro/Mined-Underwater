@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -9,17 +10,19 @@ using UnityEngine.InputSystem.Controls;
 [RequireComponent(typeof(SpriteRenderer))]
 public class PlayerController : MonoBehaviour
 {
+    #region Serialized Fields
+
     [Header("Stats")]
     [SerializeField] private int maxHealth = 50;
     [SerializeField] private int currentHealth;
     [SerializeField] private float speed = 5f;
 
     [Header("Defense")]
-    [SerializeField] private float damageReductionPercentage = 50f; // Percentage of damage reduction when defending
+    [SerializeField] private float damageReductionPercentage = 50f;
 
     [Header("Invincibility")]
-    [SerializeField] private float invincibilityDuration = 0.5f; // Duration of invincibility frames in seconds
-    [SerializeField] private float flashInterval = 0.1f; // How often the player flashes (in seconds)
+    [SerializeField] private float invincibilityDuration = 0.5f;
+    [SerializeField] private float flashInterval = 0.1f;
 
     [Header("Movement Boundaries")]
     [SerializeField] private float minY = -4f;
@@ -33,40 +36,98 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private UIButtonHold defenseButtonHold;
     [SerializeField] protected ParticleSystem deathParticles;
 
-
     [Header("Mobile Input")]
-    [Tooltip("Swipe sensitivity. This is the number of screen pixels you need to swipe in one frame to reach full input (1.0).\nLower value = more responsive (less swipe needed). Higher value = less responsive.\nExample: 50 = very sensitive, 80 = default, 150+ = subtle.")]
+    [SerializeField] private float movementScreenRatio = 0.5f;       // left % of screen used for movement
+    [Tooltip("Simple Movement: pixels per frame to reach full input (1.0). Lower = more sensitive.")]
     [SerializeField] private float swipePixelsForMaxInput = 80f;
+
+    [Header("Advanced Touch Movement")]
+    [Tooltip("World distance needed between player Y and finger Y to reach full input (1.0). Higher = slower response.")]
+    [SerializeField] private float fingerFollowDistanceWorld = 1.5f;
+    [Tooltip("Deadzone in world units to ignore small finger jitter.")]
+    [SerializeField] private float fingerDeadZoneWorld = 0.05f;
+    [Tooltip("Smoothing for advanced touch movement. 0 = no smoothing.")]
+    [SerializeField] private float fingerInputSmoothing = 18f;
+
+    [Header("UI Popups")]
     [SerializeField] private GameObject damagePopupPrefab;
     [SerializeField] private GameObject healPopupPrefab;
     [SerializeField] private GameObject eggCollectionPopupPrefab;
 
-    private Canvas parentCanvas;
-    private float nextFireTime;
-    private InputAction moveAction;
-    private InputAction fireAction;
-    private Vector2 moveDirection;
+    #endregion
+
+    #region Constants
+
+    private const string ANIMATION_BITE = "Bite";
+    private const string ANIMATION_DIE = "Die";
+    private const float DEFENDING_SPEED_MULTIPLIER = 0.25f;
+
+    #endregion
+
+    #region Cached Components
+
     private Rigidbody2D rb;
     private Animator animator;
+    private SpriteRenderer spriteRenderer;
+    private Camera cachedMainCamera;
+    private Canvas parentCanvas;
     private LevelManager levelManager;
+
+    #endregion
+
+    #region Input State
+
+    private InputAction moveAction;
+    private InputAction fireAction;
+
+    private Vector2 moveDirection;
+
+    private bool wasFireButtonPressedLastFrame = false;
+    private bool fireButtonPressedFromUI = false;
+    private bool defenseButtonHeldFromUI = false;
+    private bool hasTouchscreen = false;
+
+    // Simple movement (frame-delta / virtual joystick style) uses primary touch:
+    private bool isSimpleTouchActive = false;
+    private Vector2 lastSimpleTouchPosition;
+
+    // Advanced movement uses multitouch + claimed movement finger:
+    private int movementTouchId = -1;     // finger assigned to movement
+    private Vector2 smoothedTouchInput;   // smoothing accumulator
+
+    // Options
+    private bool useSimpleMovement = true;
+
+    #endregion
+
+    #region Player State
+
     private bool isDefending = false;
     private bool isInvincible = false;
     private bool isDead = false;
-    private SpriteRenderer spriteRenderer;
-    private bool wasFireButtonPressedLastFrame = false;
-    private bool firePressedOverride = false;
-    private bool defenseHoldActive = false;
-
+    private float nextFireTime;
     private Coroutine invincibilityCoroutine;
-    private Camera cachedMainCamera;
-    private bool hasLoggedMissingInputActions;
-    private bool hasLoggedMissingCamera;
 
-    private Vector2 primaryTouchStartPos;
-    private bool isMovementTouchActive;
+    #endregion
+
+    #region Animator Hashes
+
+    [SerializeField] private float animationDeadZone = 0.15f;
+    [SerializeField] private float animationSnapValue = 1f;
 
     private readonly int moveX = Animator.StringToHash("MoveX");
     private readonly int moveY = Animator.StringToHash("MoveY");
+
+    #endregion
+
+    #region Debug Flags
+
+    private bool hasLoggedMissingInputActions;
+    private bool hasLoggedMissingCamera;
+
+    #endregion
+
+    #region Unity Lifecycle
 
     private void Awake()
     {
@@ -79,27 +140,443 @@ public class PlayerController : MonoBehaviour
             deathParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
 
+        hasTouchscreen = Touchscreen.current != null;
+
         CacheInputActions();
         EnableInputActions();
     }
 
     private void OnEnable()
     {
-        // In case the InputSystem isn't ready in Awake (domain reload / scene load order), try again.
         if (moveAction == null || fireAction == null)
         {
             CacheInputActions();
         }
 
-        // Important: these are retrieved from InputSystem.actions (a global asset).
-        // If they were disabled on death, they stay disabled across scene reloads unless we re-enable them.
         EnableInputActions();
     }
 
     private void OnDisable()
     {
-        firePressedOverride = false;
+        fireButtonPressedFromUI = false;
         wasFireButtonPressedLastFrame = false;
+    }
+
+    private void Start()
+    {
+        if (defenseButtonHold != null)
+        {
+            defenseButtonHold.onHoldDown += HandleDefenseButtonPressed;
+            defenseButtonHold.onHoldRelease += HandleDefenseButtonReleased;
+        }
+
+        levelManager = FindFirstObjectByType<LevelManager>();
+        currentHealth = maxHealth;
+        cachedMainCamera = Camera.main;
+        CacheCanvasReference();
+
+        // Options-driven movement mode
+        if (OptionsManager.Instance != null)
+        {
+            useSimpleMovement = OptionsManager.Instance.GetSimpleMovement();
+            OptionsManager.Instance.OnSimpleMovementChanged += HandleSimpleMovementChanged;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (OptionsManager.Instance != null)
+        {
+            OptionsManager.Instance.OnSimpleMovementChanged -= HandleSimpleMovementChanged;
+        }
+
+        if (defenseButtonHold != null)
+        {
+            defenseButtonHold.onHoldDown -= HandleDefenseButtonPressed;
+            defenseButtonHold.onHoldRelease -= HandleDefenseButtonReleased;
+        }
+    }
+
+    private void Update()
+    {
+        UpdateMovementInput();
+        HandleFiring();
+    }
+
+    private void FixedUpdate()
+    {
+        ApplyMovement();
+    }
+
+    #endregion
+
+    #region Options
+
+    private void HandleSimpleMovementChanged(bool value)
+    {
+        useSimpleMovement = value;
+
+        // Reset touch state when switching modes
+        isSimpleTouchActive = false;
+        lastSimpleTouchPosition = default;
+
+        movementTouchId = -1;
+        smoothedTouchInput = Vector2.zero;
+    }
+
+    #endregion
+
+    #region Movement
+
+    private void ApplyMovement()
+    {
+        float currentSpeed = CalculateCurrentSpeed();
+        Vector2 newPosition = CalculateNewPosition(currentSpeed);
+        rb.MovePosition(newPosition);
+    }
+
+    private float CalculateCurrentSpeed()
+    {
+        if (isDefending)
+        {
+            return speed * DEFENDING_SPEED_MULTIPLIER;
+        }
+
+        return speed;
+    }
+
+    private Vector2 CalculateNewPosition(float currentSpeed)
+    {
+        Vector2 newPosition = rb.position;
+        newPosition.x += currentSpeed * Time.fixedDeltaTime;
+        newPosition.y += moveDirection.y * currentSpeed * Time.fixedDeltaTime;
+        newPosition.y = Mathf.Clamp(newPosition.y, minY, maxY);
+        return newPosition;
+    }
+
+    #endregion
+
+    #region Input Handling
+
+    private void UpdateMovementInput()
+    {
+        Vector2 inputSystemDirection = ReadInputSystemDirection();
+
+        Vector2 touchDirection = useSimpleMovement
+            ? ReadSimpleSwipeDirection()
+            : ReadAdvancedTouchDirection();
+
+        UpdateDefendingState(inputSystemDirection);
+        UpdateMoveDirection(inputSystemDirection, touchDirection);
+        UpdateAnimatorParameters();
+    }
+
+    private Vector2 ReadInputSystemDirection()
+    {
+        if (moveAction != null)
+        {
+            return moveAction.ReadValue<Vector2>();
+        }
+
+        LogMissingInputActionsOnce();
+        return Vector2.zero;
+    }
+
+    private void UpdateDefendingState(Vector2 inputSystemDirection)
+    {
+        bool isLeftInputActive = inputSystemDirection.x < -0.1f;
+        isDefending = isLeftInputActive || defenseButtonHeldFromUI;
+    }
+
+    private void UpdateMoveDirection(Vector2 inputSystemDirection, Vector2 touchDirection)
+    {
+        float verticalInput = inputSystemDirection.y + touchDirection.y;
+        float clampedVertical = Mathf.Clamp(verticalInput, -1f, 1f);
+        moveDirection = new Vector2(1f, clampedVertical);
+    }
+
+    private void UpdateAnimatorParameters()
+    {
+        float horizontalAnimation = isDefending ? -1f : 1f;
+        animator.SetFloat(moveX, horizontalAnimation);
+
+        float y = moveDirection.y;
+
+        // Quantize Y for animation only
+        if (y > animationDeadZone)
+            y = animationSnapValue;
+        else if (y < -animationDeadZone)
+            y = -animationSnapValue;
+        else
+            y = 0f;
+
+        animator.SetFloat(moveY, y);
+    }
+
+    public void SimulateFireButtonPress()
+    {
+        if (!isDead)
+        {
+            fireButtonPressedFromUI = true;
+        }
+    }
+
+    private void HandleDefenseButtonPressed()
+    {
+        defenseButtonHeldFromUI = true;
+    }
+
+    private void HandleDefenseButtonReleased()
+    {
+        defenseButtonHeldFromUI = false;
+    }
+
+    private void HandleFiring()
+    {
+        if (isDead)
+        {
+            return;
+        }
+
+        bool fireButtonPressed = CheckFireButtonPressed();
+        bool canFire = fireButtonPressed && !isDefending && Time.time >= nextFireTime;
+
+        if (canFire)
+        {
+            FireProjectile();
+            nextFireTime = Time.time + fireRate;
+        }
+
+        fireButtonPressedFromUI = false;
+    }
+
+    private bool CheckFireButtonPressed()
+    {
+        if (fireButtonPressedFromUI)
+        {
+            return true;
+        }
+
+        // On touchscreen, firing is expected from UI (your current design)
+        if (hasTouchscreen)
+        {
+            return false;
+        }
+
+        return CheckInputSystemFireButton();
+    }
+
+    private bool CheckInputSystemFireButton()
+    {
+        if (fireAction == null)
+        {
+            LogMissingInputActionsOnce();
+            return false;
+        }
+
+        if (fireAction.enabled)
+        {
+            return fireAction.WasPressedThisFrame();
+        }
+
+        bool isPressedNow = fireAction.IsPressed();
+        bool pressedThisFrame = isPressedNow && !wasFireButtonPressedLastFrame;
+        wasFireButtonPressedLastFrame = isPressedNow;
+        return pressedThisFrame;
+    }
+
+    private bool IsScreenPositionOverUI(Vector2 screenPos)
+    {
+        if (EventSystem.current == null)
+            return false;
+
+        PointerEventData data = new PointerEventData(EventSystem.current)
+        {
+            position = screenPos
+        };
+
+        var results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(data, results);
+        return results.Count > 0;
+    }
+
+    private bool IsTouchInMovementZone(Vector2 screenPos)
+    {
+        return screenPos.x < Screen.width * Mathf.Clamp01(movementScreenRatio);
+    }
+
+    /// <summary>
+    /// Simple Movement: frame-delta swipe from primary touch (virtual joystick feel).
+    /// </summary>
+    private Vector2 ReadSimpleSwipeDirection()
+    {
+        if (!hasTouchscreen || Touchscreen.current == null)
+        {
+            isSimpleTouchActive = false;
+            return Vector2.zero;
+        }
+
+        TouchControl touch = Touchscreen.current.primaryTouch;
+
+        if (touch.press.wasPressedThisFrame)
+        {
+            Vector2 pos = touch.position.ReadValue();
+
+            if (!IsTouchInMovementZone(pos))
+            {
+                isSimpleTouchActive = false;
+                return Vector2.zero;
+            }
+
+            if (IsScreenPositionOverUI(pos))
+            {
+                isSimpleTouchActive = false;
+                return Vector2.zero;
+            }
+
+            isSimpleTouchActive = true;
+            lastSimpleTouchPosition = pos;
+        }
+
+        if (touch.press.wasReleasedThisFrame)
+        {
+            isSimpleTouchActive = false;
+            return Vector2.zero;
+        }
+
+        if (!isSimpleTouchActive || !touch.press.isPressed)
+            return Vector2.zero;
+
+        Vector2 currentPos = touch.position.ReadValue();
+        Vector2 delta = currentPos - lastSimpleTouchPosition;
+        lastSimpleTouchPosition = currentPos;
+
+        float maxSwipe = Mathf.Max(1f, swipePixelsForMaxInput);
+        Vector2 normalized = delta / maxSwipe;
+        return Vector2.ClampMagnitude(normalized, 1f);
+    }
+
+    /// <summary>
+    /// Advanced Movement: multitouch + "finger-follow" (steer toward finger Y).
+    /// Claims a movement finger by touchId so UI touches don't steal movement.
+    /// </summary>
+    private Vector2 ReadAdvancedTouchDirection()
+    {
+        if (!hasTouchscreen || Touchscreen.current == null)
+        {
+            movementTouchId = -1;
+            smoothedTouchInput = Vector2.zero;
+            return Vector2.zero;
+        }
+
+        var touches = Touchscreen.current.touches;
+
+        // Claim a movement finger if none is active
+        if (movementTouchId == -1)
+        {
+            for (int i = 0; i < touches.Count; i++)
+            {
+                TouchControl t = touches[i];
+                if (!t.press.wasPressedThisFrame)
+                    continue;
+
+                Vector2 pos = t.position.ReadValue();
+
+                if (!IsTouchInMovementZone(pos))
+                    continue;
+
+                if (IsScreenPositionOverUI(pos))
+                    continue;
+
+                movementTouchId = t.touchId.ReadValue();
+                break;
+            }
+        }
+
+        if (movementTouchId == -1)
+        {
+            smoothedTouchInput = Vector2.zero;
+            return Vector2.zero;
+        }
+
+        // Find the touch we claimed
+        TouchControl moveTouch = null;
+        for (int i = 0; i < touches.Count; i++)
+        {
+            TouchControl t = touches[i];
+            if (t.touchId.ReadValue() == movementTouchId)
+            {
+                moveTouch = t;
+                break;
+            }
+        }
+
+        if (moveTouch == null)
+        {
+            movementTouchId = -1;
+            smoothedTouchInput = Vector2.zero;
+            return Vector2.zero;
+        }
+
+        if (moveTouch.press.wasReleasedThisFrame || !moveTouch.press.isPressed)
+        {
+            movementTouchId = -1;
+            smoothedTouchInput = Vector2.zero;
+            return Vector2.zero;
+        }
+
+        if (!EnsureCameraIsValid())
+        {
+            return Vector2.zero;
+        }
+
+        Vector2 fingerScreen = moveTouch.position.ReadValue();
+
+        // Convert finger to world at the player's Z plane
+        float zDepth = Mathf.Abs(cachedMainCamera.transform.position.z - transform.position.z);
+        Vector3 fingerWorld = cachedMainCamera.ScreenToWorldPoint(new Vector3(
+            fingerScreen.x,
+            fingerScreen.y,
+            zDepth
+        ));
+
+        float dy = fingerWorld.y - rb.position.y;
+
+        if (Mathf.Abs(dy) < fingerDeadZoneWorld)
+            dy = 0f;
+
+        float denom = Mathf.Max(0.001f, fingerFollowDistanceWorld);
+        float targetYInput = Mathf.Clamp(dy / denom, -1f, 1f);
+
+        Vector2 raw = new Vector2(0f, targetYInput);
+
+        if (fingerInputSmoothing > 0f)
+        {
+            float t = 1f - Mathf.Exp(-fingerInputSmoothing * Time.deltaTime);
+            smoothedTouchInput = Vector2.Lerp(smoothedTouchInput, raw, t);
+            return smoothedTouchInput;
+        }
+
+        return raw;
+    }
+
+    private void CacheInputActions()
+    {
+        if (InputSystem.actions == null)
+        {
+            moveAction = null;
+            fireAction = null;
+            LogMissingInputActionsOnce();
+            return;
+        }
+
+        moveAction = InputSystem.actions.FindAction("Move");
+        fireAction = InputSystem.actions.FindAction("Attack");
+
+        if (moveAction == null || fireAction == null)
+        {
+            LogMissingInputActionsOnce();
+        }
     }
 
     private void EnableInputActions()
@@ -115,225 +592,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        defenseButtonHold.onHoldDown += HandleDefenseHold;
-        defenseButtonHold.onHoldRelease += HandleDefenseRelease;
+    #endregion
 
-        levelManager = FindFirstObjectByType<LevelManager>();
-        currentHealth = maxHealth;
-
-        cachedMainCamera = Camera.main;
-
-        GameObject canvasGO = GameObject.Find("UI");
-        if (canvasGO == null)
-        {
-            Debug.LogWarning("PlayerController: Could not find Canvas with name 'UI' in scene!");
-            // Keep running; damage popups will simply be skipped.
-        }
-
-        if (canvasGO != null)
-        {
-            parentCanvas = canvasGO.GetComponent<Canvas>();
-            if (parentCanvas == null)
-            {
-                Debug.LogWarning("PlayerController: Found 'UI' GameObject but it has no Canvas component!");
-            }
-        }
-    }
-
-    private void Update()
-    {
-        ReadInput();
-        FireProjectile();
-    }
-
-    private void FixedUpdate()
-    {
-        Move();
-    }
-
-    private void Move()
-    {
-        float currentSpeed = speed;
-
-        // Reduce speed to a quarter when defending
-        if (isDefending)
-        {
-            currentSpeed *= 0.25f;
-        }
-
-        // Endless runner mode: constant forward movement on X, while allowing vertical movement
-        Vector2 newPosition = rb.position;
-        newPosition.x += currentSpeed * Time.fixedDeltaTime;
-        newPosition.y += moveDirection.y * (currentSpeed * Time.fixedDeltaTime);
-
-        // Clamp the Y position within the boundaries
-        newPosition.y = Mathf.Clamp(newPosition.y, minY, maxY);
-
-        rb.MovePosition(newPosition);
-    }
-
-    private void ReadInput()
-    {
-        Vector2 inputSystemDir = Vector2.zero;
-        if (moveAction != null)
-        {
-            inputSystemDir = moveAction.ReadValue<Vector2>();
-        }
-        else
-        {
-            LogMissingInputActionsOnce();
-        }
-
-        Vector2 swipeDir = ReadSwipeDirection();
-
-        // Endless runner mode: always move forward on X
-        bool defendingInput = inputSystemDir.x < -0.1f || defenseHoldActive;
-        isDefending = defendingInput;
-        float vertical = inputSystemDir.y + swipeDir.y;
-        moveDirection = new Vector2(1f, Mathf.Clamp(vertical, -1f, 1f));
-
-        animator.SetFloat(moveX, isDefending ? -1f : 1f);
-        animator.SetFloat(moveY, moveDirection.y);
-    }
-
-    // Allows UI buttons to simulate a fire press
-    public void SimulateFireButtonPress()
-    {
-        if (!isDead)
-        {
-            firePressedOverride = true;
-        }
-    }
-
-    private void HandleDefenseHold()
-    {
-        // Simulate holding left/defending
-        defenseHoldActive = true;
-    }
-
-    private void HandleDefenseRelease()
-    {
-        // Stop simulating left/defending
-        defenseHoldActive = false;
-    }
+    #region Combat
 
     private void FireProjectile()
-    {
-        // Don't fire if the player is dead
-        if (isDead) return;
-
-        bool pressedThisFrame = false;
-
-        if (firePressedOverride)
-        {
-            pressedThisFrame = true;
-        }
-        else if (fireAction != null)
-        {
-            // On mobile (with touchscreen), completely ignore the fire action to prevent touch from triggering it.
-            // Only use the UI button (SimulateFireButtonPress) for firing.
-            bool hasTouchscreen = Touchscreen.current != null;
-
-            if (!hasTouchscreen)
-            {
-                // Desktop/non-touch: allow Input System fire action (keyboard, gamepad, etc.)
-                if (fireAction.enabled)
-                {
-                    pressedThisFrame = fireAction.WasPressedThisFrame();
-                }
-                else
-                {
-                    // Fallback: edge detect via IsPressed to avoid breaking when the action isn't enabled.
-                    bool isPressedNow = fireAction.IsPressed();
-                    pressedThisFrame = isPressedNow && !wasFireButtonPressedLastFrame;
-                    wasFireButtonPressedLastFrame = isPressedNow;
-                }
-            }
-        }
-        else
-        {
-            LogMissingInputActionsOnce();
-        }
-
-        bool wantsToFire = pressedThisFrame && !isDefending;
-        if (wantsToFire && Time.time >= nextFireTime)
-        {
-            FireOnce();
-            nextFireTime = Time.time + fireRate;
-        }
-
-        firePressedOverride = false;
-    }
-
-    private Vector2 ReadSwipeDirection()
-    {
-        if (Touchscreen.current == null)
-        {
-            isMovementTouchActive = false;
-            return Vector2.zero;
-        }
-
-        TouchControl touch = Touchscreen.current.primaryTouch;
-        float screenMidX = Screen.width * 0.5f;
-
-        if (touch.press.wasPressedThisFrame)
-        {
-            Vector2 touchScreenPos = touch.position.ReadValue();
-
-            if (touchScreenPos.x < screenMidX)
-            {
-                if (EventSystem.current != null)
-                {
-                    int touchId = touch.touchId.ReadValue();
-                    if (EventSystem.current.IsPointerOverGameObject(touchId))
-                    {
-                        isMovementTouchActive = false;
-                        return Vector2.zero;
-                    }
-                }
-
-                isMovementTouchActive = true;
-                primaryTouchStartPos = touchScreenPos;
-            }
-            else
-            {
-                isMovementTouchActive = false;
-            }
-        }
-
-        if (touch.press.wasReleasedThisFrame)
-        {
-            isMovementTouchActive = false;
-            return Vector2.zero;
-        }
-
-        if (isMovementTouchActive && touch.press.isPressed)
-        {
-            Vector2 currentPos = touch.position.ReadValue();
-
-            if (currentPos.x >= screenMidX)
-            {
-                isMovementTouchActive = false;
-                return Vector2.zero;
-            }
-
-            Vector2 delta = currentPos - primaryTouchStartPos;
-
-            float maxSwipe = Mathf.Max(1f, swipePixelsForMaxInput); // Prevent divide-by-zero
-            Vector2 normalizedInput = new Vector2(
-                Mathf.Clamp(delta.x / maxSwipe, -1f, 1f),
-                Mathf.Clamp(delta.y / maxSwipe, -1f, 1f)
-            );
-
-            return normalizedInput;
-        }
-
-        return Vector2.zero;
-    }
-
-    private void FireOnce()
     {
         if (projectilePrefab == null)
         {
@@ -341,9 +604,20 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        animator.Play("Bite");
+        PlayAttackAnimation();
+        SpawnProjectile();
+        PlayShootingSound();
+    }
 
-        GameObject projectile = Instantiate(projectilePrefab, transform.position + Vector3.right * 1.5f, Quaternion.identity);
+    private void PlayAttackAnimation()
+    {
+        animator.Play(ANIMATION_BITE);
+    }
+
+    private void SpawnProjectile()
+    {
+        Vector3 spawnPosition = transform.position + Vector3.right * 1.5f;
+        GameObject projectile = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
 
         Rigidbody2D projectileRB = projectile.GetComponent<Rigidbody2D>();
         if (projectileRB != null)
@@ -352,46 +626,87 @@ public class PlayerController : MonoBehaviour
         }
 
         Destroy(projectile, projectileLifetime);
+    }
 
+    private void PlayShootingSound()
+    {
         if (AudioManager.instance != null)
         {
             AudioManager.instance.PlayShootingSFX();
         }
     }
 
+    #endregion
+
+    #region Collision Handling
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Check for egg pickup
         if (other.CompareTag("Egg"))
         {
-            ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
-            if (scoreManager != null)
-            {
-                scoreManager.AddEgg();
-            }
-            ShowEggCollectionPopup(transform.position + Vector3.up * 0.5f);
-            Destroy(other.gameObject);
+            HandleEggPickup(other.gameObject);
             return;
         }
 
-        // Check for heart pickup
         if (other.CompareTag("Heart"))
         {
-            int healAmount = Mathf.Min(3, maxHealth - currentHealth);
-            if (healAmount > 0)
-            {
-                currentHealth += healAmount;
-                ShowHealPopup(healAmount, transform.position + Vector3.up * 0.5f);
-            }
-            Destroy(other.gameObject);
+            HandleHeartPickup(other.gameObject);
             return;
         }
 
-        // Skip damage during invincibility frames.
-        if (isInvincible) return;
+        if (isInvincible)
+        {
+            return;
+        }
 
+        HandleEnemyCollision(other);
+    }
+
+    private void HandleEggPickup(GameObject egg)
+    {
+        ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
+        if (scoreManager != null)
+        {
+            scoreManager.AddEgg();
+        }
+
+        Vector3 popupPosition = transform.position + Vector3.up * 0.5f;
+        ShowPopup(eggCollectionPopupPrefab, popupPosition, popup =>
+        {
+            EggCollectionPopup eggPopup = popup.GetComponent<EggCollectionPopup>();
+            if (eggPopup != null)
+            {
+                eggPopup.Setup();
+            }
+        });
+
+        Destroy(egg);
+    }
+
+    private void HandleHeartPickup(GameObject heart)
+    {
+        int healAmount = Mathf.Min(3, maxHealth - currentHealth);
+        if (healAmount > 0)
+        {
+            currentHealth += healAmount;
+
+            Vector3 popupPosition = transform.position + Vector3.up * 0.5f;
+            ShowPopup(healPopupPrefab, popupPosition, popup =>
+            {
+                HealPopup healPopup = popup.GetComponent<HealPopup>();
+                if (healPopup != null)
+                {
+                    healPopup.Setup(healAmount);
+                }
+            });
+        }
+
+        Destroy(heart);
+    }
+
+    private void HandleEnemyCollision(Collider2D other)
+    {
         EnemyController enemy = other.GetComponent<EnemyController>();
-
         if (enemy != null)
         {
             TakeDamage(enemy.DamageAmount);
@@ -403,35 +718,21 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Health System
+
     public void TakeDamage(int damage)
     {
-        // Keep invincibility logic centralized so all damage sources respect it.
-        if (isInvincible) return;
-
-        // Apply damage reduction if defending
-        int finalDamage = damage;
-        if (isDefending)
+        if (isInvincible)
         {
-            float reduction01 = Mathf.Clamp01(damageReductionPercentage / 100f);
-            finalDamage = Mathf.RoundToInt(damage * (1f - reduction01));
+            return;
         }
 
-        currentHealth -= finalDamage;
-        ShowDamagePopup(finalDamage, transform.position + Vector3.up * 0.5f);
-
-        // Start invincibility frames
-        if (invincibilityCoroutine != null)
-        {
-            StopCoroutine(invincibilityCoroutine);
-            invincibilityCoroutine = null;
-        }
-        invincibilityCoroutine = StartCoroutine(InvincibilityFrames());
-
-        // Camera shake manager might not exist in all scenes.
-        if (CameraShakeManager.Instance != null)
-        {
-            CameraShakeManager.Instance.ShakeHeavy();
-        }
+        int finalDamage = CalculateFinalDamage(damage);
+        ApplyDamage(finalDamage);
+        StartInvincibilityFrames();
+        TriggerCameraShake();
 
         if (currentHealth <= 0)
         {
@@ -439,168 +740,139 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ShowDamagePopup(int damageAmount, Vector3 worldPosition)
+    private int CalculateFinalDamage(int damage)
     {
-        if (damagePopupPrefab == null || parentCanvas == null)
+        if (!isDefending)
         {
-            Debug.LogWarning("PlayerController: damagePopupPrefab or parentCanvas not assigned!");
-            return;
+            return damage;
         }
 
-        // Convert world position to canvas position
-        if (cachedMainCamera == null)
+        float reductionFactor = Mathf.Clamp01(damageReductionPercentage / 100f);
+        return Mathf.RoundToInt(damage * (1f - reductionFactor));
+    }
+
+    private void ApplyDamage(int damage)
+    {
+        currentHealth -= damage;
+
+        Vector3 popupPosition = transform.position + Vector3.up * 0.5f;
+        ShowPopup(damagePopupPrefab, popupPosition, popup =>
         {
-            cachedMainCamera = Camera.main;
-            if (cachedMainCamera == null)
+            DamagePopup damagePopup = popup.GetComponent<DamagePopup>();
+            if (damagePopup != null)
             {
-                LogMissingCameraOnce();
-                return;
+                damagePopup.Setup(damage);
             }
+        });
+    }
+
+    private void StartInvincibilityFrames()
+    {
+        if (invincibilityCoroutine != null)
+        {
+            StopCoroutine(invincibilityCoroutine);
         }
 
-        Vector2 screenPos = cachedMainCamera.WorldToScreenPoint(worldPosition);
+        invincibilityCoroutine = StartCoroutine(InvincibilityFrames());
+    }
 
-        GameObject popupGO = Instantiate(damagePopupPrefab, parentCanvas.transform);
-
-        RectTransform rectTransform = popupGO.GetComponent<RectTransform>();
-        if (rectTransform != null)
+    private void TriggerCameraShake()
+    {
+        if (CameraShakeManager.Instance != null)
         {
-            rectTransform.position = screenPos;
-        }
-
-        DamagePopup popup = popupGO.GetComponent<DamagePopup>();
-        if (popup != null)
-        {
-            popup.Setup(damageAmount);
-        }
-        else
-        {
-            Debug.LogWarning("PlayerController: damagePopupPrefab is missing DamagePopup component.");
+            CameraShakeManager.Instance.ShakeHeavy();
         }
     }
 
     public void Heal(int amount)
     {
-        if (amount <= 0) return;
-
-        int healed = Mathf.Min(amount, maxHealth - currentHealth);
-        if (healed <= 0) return;
-
-        currentHealth += healed;
-
-        ShowHealPopup(
-            healed,
-            transform.position + Vector3.up * 0.5f
-        );
-    }
-
-    private void ShowHealPopup(int healAmount, Vector3 worldPosition)
-    {
-        if (healPopupPrefab == null || parentCanvas == null)
-        {
-            // Keep quiet if not configured; healing still works.
-            return;
-        }
-
-        if (cachedMainCamera == null)
-        {
-            cachedMainCamera = Camera.main;
-            if (cachedMainCamera == null)
-            {
-                LogMissingCameraOnce();
-                return;
-            }
-        }
-
-        Vector2 screenPos = cachedMainCamera.WorldToScreenPoint(worldPosition);
-
-        GameObject popupGO = Instantiate(healPopupPrefab, parentCanvas.transform);
-
-        RectTransform rectTransform = popupGO.GetComponent<RectTransform>();
-        if (rectTransform != null)
-        {
-            rectTransform.position = screenPos;
-        }
-
-        HealPopup popup = popupGO.GetComponent<HealPopup>();
-        if (popup != null)
-        {
-            popup.Setup(healAmount);
-        }
-        else
-        {
-            Debug.LogWarning("PlayerController: healPopupPrefab is missing HealPopup component.");
-        }
-    }
-
-    private void ShowEggCollectionPopup(Vector3 worldPosition)
-    {
-        if (eggCollectionPopupPrefab == null || parentCanvas == null)
+        if (amount <= 0)
         {
             return;
         }
 
-        if (cachedMainCamera == null)
+        int healAmount = Mathf.Min(amount, maxHealth - currentHealth);
+        if (healAmount <= 0)
         {
-            cachedMainCamera = Camera.main;
-            if (cachedMainCamera == null)
+            return;
+        }
+
+        currentHealth += healAmount;
+
+        Vector3 popupPosition = transform.position + Vector3.up * 0.5f;
+        ShowPopup(healPopupPrefab, popupPosition, popup =>
+        {
+            HealPopup healPopup = popup.GetComponent<HealPopup>();
+            if (healPopup != null)
             {
-                LogMissingCameraOnce();
-                return;
+                healPopup.Setup(healAmount);
             }
-        }
-
-        Vector2 screenPos = cachedMainCamera.WorldToScreenPoint(worldPosition);
-
-        GameObject popupGO = Instantiate(eggCollectionPopupPrefab, parentCanvas.transform);
-
-        RectTransform rectTransform = popupGO.GetComponent<RectTransform>();
-        if (rectTransform != null)
-        {
-            rectTransform.position = screenPos;
-        }
-
-        EggCollectionPopup popup = popupGO.GetComponent<EggCollectionPopup>();
-        if (popup != null)
-        {
-            popup.Setup();
-        }
+        });
     }
 
     private void Die()
     {
-        // Play particles
-        if (deathParticles != null)
+        SpawnDeathParticles();
+        isDead = true;
+        PlayDeathAnimation();
+        DisableInput();
+        DisablePhysics();
+        LoadGameOverScene();
+    }
+
+    private void SpawnDeathParticles()
+    {
+        if (deathParticles == null)
         {
-            ParticleSystem particleInstance = Instantiate(deathParticles, transform.position, transform.rotation);
-            particleInstance.transform.parent = null;
-            particleInstance.Play();
-            Destroy(particleInstance.gameObject, particleInstance.main.duration);
+            return;
         }
 
-        isDead = true;
-        animator.Play("Die");
+        ParticleSystem particleInstance = Instantiate(deathParticles, transform.position, transform.rotation);
+        particleInstance.transform.parent = null;
+        particleInstance.Play();
+        Destroy(particleInstance.gameObject, particleInstance.main.duration);
+    }
 
-        // Disable all input actions
-        if (moveAction != null) moveAction.Disable();
-        if (fireAction != null) fireAction.Disable();
+    private void PlayDeathAnimation()
+    {
+        animator.Play(ANIMATION_DIE);
+    }
 
-        // Clear any queued UI-driven input.
-        firePressedOverride = false;
-        defenseHoldActive = false;
+    private void DisableInput()
+    {
+        if (moveAction != null)
+        {
+            moveAction.Disable();
+        }
+
+        if (fireAction != null)
+        {
+            fireAction.Disable();
+        }
+
+        fireButtonPressedFromUI = false;
+        defenseButtonHeldFromUI = false;
         moveDirection = Vector2.zero;
 
-        // Disable colliders
+        isSimpleTouchActive = false;
+        movementTouchId = -1;
+        smoothedTouchInput = Vector2.zero;
+    }
+
+    private void DisablePhysics()
+    {
         Collider2D[] colliders = GetComponents<Collider2D>();
         foreach (Collider2D collider in colliders)
         {
             collider.enabled = false;
         }
 
-        // Disable Rigidbody physics
         rb.constraints = RigidbodyConstraints2D.FreezeAll;
         rb.linearVelocity = Vector2.zero;
+    }
 
+    private void LoadGameOverScene()
+    {
         if (levelManager != null)
         {
             levelManager.LoadGameOver();
@@ -617,6 +889,10 @@ public class PlayerController : MonoBehaviour
         return maxHealth;
     }
 
+    #endregion
+
+    #region Invincibility
+
     private IEnumerator InvincibilityFrames()
     {
         isInvincible = true;
@@ -624,17 +900,17 @@ public class PlayerController : MonoBehaviour
         float flashTimer = 0f;
         bool isVisible = true;
 
-        // Avoid allocating WaitForSeconds repeatedly; use a frame-driven timer.
         while (elapsedTime < invincibilityDuration)
         {
-            float delta = Time.deltaTime;
-            elapsedTime += delta;
-            flashTimer += delta;
+            float deltaTime = Time.deltaTime;
+            elapsedTime += deltaTime;
+            flashTimer += deltaTime;
 
             if (flashInterval > 0f && flashTimer >= flashInterval)
             {
                 flashTimer = 0f;
                 isVisible = !isVisible;
+
                 if (spriteRenderer != null)
                 {
                     spriteRenderer.enabled = isVisible;
@@ -653,37 +929,102 @@ public class PlayerController : MonoBehaviour
         invincibilityCoroutine = null;
     }
 
-    private void CacheInputActions()
+    #endregion
+
+    #region UI Feedback
+
+    private void ShowPopup(GameObject popupPrefab, Vector3 worldPosition, System.Action<GameObject> setupAction)
     {
-        // Using InputSystem.actions is a project-level decision; we just safely read from it.
-        if (InputSystem.actions == null)
+        if (popupPrefab == null || parentCanvas == null)
         {
-            moveAction = null;
-            fireAction = null;
-            LogMissingInputActionsOnce();
             return;
         }
 
-        moveAction = InputSystem.actions.FindAction("Move");
-        fireAction = InputSystem.actions.FindAction("Attack");
-        if (moveAction == null || fireAction == null)
+        if (!EnsureCameraIsValid())
         {
-            LogMissingInputActionsOnce();
+            return;
+        }
+
+        Vector2 screenPosition = ConvertWorldToScreenPosition(worldPosition);
+        GameObject popup = InstantiatePopupOnCanvas(popupPrefab, screenPosition);
+        setupAction?.Invoke(popup);
+    }
+
+    private bool EnsureCameraIsValid()
+    {
+        if (cachedMainCamera == null)
+        {
+            cachedMainCamera = Camera.main;
+        }
+
+        if (cachedMainCamera == null)
+        {
+            LogMissingCameraOnce();
+            return false;
+        }
+
+        return true;
+    }
+
+    private Vector2 ConvertWorldToScreenPosition(Vector3 worldPosition)
+    {
+        return cachedMainCamera.WorldToScreenPoint(worldPosition);
+    }
+
+    private GameObject InstantiatePopupOnCanvas(GameObject popupPrefab, Vector2 screenPosition)
+    {
+        GameObject popup = Instantiate(popupPrefab, parentCanvas.transform);
+
+        RectTransform rectTransform = popup.GetComponent<RectTransform>();
+        if (rectTransform != null)
+        {
+            rectTransform.position = screenPosition;
+        }
+
+        return popup;
+    }
+
+    private void CacheCanvasReference()
+    {
+        GameObject canvasGO = GameObject.Find("UI");
+        if (canvasGO == null)
+        {
+            Debug.LogWarning("PlayerController: Could not find Canvas with name 'UI' in scene!");
+            return;
+        }
+
+        parentCanvas = canvasGO.GetComponent<Canvas>();
+        if (parentCanvas == null)
+        {
+            Debug.LogWarning("PlayerController: Found 'UI' GameObject but it has no Canvas component!");
         }
     }
 
+    #endregion
+
+    #region Helper Methods
+
     private void LogMissingInputActionsOnce()
     {
-        if (hasLoggedMissingInputActions) return;
+        if (hasLoggedMissingInputActions)
+        {
+            return;
+        }
+
         hasLoggedMissingInputActions = true;
         Debug.LogWarning("PlayerController: Missing InputSystem actions. Expected actions named 'Move' and 'Attack' on InputSystem.actions.");
     }
 
     private void LogMissingCameraOnce()
     {
-        if (hasLoggedMissingCamera) return;
+        if (hasLoggedMissingCamera)
+        {
+            return;
+        }
+
         hasLoggedMissingCamera = true;
         Debug.LogWarning("PlayerController: No MainCamera found (tagged 'MainCamera'). Damage popups require a camera to convert world-to-screen.");
     }
 
+    #endregion
 }

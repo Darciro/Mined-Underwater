@@ -1,3 +1,4 @@
+using Lofelt.NiceVibrations;
 using MoreMountains.Feedbacks;
 using UnityEngine;
 
@@ -30,6 +31,13 @@ public class CameraShakeManager : MonoBehaviour
 
     [Tooltip("Optional MMChannel definition for more organized channel management")]
     [SerializeField] private MMChannel mmChannelDefinition = null;
+
+    [Header("Vibration Settings")]
+    [Tooltip("Enable haptic vibration feedback on mobile devices")]
+    [SerializeField] private bool enableVibration = true;
+
+    [Tooltip("Minimum amplitude threshold to trigger vibration (0-1)")]
+    [SerializeField] private float vibrationThreshold = 0.1f;
 
     // Singleton instance for easy access
     public static CameraShakeManager Instance { get; private set; }
@@ -134,7 +142,7 @@ public class CameraShakeManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Internal method to trigger a shake event
+    /// Internal method to trigger a shake event with optional vibration
     /// </summary>
     private void TriggerShake(MMCameraShakeProperties shakeProperties)
     {
@@ -151,6 +159,32 @@ public class CameraShakeManager : MonoBehaviour
             channelData,
             false  // useUnscaledTime
         );
+
+        // Trigger haptic vibration if enabled and amplitude is above threshold
+        if (enableVibration && shakeProperties.Amplitude >= vibrationThreshold)
+        {
+            TriggerVibration(shakeProperties.Amplitude);
+        }
+    }
+
+    /// <summary>
+    /// Trigger haptic vibration based on shake intensity
+    /// </summary>
+    private void TriggerVibration(float intensity)
+    {
+        // Map intensity to haptic feedback type
+        if (intensity < 0.2f)
+        {
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.LightImpact);
+        }
+        else if (intensity < 0.4f)
+        {
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.MediumImpact);
+        }
+        else
+        {
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
+        }
     }
 
 #if UNITY_EDITOR

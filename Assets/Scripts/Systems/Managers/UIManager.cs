@@ -17,8 +17,13 @@ public class UIManager : MonoBehaviour
     [Tooltip("Text Animator style tag (must exist in a Text Animator StyleSheet, e.g. 'score', 'egg')")]
     [SerializeField] private string animationTag = "score";
 
-    [Header("Pause")]
+    [Header("Panels")]
     [SerializeField] private GameObject pausePanel;
+    [SerializeField] private GameObject settingsPanel;
+
+    [Header("SFX UI")]
+    [SerializeField] private Slider musicSlider;
+    [SerializeField] private Slider sfxSlider;
 
     private ScoreManager scoreManager;
     private bool isPaused = false;
@@ -181,7 +186,6 @@ public class UIManager : MonoBehaviour
             eggsTextAnimator.SetText(eggs.ToString());
     }
 
-
     #endregion
 
     #region Game Version
@@ -212,5 +216,48 @@ public class UIManager : MonoBehaviour
             pausePanel.SetActive(pause);
     }
 
+    #endregion
+
+    #region Settings
+
+    public void OpenSettings()
+    {
+        if (settingsPanel != null)
+            settingsPanel.SetActive(true);
+    }
+
+    public void CloseSettings()
+    {
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
+    }
+
+    public void SimpleMovementToggle()
+    {
+        var options = OptionsManager.Instance;
+        if (options == null) return;
+        options.SetSimpleMovement(!options.GetSimpleMovement());
+    }
+
+    public void VibrationToggle()
+    {
+        var options = OptionsManager.Instance;
+        if (options == null) return;
+        options.SetVibration(!options.GetVibration());
+    }
+
+    public void SetMusicVolume()
+    {
+        var options = OptionsManager.Instance;
+        if (options == null) return;
+        options.SetMusic(musicSlider.value);
+    }
+
+    public void SetSFXVolume()
+    {
+        var options = OptionsManager.Instance;
+        if (options == null) return;
+        options.SetSoundFX(sfxSlider.value);
+    }
     #endregion
 }
