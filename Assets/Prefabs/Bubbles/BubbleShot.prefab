@@ -126,9 +126,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8cac9aa3ba72bd4eb332ecb49ab6674, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ETFXProjectileScriptOverride
-  impactParticle: {fileID: 1817797803601600, guid: 46e56f62e4ff899488d1b27766d1eb6d, type: 3}
-  projectileParticle: {fileID: 1905436362935654, guid: 4d37afda50e570a4c86976105bea57a7, type: 3}
-  muzzleParticle: {fileID: 1892333751805388, guid: 452f8c6f5b6d23b4e966a40a9e4720c1, type: 3}
+  impactParticle: {fileID: 1817797803601600, guid: c76f74611fe859749bda17c25d957895, type: 3}
+  projectileParticle: {fileID: 1905436362935654, guid: 123249fbc5db84d4681a1fd3dff408db, type: 3}
+  muzzleParticle: {fileID: 1892333751805388, guid: 23e97e632cf2cf5498b3db7721d85904, type: 3}
   trailParticles: []
   colliderRadius: 1
   collideOffset: 0.15

@@ -10,6 +10,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private PlayerController playerController;
     [SerializeField] private Slider playerHealthSlider;
     [SerializeField] private TextMeshProUGUI playerHealthtext;
+    [SerializeField] private Slider airSlider;
+    [SerializeField] private Slider airSliderAlt;
+    [SerializeField] private TextMeshProUGUI airText;
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI eggsText;
 
@@ -65,6 +68,7 @@ public class UIManager : MonoBehaviour
     private void Update()
     {
         UpdatePlayerHealth();
+        UpdatePlayerAir();
         RefreshScore(false);
         RefreshEggs(false);
     }
@@ -107,6 +111,34 @@ public class UIManager : MonoBehaviour
             int currentHealth = Mathf.Max(0, playerController.GetHealth());
             playerHealthtext.text =
                 $"{currentHealth} / {playerController.GetMaxHealth()}";
+        }
+    }
+
+    #endregion
+
+    #region Air UI
+
+    private void UpdatePlayerAir()
+    {
+        if (playerController == null) return;
+
+        float airValue = (float)playerController.GetAir() / playerController.GetMaxAir();
+
+        if (airSlider != null)
+        {
+            airSlider.value = airValue;
+        }
+
+        if (airSliderAlt != null)
+        {
+            airSliderAlt.value = airValue;
+        }
+
+        if (airText != null)
+        {
+            int currentAir = Mathf.Max(0, playerController.GetAir());
+            airText.text =
+                $"{currentAir} / {playerController.GetMaxAir()}";
         }
     }
 

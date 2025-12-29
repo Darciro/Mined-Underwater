@@ -33,6 +33,7 @@ public class SpawnerManager : MonoBehaviour
         [System.NonSerialized] public int currentAlive;
     }
     [Header("Spawner Settings")]
+    public float startDelay = 0f;  // delay in seconds before spawning starts
     public float xOffset = 2f;     // how far outside the camera to spawn
 
     public float verticalPadding = 1f; // avoid spawning too close to edges
@@ -47,6 +48,12 @@ public class SpawnerManager : MonoBehaviour
     {
         cam = Camera.main;
         UpdateSpawnerPosition();
+        StartCoroutine(DelayedStart());
+    }
+
+    private IEnumerator DelayedStart()
+    {
+        yield return new WaitForSeconds(startDelay);
         StartSpawning();
     }
 

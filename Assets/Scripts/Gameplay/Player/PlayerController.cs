@@ -20,6 +20,15 @@ public class PlayerController : MonoBehaviour
     [Header("Defense")]
     [SerializeField] private float damageReductionPercentage = 50f;
 
+    [Header("Air System")]
+    [SerializeField] private int maxAir = 30;
+    [SerializeField] private int currentAir;
+    [SerializeField] private float airDepletionRate = 1f; // seconds between air loss
+    [SerializeField] private int airCostPerShot = 1;
+    [SerializeField] private float airDamageRate = 1f; // seconds between damage when out of air
+    [SerializeField] private int airDamageAmount = 5; // damage dealt when out of air
+    [SerializeField] private GameObject airPopupPrefab;
+
     [Header("Invincibility")]
     [SerializeField] private float invincibilityDuration = 0.5f;
     [SerializeField] private float flashInterval = 0.1f;
@@ -107,6 +116,9 @@ public class PlayerController : MonoBehaviour
     private bool isDead = false;
     private float nextFireTime;
     private Coroutine invincibilityCoroutine;
+    private Coroutine airBlinkCoroutine;
+    private float lastAirDepletionTime;
+    private float lastAirDamageTime;
 
     #endregion
 
@@ -172,6 +184,9 @@ public class PlayerController : MonoBehaviour
 
         levelManager = FindFirstObjectByType<LevelManager>();
         currentHealth = maxHealth;
+        currentAir = maxAir;
+        lastAirDepletionTime = Time.time;
+        lastAirDamageTime = Time.time;
         cachedMainCamera = Camera.main;
         CacheCanvasReference();
 
@@ -201,6 +216,7 @@ public class PlayerController : MonoBehaviour
     {
         UpdateMovementInput();
         HandleFiring();
+        UpdateAir();
     }
 
     private void FixedUpdate()
@@ -604,6 +620,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        ConsumeAir(airCostPerShot);
         PlayAttackAnimation();
         SpawnProjectile();
         PlayShootingSound();
@@ -642,66 +659,12 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Egg"))
-        {
-            HandleEggPickup(other.gameObject);
-            return;
-        }
-
-        if (other.CompareTag("Heart"))
-        {
-            HandleHeartPickup(other.gameObject);
-            return;
-        }
-
         if (isInvincible)
         {
             return;
         }
 
         HandleEnemyCollision(other);
-    }
-
-    private void HandleEggPickup(GameObject egg)
-    {
-        ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
-        if (scoreManager != null)
-        {
-            scoreManager.AddEgg();
-        }
-
-        Vector3 popupPosition = transform.position + Vector3.up * 0.5f;
-        ShowPopup(eggCollectionPopupPrefab, popupPosition, popup =>
-        {
-            EggCollectionPopup eggPopup = popup.GetComponent<EggCollectionPopup>();
-            if (eggPopup != null)
-            {
-                eggPopup.Setup();
-            }
-        });
-
-        Destroy(egg);
-    }
-
-    private void HandleHeartPickup(GameObject heart)
-    {
-        int healAmount = Mathf.Min(3, maxHealth - currentHealth);
-        if (healAmount > 0)
-        {
-            currentHealth += healAmount;
-
-            Vector3 popupPosition = transform.position + Vector3.up * 0.5f;
-            ShowPopup(healPopupPrefab, popupPosition, popup =>
-            {
-                HealPopup healPopup = popup.GetComponent<HealPopup>();
-                if (healPopup != null)
-                {
-                    healPopup.Setup(healAmount);
-                }
-            });
-        }
-
-        Destroy(heart);
     }
 
     private void HandleEnemyCollision(Collider2D other)
@@ -887,6 +850,162 @@ public class PlayerController : MonoBehaviour
     public int GetMaxHealth()
     {
         return maxHealth;
+    }
+
+    #endregion
+
+    #region Air System
+
+    private void UpdateAir()
+    {
+        if (isDead)
+        {
+            return;
+        }
+
+        // Deplete air over time
+        if (Time.time - lastAirDepletionTime >= airDepletionRate)
+        {
+            currentAir = Mathf.Max(0, currentAir - 1);
+            lastAirDepletionTime = Time.time;
+        }
+
+        // Apply damage when out of air
+        if (currentAir <= 0 && Time.time - lastAirDamageTime >= airDamageRate)
+        {
+            TakeAirDamage(airDamageAmount);
+            lastAirDamageTime = Time.time;
+        }
+    }
+
+    private void ConsumeAir(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        currentAir = Mathf.Max(0, currentAir - amount);
+    }
+
+    private void TakeAirDamage(int damage)
+    {
+        if (isDead)
+        {
+            return;
+        }
+
+        currentHealth -= damage;
+
+        Vector3 popupPosition = transform.position + Vector3.up * 0.5f;
+        ShowPopup(damagePopupPrefab, popupPosition, popup =>
+        {
+            DamagePopup damagePopup = popup.GetComponent<DamagePopup>();
+            if (damagePopup != null)
+            {
+                damagePopup.Setup(damage);
+            }
+        });
+
+        StartAirBlinking();
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void StartAirBlinking()
+    {
+        if (airBlinkCoroutine != null)
+        {
+            StopCoroutine(airBlinkCoroutine);
+        }
+
+        airBlinkCoroutine = StartCoroutine(AirBlinkEffect());
+    }
+
+    private IEnumerator AirBlinkEffect()
+    {
+        float elapsedTime = 0f;
+        float flashTimer = 0f;
+        bool isVisible = true;
+
+        while (elapsedTime < airDamageRate)
+        {
+            float deltaTime = Time.deltaTime;
+            elapsedTime += deltaTime;
+            flashTimer += deltaTime;
+
+            if (flashInterval > 0f && flashTimer >= flashInterval)
+            {
+                flashTimer = 0f;
+                isVisible = !isVisible;
+
+                if (spriteRenderer != null)
+                {
+                    spriteRenderer.enabled = isVisible;
+                }
+            }
+
+            yield return null;
+        }
+
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = true;
+        }
+
+        airBlinkCoroutine = null;
+    }
+
+    public void RestoreAir(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        int restoreAmount = Mathf.Min(amount, maxAir - currentAir);
+        if (restoreAmount <= 0)
+        {
+            return;
+        }
+
+        currentAir += restoreAmount;
+
+        Vector3 popupPosition = transform.position + Vector3.up * 0.5f;
+        ShowPopup(airPopupPrefab, popupPosition, popup =>
+        {
+            AirPopup airPopup = popup.GetComponent<AirPopup>();
+            if (airPopup != null)
+            {
+                airPopup.Setup(restoreAmount);
+            }
+        });
+    }
+
+    public void ShowEggCollectionPopup()
+    {
+        Vector3 popupPosition = transform.position + Vector3.up * 0.5f;
+        ShowPopup(eggCollectionPopupPrefab, popupPosition, popup =>
+        {
+            EggCollectionPopup eggPopup = popup.GetComponent<EggCollectionPopup>();
+            if (eggPopup != null)
+            {
+                eggPopup.Setup();
+            }
+        });
+    }
+
+    public int GetAir()
+    {
+        return currentAir;
+    }
+
+    public int GetMaxAir()
+    {
+        return maxAir;
     }
 
     #endregion

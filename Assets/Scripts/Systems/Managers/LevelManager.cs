@@ -4,7 +4,14 @@ using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
+    [SerializeField] private SceneTransition sceneTransition;
+
     public void LoadGame()
+    {
+        sceneTransition.StartSceneTransition("Main");
+    }
+
+    public void RestartGame()
     {
         SceneManager.LoadScene("Main");
     }

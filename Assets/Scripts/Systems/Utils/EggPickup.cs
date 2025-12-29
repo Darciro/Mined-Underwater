@@ -10,10 +10,6 @@ public class EggPickup : PickupBase
             scoreManager.AddEgg();
         }
 
-        player.SendMessage(
-            "ShowEggCollectionPopup",
-            player.transform.position + Vector3.up * 0.5f,
-            SendMessageOptions.DontRequireReceiver
-        );
+        player.ShowEggCollectionPopup();
     }
 }
