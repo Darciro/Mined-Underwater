@@ -26,16 +26,17 @@ public class OptionsManager : MonoBehaviour
 
     #endregion
 
-    #region Audio (Optional)
+    #region Audio
 
     [Header("Audio")]
     [SerializeField] private AudioMixer audioMixer;
+
     private const string MIXER_SFX_PARAM = "SFXVolume";
     private const string MIXER_MUSIC_PARAM = "MusicVolume";
 
     #endregion
 
-    #region Events (Optional but Recommended)
+    #region Events
 
     public event Action<bool> OnSimpleMovementChanged;
     public event Action<float> OnSoundFXChanged;
@@ -44,6 +45,21 @@ public class OptionsManager : MonoBehaviour
     public event Action<string> OnLanguageChanged;
 
     #endregion
+
+    #region Editor Debug (Read-Only)
+
+#if UNITY_EDITOR
+    [Header("DEBUG – PlayerPrefs (Read Only)")]
+    [SerializeField] private bool debugSimpleMovement;
+    [SerializeField] private float debugSoundFX;
+    [SerializeField] private float debugMusic;
+    [SerializeField] private bool debugVibration;
+    [SerializeField] private string debugLanguage;
+#endif
+
+    #endregion
+
+    #region Unity Lifecycle
 
     private void Awake()
     {
@@ -57,7 +73,13 @@ public class OptionsManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         LoadAndApplyAll();
+
+#if UNITY_EDITOR
+        UpdateDebugValues();
+#endif
     }
+
+    #endregion
 
     #region Load / Apply
 
@@ -76,11 +98,11 @@ public class OptionsManager : MonoBehaviour
 
     public void SetSimpleMovement(bool value)
     {
-        Debug.Log("PlayerController: Simple Movement set to " + value);
         PlayerPrefs.SetInt(SIMPLE_MOVEMENT_KEY, value ? 1 : 0);
         PlayerPrefs.Save();
 
         ApplySimpleMovement(value);
+        RefreshDebug();
     }
 
     public bool GetSimpleMovement()
@@ -94,7 +116,6 @@ public class OptionsManager : MonoBehaviour
     private void ApplySimpleMovement(bool value)
     {
         OnSimpleMovementChanged?.Invoke(value);
-        // PlayerController or InputManager should listen to this event
     }
 
     #endregion
@@ -107,6 +128,7 @@ public class OptionsManager : MonoBehaviour
         PlayerPrefs.Save();
 
         ApplySoundFX(value);
+        RefreshDebug();
     }
 
     public float GetSoundFX()
@@ -134,6 +156,7 @@ public class OptionsManager : MonoBehaviour
         PlayerPrefs.Save();
 
         ApplyMusic(value);
+        RefreshDebug();
     }
 
     public float GetMusic()
@@ -161,6 +184,7 @@ public class OptionsManager : MonoBehaviour
         PlayerPrefs.Save();
 
         ApplyVibration(value);
+        RefreshDebug();
     }
 
     public bool GetVibration()
@@ -174,7 +198,6 @@ public class OptionsManager : MonoBehaviour
     private void ApplyVibration(bool value)
     {
         OnVibrationChanged?.Invoke(value);
-        // Used by haptics system when triggering vibration
     }
 
     #endregion
@@ -187,6 +210,7 @@ public class OptionsManager : MonoBehaviour
         PlayerPrefs.Save();
 
         ApplyLanguage(languageCode);
+        RefreshDebug();
     }
 
     public string GetLanguage()
@@ -197,8 +221,30 @@ public class OptionsManager : MonoBehaviour
     private void ApplyLanguage(string languageCode)
     {
         OnLanguageChanged?.Invoke(languageCode);
-        // Hook into Localization system here
     }
+
+    #endregion
+
+    #region Editor Debug Helpers
+
+#if UNITY_EDITOR
+    private void RefreshDebug()
+    {
+        UpdateDebugValues();
+    }
+
+    private void UpdateDebugValues()
+    {
+        debugSimpleMovement = GetSimpleMovement();
+        debugSoundFX = GetSoundFX();
+        debugMusic = GetMusic();
+        debugVibration = GetVibration();
+        debugLanguage = GetLanguage();
+    }
+#else
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    private void RefreshDebug() { }
+#endif
 
     #endregion
 

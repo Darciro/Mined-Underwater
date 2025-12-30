@@ -14,7 +14,6 @@ public class SceneTransition : MonoBehaviour
         if (_objectivePanel != null)
         {
             _animator = _objectivePanel.GetComponent<Animator>();
-            Debug.Log("Objective panel was found, starting end transition");
             StartCoroutine(EndObjectiveTransitionCoroutine());
         }
     }

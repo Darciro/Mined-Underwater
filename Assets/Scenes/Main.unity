@@ -772,6 +772,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OptionsManager
   audioMixer: {fileID: 24100000, guid: 0c5edeab16bf0bd46a889b26ba33aab3, type: 2}
+  debugSimpleMovement: 0
+  debugSoundFX: 0
+  debugMusic: 0
+  debugVibration: 0
+  debugLanguage: 
 --- !u!224 &324259479 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8865325616470801063, guid: ebb72a74a5192c244a417616d07cded5, type: 3}
