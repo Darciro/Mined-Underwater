@@ -14,6 +14,12 @@ public class ScoreManager : MonoBehaviour
     {
         score += scoreToAdd;
         score = Mathf.Clamp(score, 0, int.MaxValue);
+
+        // Award user points at 1:1 ratio (persistent currency)
+        if (scoreToAdd > 0 && GameManager.Instance != null)
+        {
+            GameManager.Instance.AddPoints(scoreToAdd);
+        }
     }
 
     public void ResetScore()

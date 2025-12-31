@@ -8,6 +8,12 @@ public class LevelManager : MonoBehaviour
 
     public void LoadGame()
     {
+        // Set game state to Playing when starting game
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ChangeState(GameStateEnum.Playing);
+        }
+
         sceneTransition.StartSceneTransition("Main");
     }
 
@@ -18,11 +24,23 @@ public class LevelManager : MonoBehaviour
 
     public void LoadGameOver()
     {
+        // Trigger GameOver state in GameManager
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ChangeState(GameStateEnum.GameOver);
+        }
+
         StartCoroutine(WaitAndLoad("GameOver", 2f));
     }
 
     public void LoadMainMenu()
     {
+        // Set game state to MainMenu
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ChangeState(GameStateEnum.MainMenu);
+        }
+
         SceneManager.LoadScene("MainMenu");
     }
 

@@ -196,6 +196,12 @@ public class PlayerController : MonoBehaviour
             useSimpleMovement = OptionsManager.Instance.GetSimpleMovement();
             OptionsManager.Instance.OnSimpleMovementChanged += HandleSimpleMovementChanged;
         }
+
+        // Transition to Playing state when spawning begins
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ChangeState(GameStateEnum.Playing);
+        }
     }
 
     private void OnDestroy()
@@ -246,6 +252,10 @@ public class PlayerController : MonoBehaviour
 
     private void ApplyMovement()
     {
+        // Only allow movement when game is actively playing
+        if (GameManager.Instance == null || GameManager.Instance.CurrentState != GameStateEnum.Playing)
+            return;
+
         float currentSpeed = CalculateCurrentSpeed();
         Vector2 newPosition = CalculateNewPosition(currentSpeed);
         rb.MovePosition(newPosition);
@@ -353,6 +363,10 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
+
+        // Only allow firing when game is actively playing
+        if (GameManager.Instance == null || GameManager.Instance.CurrentState != GameStateEnum.Playing)
+            return;
 
         bool fireButtonPressed = CheckFireButtonPressed();
         bool canFire = fireButtonPressed && !isDefending && Time.time >= nextFireTime;
@@ -927,35 +941,17 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator AirBlinkEffect()
     {
-        float elapsedTime = 0f;
-        float flashTimer = 0f;
-        bool isVisible = true;
-
-        while (elapsedTime < airDamageRate)
+        if (spriteRenderer == null)
         {
-            float deltaTime = Time.deltaTime;
-            elapsedTime += deltaTime;
-            flashTimer += deltaTime;
-
-            if (flashInterval > 0f && flashTimer >= flashInterval)
-            {
-                flashTimer = 0f;
-                isVisible = !isVisible;
-
-                if (spriteRenderer != null)
-                {
-                    spriteRenderer.enabled = isVisible;
-                }
-            }
-
-            yield return null;
+            yield break;
         }
 
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.enabled = true;
-        }
+        Color originalColor = spriteRenderer.color;
+        spriteRenderer.color = Color.red;
 
+        yield return new WaitForSeconds(airDamageRate);
+
+        spriteRenderer.color = originalColor;
         airBlinkCoroutine = null;
     }
 

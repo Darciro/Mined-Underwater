@@ -60,8 +60,8 @@ public class ETFXProjectileScriptOverride : MonoBehaviour
         RaycastHit2D hit = Physics2D.CircleCast(myTransform.position, rad, dir.normalized, dist);
         if (hit.collider != null)
         {
-            // Ignore collision with Player tag
-            if (hit.transform.CompareTag("Player"))
+            // Only impact objects with Enemy tag
+            if (!hit.transform.CompareTag("Enemy"))
             {
                 return;
             }
@@ -70,13 +70,10 @@ public class ETFXProjectileScriptOverride : MonoBehaviour
 
             GameObject impactP = Instantiate(impactParticle, myTransform.position, Quaternion.FromToRotation(Vector3.up, hit.normal)) as GameObject;
 
-            if (hit.transform.CompareTag("Enemy"))
+            EpicToonFX.ETFXTarget etfxTarget = hit.transform.GetComponent<EpicToonFX.ETFXTarget>();
+            if (etfxTarget != null)
             {
-                EpicToonFX.ETFXTarget etfxTarget = hit.transform.GetComponent<EpicToonFX.ETFXTarget>();
-                if (etfxTarget != null)
-                {
-                    etfxTarget.OnHit();
-                }
+                etfxTarget.OnHit();
             }
 
             foreach (GameObject trail in trailParticles)

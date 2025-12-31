@@ -95,13 +95,20 @@ public class SpawnerManager : MonoBehaviour
     {
         while (spawning)
         {
-            bool canSpawn =
-                category.maxAlive == 0 ||
-                category.currentAlive < category.maxAlive;
+            // Only spawn when game is actively playing
+            bool isPlaying = GameManager.Instance != null &&
+                           GameManager.Instance.CurrentState == GameStateEnum.Playing;
 
-            if (canSpawn)
+            if (isPlaying)
             {
-                Spawn(category);
+                bool canSpawn =
+                    category.maxAlive == 0 ||
+                    category.currentAlive < category.maxAlive;
+
+                if (canSpawn)
+                {
+                    Spawn(category);
+                }
             }
 
             float wait = Random.Range(category.minInterval, category.maxInterval);

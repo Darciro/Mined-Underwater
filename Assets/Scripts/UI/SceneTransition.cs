@@ -37,6 +37,9 @@ public class SceneTransition : MonoBehaviour
     {
         yield return new WaitForSeconds(3f);
         _animator.SetTrigger("EndTransition");
+
+        yield return new WaitForSeconds(1f);
+        _objectivePanel.SetActive(false);
     }
 
 }

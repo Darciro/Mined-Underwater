@@ -29,7 +29,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Slider sfxSlider;
 
     private ScoreManager scoreManager;
-    private bool isPaused = false;
 
     private int previousScore = 0;
     private int previousEggs = 0;
@@ -60,9 +59,16 @@ public class UIManager : MonoBehaviour
         previousEggs = 0;
 
         InitializeTextAnimators();
+        InitializeOptionsUI();
         UpdatePlayerHealth();
         RefreshScore(true);
         RefreshEggs(true);
+
+        // Subscribe to game state changes
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
+        }
     }
 
     private void Update()
@@ -90,6 +96,51 @@ public class UIManager : MonoBehaviour
             if (eggsTextAnimator == null)
                 eggsTextAnimator = eggsText.gameObject.AddComponent<TextAnimator_TMP>();
         }
+    }
+
+    private void InitializeOptionsUI()
+    {
+        var options = OptionsManager.Instance;
+        if (options == null) return;
+
+        // Set slider values to saved preferences
+        if (musicSlider != null)
+            musicSlider.value = options.GetMusic();
+
+        if (sfxSlider != null)
+            sfxSlider.value = options.GetSoundFX();
+
+        // Subscribe to changes (optional, if you want real-time updates)
+        options.OnMusicChanged += UpdateMusicSlider;
+        options.OnSoundFXChanged += UpdateSFXSlider;
+    }
+
+    private void OnDestroy()
+    {
+        var options = OptionsManager.Instance;
+        if (options != null)
+        {
+            options.OnMusicChanged -= UpdateMusicSlider;
+            options.OnSoundFXChanged -= UpdateSFXSlider;
+        }
+
+        // Unsubscribe from game state changes
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
+        }
+    }
+
+    private void UpdateMusicSlider(float value)
+    {
+        if (musicSlider != null)
+            musicSlider.value = value;
+    }
+
+    private void UpdateSFXSlider(float value)
+    {
+        if (sfxSlider != null)
+            sfxSlider.value = value;
     }
 
     #endregion
@@ -234,18 +285,38 @@ public class UIManager : MonoBehaviour
 
     public void TogglePause()
     {
+        if (GameManager.Instance == null) return;
+
+        bool isPaused = GameManager.Instance.CurrentState == GameStateEnum.Paused;
         SetPaused(!isPaused);
     }
 
     private void SetPaused(bool pause)
     {
-        if (isPaused == pause) return;
+        if (GameManager.Instance == null)
+        {
+            // Fallback if GameManager is not available
+            Time.timeScale = pause ? 0f : 1f;
+            if (pausePanel != null)
+                pausePanel.SetActive(pause);
+            return;
+        }
 
-        isPaused = pause;
-        Time.timeScale = pause ? 0f : 1f;
+        // Check if already in the desired state
+        bool currentlyPaused = GameManager.Instance.CurrentState == GameStateEnum.Paused;
+        if (currentlyPaused == pause) return;
 
+        // Use GameManager to handle state changes and time scale
+        GameManager.Instance.ChangeState(pause ? GameStateEnum.Paused : GameStateEnum.Playing);
+    }
+
+    private void HandleGameStateChanged(GameStateEnum newState)
+    {
+        // Update pause panel visibility based on state
         if (pausePanel != null)
-            pausePanel.SetActive(pause);
+        {
+            pausePanel.SetActive(newState == GameStateEnum.Paused);
+        }
     }
 
     #endregion

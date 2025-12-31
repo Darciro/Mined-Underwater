@@ -49,7 +49,7 @@ public class OptionsManager : MonoBehaviour
     #region Editor Debug (Read-Only)
 
 #if UNITY_EDITOR
-    [Header("DEBUG – PlayerPrefs (Read Only)")]
+    [Header("DEBUG - PlayerPrefs (Read Only)")]
     [SerializeField] private bool debugSimpleMovement;
     [SerializeField] private float debugSoundFX;
     [SerializeField] private float debugMusic;
@@ -90,6 +90,15 @@ public class OptionsManager : MonoBehaviour
         ApplyMusic(GetMusic());
         ApplyVibration(GetVibration());
         ApplyLanguage(GetLanguage());
+    }
+
+    /// <summary>
+    /// Refreshes all settings by re-invoking events with current values.
+    /// Useful for initializing UI elements when a new scene loads.
+    /// </summary>
+    public void RefreshAllSettings()
+    {
+        LoadAndApplyAll();
     }
 
     #endregion

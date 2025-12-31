@@ -42,7 +42,7 @@ public class ProjectileDamage : MonoBehaviour
             {
                 enemy.TakeDamage(rolledDamage);
                 ShowDamagePopup(rolledDamage, other.transform.position + Vector3.up * 0.5f);
-                Destroy(gameObject);
+                // Destroy(gameObject);
             }
         }
         else
@@ -53,7 +53,7 @@ public class ProjectileDamage : MonoBehaviour
             {
                 player.TakeDamage(rolledDamage);
                 ShowDamagePopup(rolledDamage, other.transform.position + Vector3.up * 0.5f);
-                Destroy(gameObject);
+                // Destroy(gameObject);
             }
         }
     }
