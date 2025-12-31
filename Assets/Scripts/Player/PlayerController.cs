@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
     [Header("Air System")]
     [SerializeField] private int maxAir = 30;
     [SerializeField] private int currentAir;
+    [SerializeField] private float airDepletionStartDelay = 7f; // delay before air starts depleting
     [SerializeField] private float airDepletionRate = 1f; // seconds between air loss
     [SerializeField] private int airCostPerShot = 1;
     [SerializeField] private float airDamageRate = 1f; // seconds between damage when out of air
@@ -62,6 +63,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject damagePopupPrefab;
     [SerializeField] private GameObject healPopupPrefab;
     [SerializeField] private GameObject eggCollectionPopupPrefab;
+    [SerializeField] private GameObject coinCollectionPopupPrefab;
 
     #endregion
 
@@ -185,7 +187,7 @@ public class PlayerController : MonoBehaviour
         levelManager = FindFirstObjectByType<LevelManager>();
         currentHealth = maxHealth;
         currentAir = maxAir;
-        lastAirDepletionTime = Time.time;
+        lastAirDepletionTime = Time.time + airDepletionStartDelay; // Add delay before air starts depleting
         lastAirDamageTime = Time.time;
         cachedMainCamera = Camera.main;
         CacheCanvasReference();
@@ -877,8 +879,8 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Deplete air over time
-        if (Time.time - lastAirDepletionTime >= airDepletionRate)
+        // Deplete air over time (after initial delay)
+        if (Time.time >= lastAirDepletionTime + airDepletionRate)
         {
             currentAir = Mathf.Max(0, currentAir - 1);
             lastAirDepletionTime = Time.time;
@@ -991,6 +993,16 @@ public class PlayerController : MonoBehaviour
             {
                 eggPopup.Setup();
             }
+        });
+    }
+
+    public void ShowCoinCollectionPopup()
+    {
+        Vector3 popupPosition = transform.position + Vector3.up * 0.5f;
+        ShowPopup(coinCollectionPopupPrefab, popupPosition, popup =>
+        {
+            // Coin popup setup can be added here if needed
+            // For now, we'll use the same pattern as eggs
         });
     }
 

@@ -24,7 +24,12 @@ public enum GameStateEnum
     Paused,
 
     /// <summary>
-    /// Game has ended (player died or completed level)
+    /// Level has been completed successfully
+    /// </summary>
+    LevelComplete,
+
+    /// <summary>
+    /// Game has ended (player died)
     /// </summary>
     GameOver
 }

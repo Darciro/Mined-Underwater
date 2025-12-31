@@ -6,9 +6,9 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private int health = 50;
     [SerializeField] private int minDamageAmount = 10;
     [SerializeField] private int maxDamageAmount = 10;
-    [SerializeField] private int scoreValue = 1;
+    [SerializeField] private int coinValue = 1;
     [SerializeField] private ParticleSystem hitParticles;
-    [SerializeField] private GameObject scorePopupPrefab;
+    [SerializeField] private GameObject coinPopupPrefab;
 
     public int DamageAmount => RollDamageAmount();
 
@@ -154,9 +154,9 @@ public class EnemyController : MonoBehaviour
     {
         if (scoreManager != null)
         {
-            scoreManager.ModifyScore(scoreValue);
+            scoreManager.AddCoin();
         }
-        ShowScorePopup(scoreValue, transform.position);
+        ShowCoinPopup(coinValue, transform.position);
         PlayHitParticles();
         Destroy(gameObject);
     }
@@ -171,15 +171,15 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    private void ShowScorePopup(int score, Vector3 worldPosition)
+    private void ShowCoinPopup(int coins, Vector3 worldPosition)
     {
-        if (scorePopupPrefab == null || parentCanvas == null || cachedMainCamera == null)
+        if (coinPopupPrefab == null || parentCanvas == null || cachedMainCamera == null)
         {
             return;
         }
 
         Vector2 screenPos = cachedMainCamera.WorldToScreenPoint(worldPosition);
-        GameObject popupGO = Instantiate(scorePopupPrefab, parentCanvas.transform);
+        GameObject popupGO = Instantiate(coinPopupPrefab, parentCanvas.transform);
 
         RectTransform rectTransform = popupGO.GetComponent<RectTransform>();
         if (rectTransform != null)
@@ -190,7 +190,7 @@ public class EnemyController : MonoBehaviour
         ScorePopup popup = popupGO.GetComponent<ScorePopup>();
         if (popup != null)
         {
-            popup.Setup(score);
+            popup.Setup(coins);
         }
     }
 }

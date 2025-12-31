@@ -5142,8 +5142,14 @@ MonoBehaviour:
   airSlider: {fileID: 0}
   airSliderAlt: {fileID: 0}
   airText: {fileID: 0}
-  scoreText: {fileID: 0}
   eggsText: {fileID: 0}
+  coinsText: {fileID: 0}
+  levelNumberText: {fileID: 0}
+  levelEggsText: {fileID: 0}
+  levelCoinsText: {fileID: 0}
+  totalEggsText: {fileID: 0}
+  totalCoinsText: {fileID: 0}
+  eggRequirementText: {fileID: 0}
   animationTag: score
   pausePanel: {fileID: 0}
   settingsPanel: {fileID: 1410107678}
@@ -10444,7 +10450,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 776979154425011545, guid: f0d26709201eb2946b1d341f650316b2, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: LoadGame
+      value: LoadStageSelect
       objectReference: {fileID: 0}
     - target: {fileID: 776979154425011545, guid: f0d26709201eb2946b1d341f650316b2, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName

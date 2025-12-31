@@ -13,8 +13,16 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Slider airSlider;
     [SerializeField] private Slider airSliderAlt;
     [SerializeField] private TextMeshProUGUI airText;
-    [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI eggsText;
+    [SerializeField] private TextMeshProUGUI coinsText;
+
+    [Header("Win Scene Stats")]
+    [SerializeField] private TextMeshProUGUI levelNumberText;
+    [SerializeField] private TextMeshProUGUI levelEggsText;
+    [SerializeField] private TextMeshProUGUI levelCoinsText;
+    [SerializeField] private TextMeshProUGUI totalEggsText;
+    [SerializeField] private TextMeshProUGUI totalCoinsText;
+    [SerializeField] private TextMeshProUGUI eggRequirementText;
 
     [Header("UI Animations")]
     [Tooltip("Text Animator style tag (must exist in a Text Animator StyleSheet, e.g. 'score', 'egg')")]
@@ -30,14 +38,14 @@ public class UIManager : MonoBehaviour
 
     private ScoreManager scoreManager;
 
-    private int previousScore = 0;
     private int previousEggs = 0;
+    private int previousCoins = 0;
 
-    private Coroutine scoreAnimationCoroutine;
     private Coroutine eggsAnimationCoroutine;
+    private Coroutine coinsAnimationCoroutine;
 
-    private TextAnimator_TMP scoreTextAnimator;
     private TextAnimator_TMP eggsTextAnimator;
+    private TextAnimator_TMP coinsTextAnimator;
 
     private void Awake()
     {
@@ -51,18 +59,19 @@ public class UIManager : MonoBehaviour
 
         if (scoreManager != null)
         {
-            scoreManager.ResetScore();
             scoreManager.ResetEggs();
+            scoreManager.ResetCoins();
         }
 
-        previousScore = 0;
         previousEggs = 0;
+        previousCoins = 0;
 
         InitializeTextAnimators();
         InitializeOptionsUI();
         UpdatePlayerHealth();
-        RefreshScore(true);
         RefreshEggs(true);
+        RefreshCoins(true);
+        DisplayWinSceneStats();
 
         // Subscribe to game state changes
         if (GameManager.Instance != null)
@@ -75,26 +84,26 @@ public class UIManager : MonoBehaviour
     {
         UpdatePlayerHealth();
         UpdatePlayerAir();
-        RefreshScore(false);
         RefreshEggs(false);
+        RefreshCoins(false);
     }
 
     #region Initialization
 
     private void InitializeTextAnimators()
     {
-        if (scoreText != null)
-        {
-            scoreTextAnimator = scoreText.GetComponent<TextAnimator_TMP>();
-            if (scoreTextAnimator == null)
-                scoreTextAnimator = scoreText.gameObject.AddComponent<TextAnimator_TMP>();
-        }
-
         if (eggsText != null)
         {
             eggsTextAnimator = eggsText.GetComponent<TextAnimator_TMP>();
             if (eggsTextAnimator == null)
                 eggsTextAnimator = eggsText.gameObject.AddComponent<TextAnimator_TMP>();
+        }
+
+        if (coinsText != null)
+        {
+            coinsTextAnimator = coinsText.GetComponent<TextAnimator_TMP>();
+            if (coinsTextAnimator == null)
+                coinsTextAnimator = coinsText.gameObject.AddComponent<TextAnimator_TMP>();
         }
     }
 
@@ -195,44 +204,6 @@ public class UIManager : MonoBehaviour
 
     #endregion
 
-    #region Score UI
-
-    private void RefreshScore(bool force)
-    {
-        if (scoreManager == null || scoreTextAnimator == null) return;
-
-        int currentScore = scoreManager.GetScore();
-
-        // Animate only on increment
-        if (currentScore > previousScore)
-        {
-            // Stop any existing animation coroutine
-            if (scoreAnimationCoroutine != null)
-                StopCoroutine(scoreAnimationCoroutine);
-
-            scoreTextAnimator.SetText($"<pulse>{currentScore}</pulse>");
-            previousScore = currentScore;
-
-            // Start coroutine to set static text after animation completes
-            scoreAnimationCoroutine = StartCoroutine(SetStaticScoreAfterDelay(currentScore, .75f));
-        }
-        else if (force)
-        {
-            // Static text on force initialization
-            scoreTextAnimator.SetText(currentScore.ToString());
-            previousScore = currentScore;
-        }
-    }
-
-    private IEnumerator SetStaticScoreAfterDelay(int score, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (scoreTextAnimator != null)
-            scoreTextAnimator.SetText(score.ToString());
-    }
-
-    #endregion
-
     #region Eggs UI
 
     private void RefreshEggs(bool force)
@@ -267,6 +238,99 @@ public class UIManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         if (eggsTextAnimator != null)
             eggsTextAnimator.SetText(eggs.ToString());
+    }
+
+    #endregion
+
+    #region Coins UI
+
+    private void RefreshCoins(bool force)
+    {
+        if (scoreManager == null || coinsTextAnimator == null) return;
+
+        int currentCoins = scoreManager.GetCoinsCollected();
+
+        // Animate only on increment
+        if (currentCoins > previousCoins)
+        {
+            // Stop any existing animation coroutine
+            if (coinsAnimationCoroutine != null)
+                StopCoroutine(coinsAnimationCoroutine);
+
+            coinsTextAnimator.SetText($"<pulse>{currentCoins}</pulse>");
+            previousCoins = currentCoins;
+
+            // Start coroutine to set static text after animation completes
+            coinsAnimationCoroutine = StartCoroutine(SetStaticCoinsAfterDelay(currentCoins, .75f));
+        }
+        else if (force)
+        {
+            // Static text on force initialization
+            coinsTextAnimator.SetText(currentCoins.ToString());
+            previousCoins = currentCoins;
+        }
+    }
+
+    private IEnumerator SetStaticCoinsAfterDelay(int coins, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (coinsTextAnimator != null)
+            coinsTextAnimator.SetText(coins.ToString());
+    }
+
+    #endregion
+
+    #region Win Scene Stats
+
+    /// <summary>
+    /// Displays level completion statistics on the Win scene
+    /// </summary>
+    private void DisplayWinSceneStats()
+    {
+        if (GameManager.Instance == null) return;
+
+        // Only display stats if we're in the LevelComplete state
+        /* if (GameManager.Instance.CurrentState != GameStateEnum.LevelComplete)
+            return; */
+
+        int completedLevel = GameManager.Instance.CurrentLevel;
+        int levelEggs = GameManager.Instance.LevelEggs;
+        int levelCoins = GameManager.Instance.LevelCoins;
+        int totalEggs = GameManager.Instance.TotalEggs;
+        int totalCoins = GameManager.Instance.TotalCoins;
+        int eggRequirement = GameManager.Instance.GetEggRequirement();
+
+        // Display level number
+        if (levelNumberText != null)
+            levelNumberText.text = $"Level {completedLevel}";
+
+        // Display level stats
+        if (levelEggsText != null)
+            levelEggsText.text = $"{levelEggs}";
+
+        if (levelCoinsText != null)
+            levelCoinsText.text = $"{levelCoins}";
+
+        // Display total stats
+        if (totalEggsText != null)
+            totalEggsText.text = $"Total Eggs: {totalEggs}";
+
+        if (totalCoinsText != null)
+            totalCoinsText.text = $"Total Coins: {totalCoins}";
+
+        // Display egg requirement (for reference)
+        if (eggRequirementText != null)
+            eggRequirementText.text = $"x {eggRequirement}";
+
+        Debug.Log($"Win scene stats displayed - Level {completedLevel}: {levelEggs} eggs, {levelCoins} coins");
+    }
+
+    /// <summary>
+    /// Public method to manually refresh win scene stats (can be called from buttons)
+    /// </summary>
+    public void RefreshWinSceneStats()
+    {
+        DisplayWinSceneStats();
     }
 
     #endregion
