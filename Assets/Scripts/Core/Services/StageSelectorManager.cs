@@ -18,10 +18,15 @@ public class StageSelectorManager : MonoBehaviour
     [Tooltip("Prefab for stage buttons (must have StageButton component)")]
     private GameObject stageButtonGroupPrefab;
 
+    [Header("Prepare Popup")]
+    [SerializeField]
+    [Tooltip("Popup that shows before starting a stage")]
+    private PreparePopup preparePopup;
+
     [Header("Stage Configuration")]
     [SerializeField]
     [Tooltip("Total number of stages to display")]
-    private int totalStages = 10;
+    private int totalStages = 15;
 
     [SerializeField]
     [Tooltip("Auto-generate buttons on start")]
@@ -98,7 +103,7 @@ public class StageSelectorManager : MonoBehaviour
         // Clear existing buttons
         ClearStageButtons();
 
-        // Generate button groups for each stage
+        // Generate button groups for each stage (starting from level 0 as tutorial)
         int specialStageCounter = totalStages;
         int darkStageCounter = totalStages + 100;
 
@@ -107,14 +112,15 @@ public class StageSelectorManager : MonoBehaviour
             int specialIndex = -1;
             int darkIndex = -1;
 
-            // Every 3rd level gets a special stage (levels 3, 6, 9, 12...)
-            if ((i + 1) % 3 == 0)
+            // Level 0 is the tutorial and has no special/dark branches
+            // Special stages appear at odd indices: 1, 3, 5, 7...
+            if (i > 0 && (i + 1) % 2 == 0)
             {
                 specialIndex = specialStageCounter++;
             }
 
-            // Every 6th level gets a dark stage (levels 6, 12, 18...)
-            if ((i + 1) % 6 == 0)
+            // Dark stages appear at indices 3, 7, 11, 15... (every 4th level after tutorial)
+            if (i > 0 && (i + 1) % 4 == 0)
             {
                 darkIndex = darkStageCounter++;
             }
@@ -122,7 +128,6 @@ public class StageSelectorManager : MonoBehaviour
             CreateStageButtonGroup(i, specialIndex, darkIndex);
         }
 
-        Debug.Log($"Generated {totalStages} stage button groups");
     }
 
     /// <summary>
@@ -209,7 +214,6 @@ public class StageSelectorManager : MonoBehaviour
     /// <param name="stageIndex">The selected stage index</param>
     private void OnStageSelected(int stageIndex)
     {
-        Debug.Log($"Stage {stageIndex} selected in StageSelectorManager");
 
         // Validate stage is unlocked
         if (!GameManager.Instance.IsStageUnlocked(stageIndex))
@@ -218,17 +222,21 @@ public class StageSelectorManager : MonoBehaviour
             return;
         }
 
-        // Set the current stage in GameManager
-        GameManager.Instance.SetCurrentStage(stageIndex);
-
-        // Load the stage through LevelManager
-        if (LevelManager.Instance != null)
+        // Show prepare popup instead of immediately starting the game
+        if (preparePopup != null)
         {
-            LevelManager.Instance.StartGame();
+            preparePopup.Show(stageIndex);
         }
         else
         {
-            Debug.LogError("LevelManager instance not found! Cannot start stage.");
+            Debug.LogError("PreparePopup is not assigned! Cannot show preparation screen.");
+
+            // Fallback: Start game directly if popup is missing
+            GameManager.Instance.SetCurrentStage(stageIndex);
+            if (LevelManager.Instance != null)
+            {
+                LevelManager.Instance.StartGame();
+            }
         }
     }
 

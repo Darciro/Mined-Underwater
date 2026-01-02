@@ -168,4 +168,15 @@ public class LevelManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         SceneManager.LoadScene(sceneName);
     }
+
+    public void LoadCharacterScene()
+    {
+        // Set game state to Character
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ChangeState(GameStateEnum.MainMenu);
+        }
+
+        SceneManager.LoadScene("Character");
+    }
 }

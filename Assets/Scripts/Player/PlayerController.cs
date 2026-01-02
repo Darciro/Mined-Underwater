@@ -67,6 +67,26 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
+    #region Shop System - Upgrades & Inventory
+
+    // Base stats (will be modified by upgrades)
+    private int baseMaxHealth;
+    private int baseMaxAir;
+    private float baseSpeed;
+    private int baseDamage;
+
+    // Consumable items inventory
+    private int potionCount = 0;
+    private int shieldCharges = 0;
+    private int bombCount = 0;
+    private int magnetCount = 0;
+
+    // Active item effects
+    private bool isShieldActive = false;
+    private bool isMagnetActive = false;
+
+    #endregion
+
     #region Constants
 
     private const string ANIMATION_BITE = "Bite";
@@ -185,8 +205,23 @@ public class PlayerController : MonoBehaviour
         }
 
         levelManager = FindFirstObjectByType<LevelManager>();
+
+        // Store base stats before applying upgrades
+        baseMaxHealth = maxHealth;
+        baseMaxAir = maxAir;
+        baseSpeed = speed;
+        baseDamage = 1; // Base damage for projectiles
+
+        // Load and apply upgrades from PlayerPrefs
+        LoadUpgrades();
+
+        // Load consumable items inventory
+        LoadInventory();
+
+        // Set current values to max after upgrades are applied
         currentHealth = maxHealth;
         currentAir = maxAir;
+
         lastAirDepletionTime = Time.time + airDepletionStartDelay; // Add delay before air starts depleting
         lastAirDamageTime = Time.time;
         cachedMainCamera = Camera.main;
@@ -708,6 +743,14 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        // Check if shield is active and blocks the damage
+        if (isShieldActive && shieldCharges > 0)
+        {
+            ConsumeShieldCharge();
+            Debug.Log("Damage blocked by shield!");
+            return;
+        }
+
         int finalDamage = CalculateFinalDamage(damage);
         ApplyDamage(finalDamage);
         StartInvincibilityFrames();
@@ -1152,6 +1195,291 @@ public class PlayerController : MonoBehaviour
         hasLoggedMissingCamera = true;
         Debug.LogWarning("PlayerController: No MainCamera found (tagged 'MainCamera'). Damage popups require a camera to convert world-to-screen.");
     }
+
+    #endregion
+
+    #region Public Stat Getters
+
+    /// <summary>
+    /// Gets the player's defense as a percentage (damage reduction)
+    /// </summary>
+    /// <returns>Defense percentage (0-100)</returns>
+    public float GetDefense()
+    {
+        return damageReductionPercentage;
+    }
+
+    /// <summary>
+    /// Gets the player's movement speed
+    /// </summary>
+    /// <returns>Movement speed value</returns>
+    public float GetMoveSpeed()
+    {
+        return speed;
+    }
+
+    /// <summary>
+    /// Gets the player's attack speed (fire rate - time between shots)
+    /// </summary>
+    /// <returns>Fire rate in seconds</returns>
+    public float GetAttackSpeed()
+    {
+        return fireRate;
+    }
+
+    /// <summary>
+    /// Gets the minimum damage the player's projectiles can deal
+    /// Note: Actual damage is determined by the ProjectileDamage component on projectiles
+    /// </summary>
+    /// <returns>Minimum damage value</returns>
+    public int GetMinDamage()
+    {
+        // Since damage is on the projectile prefab, we need to check it
+        if (projectilePrefab != null)
+        {
+            ProjectileDamage projectileDamage = projectilePrefab.GetComponent<ProjectileDamage>();
+            if (projectileDamage != null)
+            {
+                return projectileDamage.GetMinDamage();
+            }
+        }
+        return 1; // Default fallback
+    }
+
+    /// <summary>
+    /// Gets the maximum damage the player's projectiles can deal
+    /// Note: Actual damage is determined by the ProjectileDamage component on projectiles
+    /// </summary>
+    /// <returns>Maximum damage value</returns>
+    public int GetMaxDamage()
+    {
+        // Since damage is on the projectile prefab, we need to check it
+        if (projectilePrefab != null)
+        {
+            ProjectileDamage projectileDamage = projectilePrefab.GetComponent<ProjectileDamage>();
+            if (projectileDamage != null)
+            {
+                return projectileDamage.GetMaxDamage();
+            }
+        }
+        return 10; // Default fallback
+    }
+
+    #endregion
+
+    #region Shop System - Upgrade & Inventory Management
+
+    /// <summary>
+    /// Loads all purchased upgrades from PlayerPrefs and applies them to stats
+    /// </summary>
+    public void LoadUpgrades()
+    {
+        // Load health upgrades
+        int healthUpgradeLevel = PlayerPrefs.GetInt("UpgradeLevel_HealthUpgrade", 0);
+        maxHealth = baseMaxHealth + healthUpgradeLevel;
+
+        // Load air upgrades
+        int airUpgradeLevel = PlayerPrefs.GetInt("UpgradeLevel_AirUpgrade", 0);
+        maxAir = baseMaxAir + airUpgradeLevel;
+
+        // Load speed upgrades
+        int speedUpgradeLevel = PlayerPrefs.GetInt("UpgradeLevel_SpeedUpgrade", 0);
+        speed = baseSpeed + (speedUpgradeLevel * 0.1f);
+
+        // Load damage upgrades (stored for later application to projectiles)
+        int damageUpgradeLevel = PlayerPrefs.GetInt("UpgradeLevel_DamageUpgrade", 0);
+        baseDamage = 1 + damageUpgradeLevel;
+
+        Debug.Log($"Upgrades loaded - Health: {maxHealth}, Air: {maxAir}, Speed: {speed:F1}, Damage: {baseDamage}");
+    }
+
+    /// <summary>
+    /// Loads consumable items from PlayerPrefs into inventory
+    /// </summary>
+    public void LoadInventory()
+    {
+        potionCount = PlayerPrefs.GetInt("ItemCount_Potion", 0);
+        shieldCharges = PlayerPrefs.GetInt("ItemCount_Shield", 0);
+        bombCount = PlayerPrefs.GetInt("ItemCount_Bomb", 0);
+        magnetCount = PlayerPrefs.GetInt("ItemCount_Magnet", 0);
+
+        Debug.Log($"Inventory loaded - Potions: {potionCount}, Shields: {shieldCharges}, Bombs: {bombCount}, Magnets: {magnetCount}");
+    }
+
+    /// <summary>
+    /// Gets the damage boost from upgrades for projectiles
+    /// </summary>
+    public int GetDamageBoost()
+    {
+        return baseDamage - 1; // Return the bonus damage (base is 1)
+    }
+
+    /// <summary>
+    /// Uses a health potion to restore 10 health
+    /// </summary>
+    public void UsePotion()
+    {
+        if (potionCount <= 0)
+        {
+            Debug.Log("No potions available!");
+            return;
+        }
+
+        if (currentHealth >= maxHealth)
+        {
+            Debug.Log("Already at full health!");
+            return;
+        }
+
+        potionCount--;
+        PlayerPrefs.SetInt("ItemCount_Potion", potionCount);
+        PlayerPrefs.Save();
+
+        Heal(10);
+        Debug.Log($"Used potion! Remaining: {potionCount}");
+    }
+
+    /// <summary>
+    /// Activates shield protection
+    /// </summary>
+    public void UseShield()
+    {
+        if (shieldCharges <= 0)
+        {
+            Debug.Log("No shield charges available!");
+            return;
+        }
+
+        isShieldActive = true;
+        Debug.Log($"Shield activated! Charges: {shieldCharges}");
+    }
+
+    /// <summary>
+    /// Consumes one shield charge when blocking damage
+    /// </summary>
+    private void ConsumeShieldCharge()
+    {
+        if (shieldCharges > 0)
+        {
+            shieldCharges--;
+            PlayerPrefs.SetInt("ItemCount_Shield", shieldCharges);
+            PlayerPrefs.Save();
+
+            Debug.Log($"Shield blocked damage! Remaining charges: {shieldCharges}");
+
+            if (shieldCharges <= 0)
+            {
+                isShieldActive = false;
+                Debug.Log("Shield depleted!");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Uses a bomb to destroy all enemies on screen
+    /// </summary>
+    public void UseBomb()
+    {
+        if (bombCount <= 0)
+        {
+            Debug.Log("No bombs available!");
+            return;
+        }
+
+        bombCount--;
+        PlayerPrefs.SetInt("ItemCount_Bomb", bombCount);
+        PlayerPrefs.Save();
+
+        // Find and destroy all enemies
+        EnemyController[] enemies = FindObjectsByType<EnemyController>(FindObjectsSortMode.None);
+        foreach (EnemyController enemy in enemies)
+        {
+            enemy.TakeDamage(9999); // Deal massive damage to instantly kill
+        }
+
+        Debug.Log($"Bomb used! Destroyed {enemies.Length} enemies. Remaining: {bombCount}");
+    }
+
+    /// <summary>
+    /// Activates magnet to auto-collect pickups
+    /// </summary>
+    public void UseMagnet()
+    {
+        if (magnetCount <= 0)
+        {
+            Debug.Log("No magnets available!");
+            return;
+        }
+
+        magnetCount--;
+        PlayerPrefs.SetInt("ItemCount_Magnet", magnetCount);
+        PlayerPrefs.Save();
+
+        isMagnetActive = true;
+        StartCoroutine(MagnetEffectCoroutine());
+        Debug.Log($"Magnet activated! Remaining: {magnetCount}");
+    }
+
+    /// <summary>
+    /// Coroutine for magnet effect duration
+    /// </summary>
+    private System.Collections.IEnumerator MagnetEffectCoroutine()
+    {
+        float duration = 10f; // Magnet lasts 10 seconds
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            // Pull all nearby collectables towards player
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 5f); // 5 unit radius
+            foreach (Collider2D col in colliders)
+            {
+                PickupBase pickup = col.GetComponent<PickupBase>();
+                if (pickup != null)
+                {
+                    // Move pickup towards player
+                    Vector2 direction = ((Vector2)transform.position - (Vector2)col.transform.position).normalized;
+                    col.transform.position = Vector2.MoveTowards(col.transform.position, transform.position, 10f * Time.deltaTime);
+                }
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        isMagnetActive = false;
+        Debug.Log("Magnet effect ended");
+    }
+
+    /// <summary>
+    /// Gets the current potion count
+    /// </summary>
+    public int GetPotionCount() => potionCount;
+
+    /// <summary>
+    /// Gets the current shield charges
+    /// </summary>
+    public int GetShieldCharges() => shieldCharges;
+
+    /// <summary>
+    /// Gets the current bomb count
+    /// </summary>
+    public int GetBombCount() => bombCount;
+
+    /// <summary>
+    /// Gets the current magnet count
+    /// </summary>
+    public int GetMagnetCount() => magnetCount;
+
+    /// <summary>
+    /// Checks if shield is currently active
+    /// </summary>
+    public bool IsShieldActive() => isShieldActive;
+
+    /// <summary>
+    /// Checks if magnet is currently active
+    /// </summary>
+    public bool IsMagnetActive() => isMagnetActive;
 
     #endregion
 }

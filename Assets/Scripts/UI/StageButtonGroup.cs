@@ -66,13 +66,13 @@ public class StageButtonGroup : MonoBehaviour
         darkStageIndex = darkIndex;
         onStageSelectedCallback = onSelected;
 
-        // Update stage level text
+        // Update stage level text (0-based: 0 is tutorial, then 1, 2, 3...)
         if (stageLevelText != null)
         {
             var textComponent = stageLevelText.GetComponent<TMPro.TextMeshProUGUI>();
             if (textComponent != null)
             {
-                textComponent.text = (mainIndex + 1).ToString();
+                textComponent.text = mainIndex.ToString();
             }
         }
 

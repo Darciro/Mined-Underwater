@@ -184,9 +184,9 @@ MonoBehaviour:
   health: 1
   minDamageAmount: 10
   maxDamageAmount: 20
-  scoreValue: 5
+  coinValue: 2
   hitParticles: {fileID: 8713912631512916485, guid: 55690877c568c7b41b85da6d2f1eb09f, type: 3}
-  scorePopupPrefab: {fileID: 0}
+  coinPopupPrefab: {fileID: 0}
   moveSpeed: 1
   verticalSpeed: 1
   minY: -4

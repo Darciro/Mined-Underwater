@@ -105,6 +105,16 @@ public class ProjectileDamage : MonoBehaviour
         return rolledDamage;
     }
 
+    public int GetMinDamage()
+    {
+        return minDamage;
+    }
+
+    public int GetMaxDamage()
+    {
+        return maxDamage;
+    }
+
     public void SetDamage(int newDamage)
     {
         minDamage = newDamage;

@@ -289,10 +289,6 @@ public class UIManager : MonoBehaviour
     {
         if (GameManager.Instance == null) return;
 
-        // Only display stats if we're in the LevelComplete state
-        /* if (GameManager.Instance.CurrentState != GameStateEnum.LevelComplete)
-            return; */
-
         int completedLevel = GameManager.Instance.CurrentLevel;
         int levelEggs = GameManager.Instance.LevelEggs;
         int levelCoins = GameManager.Instance.LevelCoins;
@@ -313,16 +309,14 @@ public class UIManager : MonoBehaviour
 
         // Display total stats
         if (totalEggsText != null)
-            totalEggsText.text = $"Total Eggs: {totalEggs}";
+            totalEggsText.text = $"{totalEggs}";
 
         if (totalCoinsText != null)
-            totalCoinsText.text = $"Total Coins: {totalCoins}";
+            totalCoinsText.text = $"{totalCoins}";
 
         // Display egg requirement (for reference)
         if (eggRequirementText != null)
             eggRequirementText.text = $"x {eggRequirement}";
-
-        Debug.Log($"Win scene stats displayed - Level {completedLevel}: {levelEggs} eggs, {levelCoins} coins");
     }
 
     /// <summary>

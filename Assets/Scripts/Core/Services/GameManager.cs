@@ -50,9 +50,26 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public int CurrentLevel => currentLevel;
 
-    // Egg requirement formula parameters
-    private int baseEggRequirement = 5;
-    private int eggsPerLevel = 3;
+    /// <summary>
+    /// Calculates the nth Fibonacci number (1-indexed)
+    /// </summary>
+    /// <param name="n">The position in the Fibonacci sequence</param>
+    /// <returns>The Fibonacci number at position n</returns>
+    private int CalculateFibonacci(int n)
+    {
+        if (n <= 0) return 1; // For level 0 or negative, return 1
+        if (n == 1) return 1;
+        if (n == 2) return 2;
+
+        int a = 1, b = 2;
+        for (int i = 3; i <= n; i++)
+        {
+            int temp = a + b;
+            a = b;
+            b = temp;
+        }
+        return b;
+    }
 
     #endregion
 
@@ -230,27 +247,15 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Calculates the egg requirement for a specific level using the current formula
+    /// Calculates the egg requirement for a specific level using the Fibonacci sequence
     /// </summary>
     /// <param name="level">The level to calculate for</param>
-    /// <returns>Number of eggs required</returns>
+    /// <returns>Number of eggs required (Fibonacci number for the level)</returns>
     public int CalculateEggRequirement(int level)
     {
-        // Linear formula: base + (level * increment)
-        return baseEggRequirement + (level * eggsPerLevel);
-    }
-
-    /// <summary>
-    /// Sets custom parameters for the egg requirement formula
-    /// </summary>
-    /// <param name="baseRequirement">Base number of eggs required at level 0</param>
-    /// <param name="incrementPerLevel">Additional eggs required per level</param>
-    public void SetEggRequirementFormula(int baseRequirement, int incrementPerLevel)
-    {
-        baseEggRequirement = baseRequirement;
-        eggsPerLevel = incrementPerLevel;
-        Debug.Log($"Egg requirement formula updated: {baseRequirement} + (level * {incrementPerLevel})");
-        RefreshDebug();
+        // Use Fibonacci sequence for egg requirements
+        // Level 0 -> 1, Level 1 -> 1, Level 2 -> 2, Level 3 -> 3, Level 4 -> 5, etc.
+        return CalculateFibonacci(level);
     }
 
     /// <summary>
@@ -319,6 +324,32 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Spends coins from the player's total
+    /// </summary>
+    /// <param name="amount">Amount of coins to spend</param>
+    /// <returns>True if the purchase was successful, false if not enough coins</returns>
+    public bool SpendCoins(int amount)
+    {
+        if (amount < 0)
+        {
+            Debug.LogWarning("Cannot spend negative coins!");
+            return false;
+        }
+
+        if (totalCoins < amount)
+        {
+            Debug.LogWarning($"Not enough coins! Have {totalCoins}, need {amount}");
+            return false;
+        }
+
+        totalCoins -= amount;
+        SavePersistentData();
+        Debug.Log($"Spent {amount} coins. Remaining: {totalCoins}");
+        RefreshDebug();
+        return true;
+    }
+
+    /// <summary>
     /// Resets all level-specific statistics (eggs, coins)
     /// </summary>
     public void ResetLevelStats()
@@ -328,6 +359,74 @@ public class GameManager : MonoBehaviour
         Debug.Log("Level statistics reset");
         RefreshDebug();
     }
+
+#if UNITY_EDITOR
+    /// <summary>
+    /// [EDITOR ONLY] Adds 10 eggs for testing
+    /// </summary>
+    [ContextMenu("Debug/Add 10 Eggs")]
+    private void Debug_Add10Eggs()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            AddEgg();
+        }
+        Debug.Log($"Added 10 eggs! Total: {totalEggs}");
+    }
+
+    /// <summary>
+    /// [EDITOR ONLY] Adds 100 coins for testing
+    /// </summary>
+    [ContextMenu("Debug/Add 100 Coins")]
+    private void Debug_Add100Coins()
+    {
+        for (int i = 0; i < 100; i++)
+        {
+            AddCoin();
+        }
+        Debug.Log($"Added 100 coins! Total: {totalCoins}");
+    }
+
+    /// <summary>
+    /// [EDITOR ONLY] Adds 1000 coins for testing shop
+    /// </summary>
+    [ContextMenu("Debug/Add 1000 Coins")]
+    private void Debug_Add1000Coins()
+    {
+        for (int i = 0; i < 1000; i++)
+        {
+            levelCoins++;
+            totalCoins++;
+        }
+        SavePersistentData();
+        Debug.Log($"Added 1000 coins! Total: {totalCoins}");
+        RefreshDebug();
+    }
+
+    /// <summary>
+    /// [EDITOR ONLY] Adds custom amount of eggs
+    /// </summary>
+    public void Debug_AddEggs(int amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            AddEgg();
+        }
+        Debug.Log($"Added {amount} eggs! Total: {totalEggs}");
+    }
+
+    /// <summary>
+    /// [EDITOR ONLY] Adds custom amount of coins
+    /// </summary>
+    public void Debug_AddCoins(int amount)
+    {
+        levelCoins += amount;
+        totalCoins += amount;
+        SavePersistentData();
+        Debug.Log($"Added {amount} coins! Total: {totalCoins}");
+        RefreshDebug();
+    }
+#endif
 
     #endregion
 
