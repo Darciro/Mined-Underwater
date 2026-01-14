@@ -495,6 +495,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4822715771380763329, guid: bcaea6b72f101b444a24d0c83a5585d8, type: 3}
+      propertyPath: showBannerOnInit
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4822715771380763329, guid: bcaea6b72f101b444a24d0c83a5585d8, type: 3}
       propertyPath: showBannerOnStart
       value: 0
       objectReference: {fileID: 0}
@@ -828,7 +832,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1932253888203435650, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: ShowAds
+      value: ShowInterstitial
       objectReference: {fileID: 0}
     - target: {fileID: 1932253888203435650, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName

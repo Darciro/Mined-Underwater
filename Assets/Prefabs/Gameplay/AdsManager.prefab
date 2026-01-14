@@ -44,9 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88615668e07bc0b41a37d19f83a19da1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AdsManager
-  androidGameId: 6017771
-  iosGameId: 6017770
-  testMode: 0
-  bannerPlacementId: Banner_Android
-  interstitialPlacementId: Interstitial_Android
-  showBannerOnStart: 1
+  androidAppKey: 24cfdfd7d
+  bannerAdUnitId: hyu6gcwiyt8j01k7
+  interstitialAdUnitId: mxgkoyqso89sk0r0
+  showBannerOnInit: 1
