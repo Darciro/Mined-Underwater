@@ -21769,7 +21769,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 5967329541890052120}
         m_TargetAssemblyTypeName: AdsManagerRelay, Assembly-CSharp
-        m_MethodName: ShowInterstitial
+        m_MethodName: ShowInterstitialAndClaim
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

@@ -77,6 +77,7 @@ public class UIManager : MonoBehaviour
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
+            GameManager.Instance.OnRewardsDoubled += RefreshWinSceneStats;
         }
     }
 
@@ -137,6 +138,7 @@ public class UIManager : MonoBehaviour
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
+            GameManager.Instance.OnRewardsDoubled -= RefreshWinSceneStats;
         }
     }
 

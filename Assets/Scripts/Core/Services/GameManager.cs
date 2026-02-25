@@ -25,6 +25,11 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public event Action<int> OnLevelComplete;
 
+    /// <summary>
+    /// Invoked when the player successfully doubles their rewards after watching an ad.
+    /// </summary>
+    public event Action OnRewardsDoubled;
+
     #endregion
 
     #region State Management
@@ -94,6 +99,7 @@ public class GameManager : MonoBehaviour
     // Current level statistics
     private int levelEggs = 0;
     private int levelCoins = 0;
+    private bool rewardsAlreadyDoubled = false;
 
     /// <summary>
     /// Gets eggs collected in current level
@@ -350,7 +356,37 @@ public class GameManager : MonoBehaviour
     {
         levelEggs = 0;
         levelCoins = 0;
+        rewardsAlreadyDoubled = false;
         RefreshDebug();
+    }
+
+    /// <summary>
+    /// Doubles the coins and eggs earned this level and adds them to the lifetime totals.
+    /// Can only be claimed once per level.
+    /// </summary>
+    /// <returns>True if rewards were doubled, false if already claimed.</returns>
+    public bool ClaimDoubleRewards()
+    {
+        if (rewardsAlreadyDoubled)
+        {
+            Debug.LogWarning("Double rewards already claimed for this level.");
+            return false;
+        }
+
+        rewardsAlreadyDoubled = true;
+
+        // Add the level amounts again to both level and lifetime totals
+        totalEggs += levelEggs;
+        levelEggs *= 2;
+
+        totalCoins += levelCoins;
+        levelCoins *= 2;
+
+        SavePersistentData();
+        RefreshDebug();
+
+        OnRewardsDoubled?.Invoke();
+        return true;
     }
 
 #if UNITY_EDITOR

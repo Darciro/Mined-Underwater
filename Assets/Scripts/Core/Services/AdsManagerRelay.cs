@@ -30,4 +30,32 @@ public class AdsManagerRelay : UnityEngine.MonoBehaviour
         if (AdsManager.Instance != null)
             AdsManager.Instance.LoadInterstitial();
     }
+
+    public void ShowInterstitialAndRestart()
+    {
+        if (AdsManager.Instance != null)
+            AdsManager.Instance.ShowInterstitial(() =>
+            {
+                if (LevelManager.Instance != null)
+                    LevelManager.Instance.RestartGame();
+                else
+                    UnityEngine.Debug.LogWarning("AdsManagerRelay: LevelManager instance not found.");
+            });
+        else
+            UnityEngine.Debug.LogWarning("AdsManagerRelay: AdsManager instance not found.");
+    }
+
+    public void ShowInterstitialAndClaim()
+    {
+        if (AdsManager.Instance != null)
+            AdsManager.Instance.ShowInterstitial(() =>
+            {
+                if (GameManager.Instance != null)
+                    GameManager.Instance.ClaimDoubleRewards();
+                else
+                    UnityEngine.Debug.LogWarning("AdsManagerRelay: GameManager instance not found.");
+            });
+        else
+            UnityEngine.Debug.LogWarning("AdsManagerRelay: AdsManager instance not found.");
+    }
 }
