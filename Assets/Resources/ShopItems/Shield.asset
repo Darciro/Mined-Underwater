@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Shield
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemSO
   itemName: Shield
-  description: 
-  icon: {fileID: 0}
+  description: Negates your next 10 points of damage
+  icon: {fileID: 21300000, guid: af4cc505a01a64425a7e1e7e85912203, type: 3}
   cost: 10
   itemType: 1
   effectType: 5

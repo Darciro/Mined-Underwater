@@ -40,6 +40,14 @@ public class ResourcesPopup : MonoBehaviour
     [Tooltip("Button to close the popup")]
     private Button closeButton;
 
+    [SerializeField]
+    [Tooltip("Popup content")]
+    private GameObject popupContent;
+
+    [SerializeField]
+    [Tooltip("Popup content - coming soon")]
+    private GameObject popupContentComingSoon;
+
     [Header("Animation")]
     [SerializeField]
     [Tooltip("Optional feedback to play when popup shows")]
@@ -102,7 +110,8 @@ public class ResourcesPopup : MonoBehaviour
     /// Shows the popup with the specified shop item
     /// </summary>
     /// <param name="item">The shop item to display</param>
-    public void Show(ShopItemSO item)
+    /// <param name="soon">Indicates if the item will be available soon</param>
+    public void Show(ShopItemSO item, bool soon = false)
     {
         if (item == null)
         {
@@ -115,6 +124,19 @@ public class ResourcesPopup : MonoBehaviour
         // Update UI elements
         UpdateUI();
 
+        if (soon)
+        {
+            // Show "coming soon" content and hide regular content
+            if (popupContent != null) popupContent.SetActive(false);
+            if (popupContentComingSoon != null) popupContentComingSoon.SetActive(true);
+        }
+        else
+        {
+            // Show regular content and hide "coming soon" content
+            if (popupContent != null) popupContent.SetActive(true);
+            if (popupContentComingSoon != null) popupContentComingSoon.SetActive(false);
+        }
+
         // Enable the popup
         gameObject.SetActive(true);
 
@@ -124,7 +146,6 @@ public class ResourcesPopup : MonoBehaviour
             showFeedback.PlayFeedbacks();
         }
 
-        Debug.Log($"ResourcesPopup shown for: {item.itemName}");
     }
 
     /// <summary>
@@ -220,7 +241,6 @@ public class ResourcesPopup : MonoBehaviour
         // Check if player can afford the item
         if (GameManager.Instance.TotalCoins < currentItem.cost)
         {
-            Debug.Log($"Cannot afford {currentItem.itemName}. Need {currentItem.cost}, have {GameManager.Instance.TotalCoins}");
 
             if (purchaseFailedFeedback != null)
             {
@@ -254,7 +274,6 @@ public class ResourcesPopup : MonoBehaviour
             purchaseSuccessFeedback.PlayFeedbacks();
         }
 
-        Debug.Log($"Successfully purchased {currentItem.itemName} for {currentItem.cost} coins!");
 
         // Close the popup after successful purchase
         Close();
@@ -284,17 +303,14 @@ public class ResourcesPopup : MonoBehaviour
             if (currentItem.itemType == ShopItemType.Upgrade)
             {
                 player.LoadUpgrades();
-                Debug.Log("Upgrades reloaded and applied to player immediately");
             }
             else
             {
                 player.LoadInventory();
-                Debug.Log("Inventory reloaded immediately");
             }
         }
         else
         {
-            Debug.Log("Purchase saved. Will be applied when player spawns.");
         }
     }
 
@@ -309,7 +325,6 @@ public class ResourcesPopup : MonoBehaviour
         PlayerPrefs.SetInt(upgradeKey, currentLevel);
         PlayerPrefs.Save();
 
-        Debug.Log($"Upgraded {currentItem.effectType} to level {currentLevel}");
     }
 
     /// <summary>
@@ -323,7 +338,6 @@ public class ResourcesPopup : MonoBehaviour
         PlayerPrefs.SetInt(itemKey, currentCount);
         PlayerPrefs.Save();
 
-        Debug.Log($"Added {currentItem.usesCount}x {currentItem.effectType} to inventory (total: {currentCount})");
     }
 
     /// <summary>

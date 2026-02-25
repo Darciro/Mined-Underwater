@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: AirUpgrade
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemSO
   itemName: Oxygen
-  description: Adds 3 points to your maximum oxygen
-  icon: {fileID: 0}
+  description: Adds 3 seconds to your maximum oxygen
+  icon: {fileID: 21300000, guid: 9079162d3f5e946f88770d469ae4cd5b, type: 3}
   cost: 50
   itemType: 0
   effectType: 1

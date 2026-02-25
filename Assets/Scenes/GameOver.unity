@@ -507,17 +507,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bcaea6b72f101b444a24d0c83a5585d8, type: 3}
---- !u!114 &1437457697 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4822715771380763329, guid: bcaea6b72f101b444a24d0c83a5585d8, type: 3}
-  m_PrefabInstance: {fileID: 1437457696}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88615668e07bc0b41a37d19f83a19da1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AdsManager
 --- !u!1 &1714406453
 GameObject:
   m_ObjectHideFlags: 0
@@ -784,31 +773,39 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 357086107357415609, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 357086107357415609, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 357086107357415609, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 49.69
       objectReference: {fileID: 0}
     - target: {fileID: 357086107357415609, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 113.805
       objectReference: {fileID: 0}
     - target: {fileID: 357086107357415609, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -41
       objectReference: {fileID: 0}
     - target: {fileID: 587631690674727853, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 186.7
       objectReference: {fileID: 0}
     - target: {fileID: 733904079054043986, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 733904079054043986, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -213.68898
+      objectReference: {fileID: 0}
+    - target: {fileID: 1505058706394826980, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1836625505254164530, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -825,7 +822,7 @@ PrefabInstance:
     - target: {fileID: 1932253888203435650, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1437457697}
+      objectReference: {fileID: 5378581788757616713}
     - target: {fileID: 1932253888203435650, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -836,7 +833,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1932253888203435650, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: AdsManager, Assembly-CSharp
+      value: AdsManagerRelay, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 1932253888203435650, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -932,11 +929,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3631376143429357173, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 138.65
       objectReference: {fileID: 0}
     - target: {fileID: 3631376143429357173, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 82
       objectReference: {fileID: 0}
     - target: {fileID: 3631376143429357173, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -958,6 +955,10 @@ PrefabInstance:
       propertyPath: m_text
       value: Restart
       objectReference: {fileID: 0}
+    - target: {fileID: 5823078383820188324, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6406556684093019281, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -22.189026
@@ -972,23 +973,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8026136029820614267, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8026136029820614267, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8026136029820614267, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 70
       objectReference: {fileID: 0}
     - target: {fileID: 8026136029820614267, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 35
       objectReference: {fileID: 0}
     - target: {fileID: 8026136029820614267, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -41
       objectReference: {fileID: 0}
     - target: {fileID: 8282905938422195299, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       propertyPath: m_IsActive
@@ -1032,8 +1033,28 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3648502380191364047, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1134488429}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8501560042368354561, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5378581788757616713}
   m_SourcePrefab: {fileID: 100100000, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
+--- !u!1 &5378581788757616712 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8501560042368354561, guid: 57a88474bb92722438e5600b2c3abec0, type: 3}
+  m_PrefabInstance: {fileID: 5378581788757616711}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5378581788757616713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5378581788757616712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4975b69ccba9b5649b83fa8789ccd8e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AdsManagerRelay
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -16,6 +16,8 @@ public class AdsManager : MonoBehaviour
     private bool isInitialized;
     private LevelPlayBannerAd bannerAd;
     private LevelPlayInterstitialAd interstitialAd;
+    private System.Action onInterstitialClosedCallback;
+    private bool showInterstitialWhenReady;
 
     // ------------------------
     // Unity Lifecycle
@@ -34,6 +36,12 @@ public class AdsManager : MonoBehaviour
         InitializeAds();
     }
 
+    private void Start()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
+    }
+
     private void OnApplicationPause(bool isPaused)
     {
         // Unity Mediation handles this automatically
@@ -44,7 +52,6 @@ public class AdsManager : MonoBehaviour
     // ------------------------
     private void InitializeAds()
     {
-        Debug.Log($"Initializing Unity LevelPlay with App Key: {androidAppKey}");
 
         try
         {
@@ -63,7 +70,6 @@ public class AdsManager : MonoBehaviour
 
     private void OnSdkInitialized(LevelPlayConfiguration config)
     {
-        Debug.Log($"Unity LevelPlay initialized successfully with config: {config}");
         isInitialized = true;
 
         // Initialize ad instances
@@ -115,7 +121,6 @@ public class AdsManager : MonoBehaviour
 
         try
         {
-            Debug.Log("Loading interstitial ad...");
             interstitialAd.LoadAd();
         }
         catch (System.Exception e)
@@ -124,11 +129,12 @@ public class AdsManager : MonoBehaviour
         }
     }
 
-    public void ShowInterstitial()
+    public void ShowInterstitial(System.Action onClosed = null)
     {
         if (!isInitialized || interstitialAd == null)
         {
             Debug.LogWarning("LevelPlay not initialized.");
+            onClosed?.Invoke();
             return;
         }
 
@@ -136,18 +142,21 @@ public class AdsManager : MonoBehaviour
         {
             if (interstitialAd.IsAdReady())
             {
-                Debug.Log("Showing interstitial ad...");
+                onInterstitialClosedCallback = onClosed;
                 interstitialAd.ShowAd();
             }
             else
             {
-                Debug.LogWarning("Interstitial ad not ready. Loading now...");
+                Debug.LogWarning("Interstitial ad not ready. Loading and will show when ready...");
+                onInterstitialClosedCallback = onClosed;
+                showInterstitialWhenReady = true;
                 LoadInterstitial();
             }
         }
         catch (System.Exception e)
         {
             Debug.LogError($"Interstitial show failed: {e.Message}");
+            onClosed?.Invoke();
         }
     }
 
@@ -164,7 +173,6 @@ public class AdsManager : MonoBehaviour
 
         try
         {
-            Debug.Log("Loading banner...");
             bannerAd.LoadAd();
         }
         catch (System.Exception e)
@@ -173,11 +181,23 @@ public class AdsManager : MonoBehaviour
         }
     }
 
+    public void ShowBanner()
+    {
+        if (bannerAd == null) return;
+
+        if (GameManager.Instance != null && GameManager.Instance.CurrentState == GameStateEnum.Playing)
+        {
+            Debug.LogWarning("Cannot show banner during Playing state.");
+            return;
+        }
+
+        bannerAd.ShowAd();
+    }
+
     public void HideBanner()
     {
         if (bannerAd != null)
         {
-            Debug.Log("Hiding banner...");
             bannerAd.HideAd();
         }
     }
@@ -186,7 +206,6 @@ public class AdsManager : MonoBehaviour
     {
         if (bannerAd != null)
         {
-            Debug.Log("Destroying banner...");
             bannerAd.DestroyAd();
         }
     }
@@ -196,7 +215,18 @@ public class AdsManager : MonoBehaviour
     // ------------------------
     private void OnBannerLoaded(LevelPlayAdInfo adInfo)
     {
-        Debug.Log($"Banner loaded: {adInfo}");
+
+        // Hide banner immediately if the game is actively being played
+        if (GameManager.Instance != null && (GameManager.Instance.CurrentState == GameStateEnum.Playing || GameManager.Instance.CurrentState == GameStateEnum.LevelComplete))
+            HideBanner();
+    }
+
+    private void HandleGameStateChanged(GameStateEnum newState)
+    {
+        if (newState == GameStateEnum.Playing || newState == GameStateEnum.LevelComplete)
+            HideBanner();
+        else
+            ShowBanner();
     }
 
     private void OnBannerLoadFailed(LevelPlayAdError error)
@@ -206,7 +236,6 @@ public class AdsManager : MonoBehaviour
 
     private void OnBannerDisplayed(LevelPlayAdInfo adInfo)
     {
-        Debug.Log($"Banner displayed: {adInfo}");
     }
 
     private void OnBannerDisplayFailed(LevelPlayAdInfo adInfo, LevelPlayAdError error)
@@ -216,7 +245,13 @@ public class AdsManager : MonoBehaviour
 
     private void OnInterstitialLoaded(LevelPlayAdInfo adInfo)
     {
-        Debug.Log($"Interstitial loaded: {adInfo}");
+
+        // If ShowInterstitial was called while the ad wasn't ready, show it now
+        if (showInterstitialWhenReady)
+        {
+            showInterstitialWhenReady = false;
+            interstitialAd.ShowAd();
+        }
     }
 
     private void OnInterstitialLoadFailed(LevelPlayAdError error)
@@ -226,17 +261,31 @@ public class AdsManager : MonoBehaviour
 
     private void OnInterstitialDisplayed(LevelPlayAdInfo adInfo)
     {
-        Debug.Log($"Interstitial displayed: {adInfo}");
+        HideBanner();
     }
 
     private void OnInterstitialDisplayFailed(LevelPlayAdInfo adInfo, LevelPlayAdError error)
     {
         Debug.LogError($"Interstitial display failed: {error}");
+
+        // Invoke and clear the callback so callers aren't left waiting
+        System.Action callback = onInterstitialClosedCallback;
+        onInterstitialClosedCallback = null;
+        showInterstitialWhenReady = false;
+        callback?.Invoke();
     }
 
     private void OnInterstitialClosed(LevelPlayAdInfo adInfo)
     {
-        Debug.Log($"Interstitial closed: {adInfo}");
+
+        // Restore banner
+        ShowBanner();
+
+        // Invoke and clear the callback
+        System.Action callback = onInterstitialClosedCallback;
+        onInterstitialClosedCallback = null;
+        callback?.Invoke();
+
         // Auto-load next interstitial
         LoadInterstitial();
     }
@@ -246,6 +295,9 @@ public class AdsManager : MonoBehaviour
         // Unregister callbacks
         LevelPlay.OnInitSuccess -= OnSdkInitialized;
         LevelPlay.OnInitFailed -= OnSdkInitializationFailed;
+
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
 
         if (bannerAd != null)
         {

@@ -42,7 +42,6 @@ public class LevelManager : MonoBehaviour
     /// </summary>
     private void OnLevelComplete(int completedLevel)
     {
-        Debug.Log($"Level {completedLevel} complete! Loading Win scene...");
         LoadWinScene();
     }
 
@@ -154,12 +153,11 @@ public class LevelManager : MonoBehaviour
             GameManager.Instance.ChangeState(GameStateEnum.MainMenu);
         }
 
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("Menu");
     }
 
     public void QuitGame()
     {
-        Debug.Log("Quitting game...");
         Application.Quit();
     }
 

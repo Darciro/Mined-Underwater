@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Magnet
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemSO
   itemName: Magnet
-  description: Magnet asf
-  icon: {fileID: 0}
+  description: For a duration bring items to you
+  icon: {fileID: 21300000, guid: bb90e2a4544d54f2ca60d2e7db129b39, type: 3}
   cost: 10
   itemType: 1
   effectType: 7

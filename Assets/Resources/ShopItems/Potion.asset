@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Potion
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemSO
   itemName: Potion
-  description: 
-  icon: {fileID: 0}
+  description: Restores 10 health points
+  icon: {fileID: 21300000, guid: 42a545f2e86a447528d6aa3aa8895963, type: 3}
   cost: 10
   itemType: 1
   effectType: 4

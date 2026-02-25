@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: DamageUpgrade
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemSO
   itemName: Damage Up
-  description: +1 damage for your bubble shot
-  icon: {fileID: 0}
+  description: +1 damage for your bubble shots
+  icon: {fileID: 21300000, guid: 3ce063528c43e4d7fa475f76dda5a02a, type: 3}
   cost: 30
   itemType: 0
   effectType: 3

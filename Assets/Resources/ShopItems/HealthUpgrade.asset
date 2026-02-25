@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemSO
   itemName: Health
   description: Increases your maximum health by 1
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 21cb8c775421e4096915fe18192a6f63, type: 3}
   cost: 50
   itemType: 0
   effectType: 0

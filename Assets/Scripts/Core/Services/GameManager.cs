@@ -205,7 +205,6 @@ public class GameManager : MonoBehaviour
         // Notify subscribers
         OnGameStateChanged?.Invoke(newState);
 
-        Debug.Log($"Game State Changed: {previousState} -> {newState}");
     }
 
     /// <summary>
@@ -276,7 +275,6 @@ public class GameManager : MonoBehaviour
         currentLevel++;
         SavePersistentData();
         ResetLevelStats();
-        Debug.Log($"Advanced to level {currentLevel}. Egg requirement: {GetEggRequirement()}");
         RefreshDebug();
     }
 
@@ -287,7 +285,6 @@ public class GameManager : MonoBehaviour
     {
         currentLevel = 0;
         SavePersistentData();
-        Debug.Log("Level reset to 0");
         RefreshDebug();
     }
 
@@ -303,7 +300,6 @@ public class GameManager : MonoBehaviour
         levelEggs++;
         totalEggs++;
         SavePersistentData();
-        Debug.Log($"Egg collected! Level: {levelEggs}/{GetEggRequirement()}, Total: {totalEggs}");
 
         RefreshDebug();
 
@@ -319,7 +315,6 @@ public class GameManager : MonoBehaviour
         levelCoins++;
         totalCoins++;
         SavePersistentData();
-        Debug.Log($"Coin collected! Level: {levelCoins}, Total: {totalCoins}");
         RefreshDebug();
     }
 
@@ -344,7 +339,6 @@ public class GameManager : MonoBehaviour
 
         totalCoins -= amount;
         SavePersistentData();
-        Debug.Log($"Spent {amount} coins. Remaining: {totalCoins}");
         RefreshDebug();
         return true;
     }
@@ -356,7 +350,6 @@ public class GameManager : MonoBehaviour
     {
         levelEggs = 0;
         levelCoins = 0;
-        Debug.Log("Level statistics reset");
         RefreshDebug();
     }
 
@@ -371,7 +364,6 @@ public class GameManager : MonoBehaviour
         {
             AddEgg();
         }
-        Debug.Log($"Added 10 eggs! Total: {totalEggs}");
     }
 
     /// <summary>
@@ -384,7 +376,6 @@ public class GameManager : MonoBehaviour
         {
             AddCoin();
         }
-        Debug.Log($"Added 100 coins! Total: {totalCoins}");
     }
 
     /// <summary>
@@ -399,7 +390,6 @@ public class GameManager : MonoBehaviour
             totalCoins++;
         }
         SavePersistentData();
-        Debug.Log($"Added 1000 coins! Total: {totalCoins}");
         RefreshDebug();
     }
 
@@ -412,7 +402,6 @@ public class GameManager : MonoBehaviour
         {
             AddEgg();
         }
-        Debug.Log($"Added {amount} eggs! Total: {totalEggs}");
     }
 
     /// <summary>
@@ -423,7 +412,6 @@ public class GameManager : MonoBehaviour
         levelCoins += amount;
         totalCoins += amount;
         SavePersistentData();
-        Debug.Log($"Added {amount} coins! Total: {totalCoins}");
         RefreshDebug();
     }
 #endif
@@ -441,7 +429,6 @@ public class GameManager : MonoBehaviour
 
         if (levelEggs >= requirement)
         {
-            Debug.Log($"Level {currentLevel} complete! Collected {levelEggs}/{requirement} eggs");
             OnLevelWon();
         }
     }
@@ -519,7 +506,6 @@ public class GameManager : MonoBehaviour
         {
             highestUnlockedStage = stageIndex;
             SavePersistentData();
-            Debug.Log($"Stage {stageIndex} unlocked!");
             RefreshDebug();
         }
     }
@@ -553,7 +539,6 @@ public class GameManager : MonoBehaviour
         }
 
         PlayerPrefs.Save();
-        Debug.Log($"Stage {stageIndex} completion saved - Eggs: {eggs}, Coins: {coins}");
     }
 
     /// <summary>
@@ -566,7 +551,6 @@ public class GameManager : MonoBehaviour
         {
             currentLevel = stageIndex;
             ResetLevelStats();
-            Debug.Log($"Current stage set to {stageIndex}");
             RefreshDebug();
         }
         else
@@ -601,7 +585,6 @@ public class GameManager : MonoBehaviour
         totalCoins = PlayerPrefs.GetInt(TOTAL_COINS_SAVE_KEY, 0);
         highestUnlockedStage = PlayerPrefs.GetInt(HIGHEST_UNLOCKED_STAGE_KEY, 0);
 
-        Debug.Log($"Loaded persistent data - Level: {currentLevel}, Total Eggs: {totalEggs}, Total Coins: {totalCoins}, Highest Unlocked: {highestUnlockedStage}");
         RefreshDebug();
     }
 
@@ -621,7 +604,6 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.DeleteAll();
 
         SavePersistentData();
-        Debug.Log("All game data reset");
         RefreshDebug();
     }
 

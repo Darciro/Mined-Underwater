@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemSO
   itemName: Speed Up
   description: Increases your swimming speed
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: b0d1184551c394e2f83a39bfca5820fb, type: 3}
   cost: 40
   itemType: 0
   effectType: 2

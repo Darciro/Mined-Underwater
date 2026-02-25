@@ -747,7 +747,6 @@ public class PlayerController : MonoBehaviour
         if (isShieldActive && shieldCharges > 0)
         {
             ConsumeShieldCharge();
-            Debug.Log("Damage blocked by shield!");
             return;
         }
 
@@ -1290,7 +1289,6 @@ public class PlayerController : MonoBehaviour
         int damageUpgradeLevel = PlayerPrefs.GetInt("UpgradeLevel_DamageUpgrade", 0);
         baseDamage = 1 + damageUpgradeLevel;
 
-        Debug.Log($"Upgrades loaded - Health: {maxHealth}, Air: {maxAir}, Speed: {speed:F1}, Damage: {baseDamage}");
     }
 
     /// <summary>
@@ -1303,7 +1301,6 @@ public class PlayerController : MonoBehaviour
         bombCount = PlayerPrefs.GetInt("ItemCount_Bomb", 0);
         magnetCount = PlayerPrefs.GetInt("ItemCount_Magnet", 0);
 
-        Debug.Log($"Inventory loaded - Potions: {potionCount}, Shields: {shieldCharges}, Bombs: {bombCount}, Magnets: {magnetCount}");
     }
 
     /// <summary>
@@ -1321,13 +1318,11 @@ public class PlayerController : MonoBehaviour
     {
         if (potionCount <= 0)
         {
-            Debug.Log("No potions available!");
             return;
         }
 
         if (currentHealth >= maxHealth)
         {
-            Debug.Log("Already at full health!");
             return;
         }
 
@@ -1336,7 +1331,6 @@ public class PlayerController : MonoBehaviour
         PlayerPrefs.Save();
 
         Heal(10);
-        Debug.Log($"Used potion! Remaining: {potionCount}");
     }
 
     /// <summary>
@@ -1346,12 +1340,10 @@ public class PlayerController : MonoBehaviour
     {
         if (shieldCharges <= 0)
         {
-            Debug.Log("No shield charges available!");
             return;
         }
 
         isShieldActive = true;
-        Debug.Log($"Shield activated! Charges: {shieldCharges}");
     }
 
     /// <summary>
@@ -1365,12 +1357,10 @@ public class PlayerController : MonoBehaviour
             PlayerPrefs.SetInt("ItemCount_Shield", shieldCharges);
             PlayerPrefs.Save();
 
-            Debug.Log($"Shield blocked damage! Remaining charges: {shieldCharges}");
 
             if (shieldCharges <= 0)
             {
                 isShieldActive = false;
-                Debug.Log("Shield depleted!");
             }
         }
     }
@@ -1382,7 +1372,6 @@ public class PlayerController : MonoBehaviour
     {
         if (bombCount <= 0)
         {
-            Debug.Log("No bombs available!");
             return;
         }
 
@@ -1397,7 +1386,6 @@ public class PlayerController : MonoBehaviour
             enemy.TakeDamage(9999); // Deal massive damage to instantly kill
         }
 
-        Debug.Log($"Bomb used! Destroyed {enemies.Length} enemies. Remaining: {bombCount}");
     }
 
     /// <summary>
@@ -1407,7 +1395,6 @@ public class PlayerController : MonoBehaviour
     {
         if (magnetCount <= 0)
         {
-            Debug.Log("No magnets available!");
             return;
         }
 
@@ -1417,7 +1404,6 @@ public class PlayerController : MonoBehaviour
 
         isMagnetActive = true;
         StartCoroutine(MagnetEffectCoroutine());
-        Debug.Log($"Magnet activated! Remaining: {magnetCount}");
     }
 
     /// <summary>
@@ -1448,7 +1434,6 @@ public class PlayerController : MonoBehaviour
         }
 
         isMagnetActive = false;
-        Debug.Log("Magnet effect ended");
     }
 
     /// <summary>

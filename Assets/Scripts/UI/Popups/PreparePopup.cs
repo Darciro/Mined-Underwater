@@ -134,7 +134,6 @@ public class PreparePopup : MonoBehaviour
             showFeedback.PlayFeedbacks();
         }
 
-        Debug.Log($"PreparePopup shown for stage {stageIndex}");
     }
 
     /// <summary>
@@ -145,7 +144,6 @@ public class PreparePopup : MonoBehaviour
         gameObject.SetActive(false);
         selectedStageIndex = -1;
 
-        Debug.Log("PreparePopup closed");
     }
 
     #endregion
@@ -214,6 +212,11 @@ public class PreparePopup : MonoBehaviour
         Close();
     }
 
+    public void CloseButton()
+    {
+        Close();
+    }
+
     #endregion
 
     #region Shop System - Public Methods for UI Buttons
@@ -255,7 +258,7 @@ public class PreparePopup : MonoBehaviour
     /// </summary>
     public void OnPotionClicked()
     {
-        ShowShopItem(potionItem);
+        ShowShopItem(potionItem, true);
     }
 
     /// <summary>
@@ -263,7 +266,7 @@ public class PreparePopup : MonoBehaviour
     /// </summary>
     public void OnShieldClicked()
     {
-        ShowShopItem(shieldItem);
+        ShowShopItem(shieldItem, true);
     }
 
     /// <summary>
@@ -271,7 +274,7 @@ public class PreparePopup : MonoBehaviour
     /// </summary>
     public void OnBombClicked()
     {
-        ShowShopItem(bombItem);
+        ShowShopItem(bombItem, true);
     }
 
     /// <summary>
@@ -279,14 +282,15 @@ public class PreparePopup : MonoBehaviour
     /// </summary>
     public void OnMagnetClicked()
     {
-        ShowShopItem(magnetItem);
+        ShowShopItem(magnetItem, true);
     }
 
     /// <summary>
     /// Helper method to show the ResourcesPopup with a shop item
     /// </summary>
     /// <param name="item">The shop item to display</param>
-    private void ShowShopItem(ShopItemSO item)
+    /// <param name="soon">Indicates if the item will be available soon</param>
+    private void ShowShopItem(ShopItemSO item, bool soon = false)
     {
         if (resourcesPopup == null)
         {
@@ -300,7 +304,7 @@ public class PreparePopup : MonoBehaviour
             return;
         }
 
-        resourcesPopup.Show(item);
+        resourcesPopup.Show(item, soon);
     }
 
     #endregion
