@@ -1,27 +1,25 @@
+using System;
 using Unity.Services.LevelPlay;
 using UnityEngine;
 
+[DisallowMultipleComponent]
 public class AdsManager : MonoBehaviour
 {
-    public static AdsManager Instance;
+    public static AdsManager Instance { get; private set; }
 
     [Header("LevelPlay Settings")]
     [SerializeField] private string androidAppKey = "24cfdfd7d";
     [SerializeField] private string bannerAdUnitId = "hyu6gcwiyt8j01k7";
     [SerializeField] private string interstitialAdUnitId = "mxgkoyqso89sk0r0";
 
-    [Header("Banner Settings")]
-    [SerializeField] private bool showBannerOnInit = true;
-
     private bool isInitialized;
     private LevelPlayBannerAd bannerAd;
     private LevelPlayInterstitialAd interstitialAd;
-    private System.Action onInterstitialClosedCallback;
+    private Action onInterstitialClosedCallback;
     private bool showInterstitialWhenReady;
 
-    // ------------------------
-    // Unity Lifecycle
-    // ------------------------
+    #region Lifecycle
+
     private void Awake()
     {
         if (Instance != null)
@@ -33,7 +31,7 @@ public class AdsManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        InitializeAds();
+        InitializeSdk();
     }
 
     private void Start()
@@ -42,98 +40,128 @@ public class AdsManager : MonoBehaviour
             GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
     }
 
-    private void OnApplicationPause(bool isPaused)
+    private void OnDestroy()
     {
-        // Unity Mediation handles this automatically
+        LevelPlay.OnInitSuccess -= HandleSdkInitialized;
+        LevelPlay.OnInitFailed -= HandleSdkInitFailed;
+
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
+
+        UnsubscribeBannerEvents();
+        UnsubscribeInterstitialEvents();
     }
 
-    // ------------------------
-    // Initialization
-    // ------------------------
-    private void InitializeAds()
+    #endregion
+
+    #region SDK Initialization
+
+    private void InitializeSdk()
     {
-
-        try
-        {
-            // Register initialization callbacks
-            LevelPlay.OnInitSuccess += OnSdkInitialized;
-            LevelPlay.OnInitFailed += OnSdkInitializationFailed;
-
-            // Initialize the SDK
-            LevelPlay.Init(androidAppKey);
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Unity LevelPlay initialization failed: {e.Message}");
-        }
+        LevelPlay.OnInitSuccess += HandleSdkInitialized;
+        LevelPlay.OnInitFailed += HandleSdkInitFailed;
+        LevelPlay.Init(androidAppKey);
     }
 
-    private void OnSdkInitialized(LevelPlayConfiguration config)
+    private void HandleSdkInitialized(LevelPlayConfiguration config)
     {
         isInitialized = true;
-
-        // Initialize ad instances
-        InitializeAds_Internal();
-
-        if (showBannerOnInit)
-        {
-            LoadBanner();
-        }
+        CreateAdInstances();
+        LoadBanner();
     }
 
-    private void OnSdkInitializationFailed(LevelPlayInitError error)
+    private void HandleSdkInitFailed(LevelPlayInitError error)
     {
-        Debug.LogError($"Unity LevelPlay initialization failed: {error}");
+        Debug.LogError($"LevelPlay SDK init failed: {error}");
     }
 
-    private void InitializeAds_Internal()
+    private void CreateAdInstances()
     {
-        // Create Banner Ad
         bannerAd = new LevelPlayBannerAd(bannerAdUnitId);
+        bannerAd.OnAdLoaded += HandleBannerLoaded;
+        bannerAd.OnAdLoadFailed += HandleBannerLoadFailed;
+        bannerAd.OnAdDisplayFailed += HandleBannerDisplayFailed;
 
-        // Register to Banner events
-        bannerAd.OnAdLoaded += OnBannerLoaded;
-        bannerAd.OnAdLoadFailed += OnBannerLoadFailed;
-        bannerAd.OnAdDisplayed += OnBannerDisplayed;
-        bannerAd.OnAdDisplayFailed += OnBannerDisplayFailed;
-
-        // Create Interstitial Ad
         interstitialAd = new LevelPlayInterstitialAd(interstitialAdUnitId);
-
-        // Register to Interstitial events
-        interstitialAd.OnAdLoaded += OnInterstitialLoaded;
-        interstitialAd.OnAdLoadFailed += OnInterstitialLoadFailed;
-        interstitialAd.OnAdDisplayed += OnInterstitialDisplayed;
-        interstitialAd.OnAdDisplayFailed += OnInterstitialDisplayFailed;
-        interstitialAd.OnAdClosed += OnInterstitialClosed;
+        interstitialAd.OnAdLoaded += HandleInterstitialLoaded;
+        interstitialAd.OnAdLoadFailed += HandleInterstitialLoadFailed;
+        interstitialAd.OnAdDisplayed += HandleInterstitialDisplayed;
+        interstitialAd.OnAdDisplayFailed += HandleInterstitialDisplayFailed;
+        interstitialAd.OnAdClosed += HandleInterstitialClosed;
     }
 
-    // ------------------------
-    // Interstitial Ads
-    // ------------------------
-    public void LoadInterstitial()
+    #endregion
+
+    #region Banner
+
+    public void LoadBanner()
     {
-        if (!isInitialized || interstitialAd == null)
+        if (!IsAdSystemReady(bannerAd)) return;
+        TryExecuteAdAction(() => bannerAd.LoadAd(), "Banner load");
+    }
+
+    public void ShowBanner()
+    {
+        if (bannerAd == null) return;
+
+        if (ShouldSuppressBanner())
         {
-            Debug.LogWarning("LevelPlay not initialized.");
+            Debug.LogWarning("Banner suppressed during gameplay.");
             return;
         }
 
-        try
-        {
-            interstitialAd.LoadAd();
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Interstitial load failed: {e.Message}");
-        }
+        bannerAd.ShowAd();
     }
 
-    public void ShowInterstitial(System.Action onClosed = null)
+    public void HideBanner()
     {
-        if (!isInitialized || interstitialAd == null)
+        bannerAd?.HideAd();
+    }
+
+    public void DestroyBanner()
+    {
+        bannerAd?.DestroyAd();
+    }
+
+    private void HandleBannerLoaded(LevelPlayAdInfo adInfo)
+    {
+        if (ShouldSuppressBanner())
+            HideBanner();
+    }
+
+    private void HandleBannerLoadFailed(LevelPlayAdError error)
+    {
+        Debug.LogError($"Banner load failed: {error}");
+    }
+
+    private void HandleBannerDisplayFailed(LevelPlayAdInfo adInfo, LevelPlayAdError error)
+    {
+        Debug.LogError($"Banner display failed: {error}");
+    }
+
+    private void UnsubscribeBannerEvents()
+    {
+        if (bannerAd == null) return;
+
+        bannerAd.OnAdLoaded -= HandleBannerLoaded;
+        bannerAd.OnAdLoadFailed -= HandleBannerLoadFailed;
+        bannerAd.OnAdDisplayFailed -= HandleBannerDisplayFailed;
+    }
+
+    #endregion
+
+    #region Interstitial
+
+    public void LoadInterstitial()
+    {
+        if (!IsAdSystemReady(interstitialAd)) return;
+        TryExecuteAdAction(() => interstitialAd.LoadAd(), "Interstitial load");
+    }
+
+    public void ShowInterstitial(Action onClosed = null)
+    {
+        if (!IsAdSystemReady(interstitialAd))
         {
-            Debug.LogWarning("LevelPlay not initialized.");
             onClosed?.Invoke();
             return;
         }
@@ -147,173 +175,118 @@ public class AdsManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("Interstitial ad not ready. Loading and will show when ready...");
+                // Queue to show automatically once the ad finishes loading
                 onInterstitialClosedCallback = onClosed;
                 showInterstitialWhenReady = true;
                 LoadInterstitial();
             }
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             Debug.LogError($"Interstitial show failed: {e.Message}");
             onClosed?.Invoke();
         }
     }
 
-    // ------------------------
-    // Banner Ads
-    // ------------------------
-    public void LoadBanner()
+    private void HandleInterstitialLoaded(LevelPlayAdInfo adInfo)
     {
-        if (!isInitialized || bannerAd == null)
-        {
-            Debug.LogWarning("LevelPlay not initialized or banner ad is null.");
-            return;
-        }
+        if (!showInterstitialWhenReady) return;
 
-        try
-        {
-            bannerAd.LoadAd();
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Banner load failed: {e.Message}");
-        }
+        showInterstitialWhenReady = false;
+        interstitialAd.ShowAd();
     }
 
-    public void ShowBanner()
-    {
-        if (bannerAd == null) return;
-
-        if (GameManager.Instance != null && GameManager.Instance.CurrentState == GameStateEnum.Playing)
-        {
-            Debug.LogWarning("Cannot show banner during Playing state.");
-            return;
-        }
-
-        bannerAd.ShowAd();
-    }
-
-    public void HideBanner()
-    {
-        if (bannerAd != null)
-        {
-            bannerAd.HideAd();
-        }
-    }
-
-    public void DestroyBanner()
-    {
-        if (bannerAd != null)
-        {
-            bannerAd.DestroyAd();
-        }
-    }
-
-    // ------------------------
-    // Event Handlers
-    // ------------------------
-    private void OnBannerLoaded(LevelPlayAdInfo adInfo)
-    {
-
-        // Hide banner immediately if the game is actively being played
-        if (GameManager.Instance != null && (GameManager.Instance.CurrentState == GameStateEnum.Playing || GameManager.Instance.CurrentState == GameStateEnum.LevelComplete))
-            HideBanner();
-    }
-
-    private void HandleGameStateChanged(GameStateEnum newState)
-    {
-        if (newState == GameStateEnum.Playing || newState == GameStateEnum.LevelComplete)
-            HideBanner();
-        else
-            ShowBanner();
-    }
-
-    private void OnBannerLoadFailed(LevelPlayAdError error)
-    {
-        Debug.LogError($"Banner load failed: {error}");
-    }
-
-    private void OnBannerDisplayed(LevelPlayAdInfo adInfo)
-    {
-    }
-
-    private void OnBannerDisplayFailed(LevelPlayAdInfo adInfo, LevelPlayAdError error)
-    {
-        Debug.LogError($"Banner display failed: {error}");
-    }
-
-    private void OnInterstitialLoaded(LevelPlayAdInfo adInfo)
-    {
-
-        // If ShowInterstitial was called while the ad wasn't ready, show it now
-        if (showInterstitialWhenReady)
-        {
-            showInterstitialWhenReady = false;
-            interstitialAd.ShowAd();
-        }
-    }
-
-    private void OnInterstitialLoadFailed(LevelPlayAdError error)
+    private void HandleInterstitialLoadFailed(LevelPlayAdError error)
     {
         Debug.LogError($"Interstitial load failed: {error}");
     }
 
-    private void OnInterstitialDisplayed(LevelPlayAdInfo adInfo)
+    private void HandleInterstitialDisplayed(LevelPlayAdInfo adInfo)
     {
         HideBanner();
     }
 
-    private void OnInterstitialDisplayFailed(LevelPlayAdInfo adInfo, LevelPlayAdError error)
+    private void HandleInterstitialDisplayFailed(LevelPlayAdInfo adInfo, LevelPlayAdError error)
     {
         Debug.LogError($"Interstitial display failed: {error}");
+        InvokeAndClearInterstitialCallback();
+    }
 
-        // Invoke and clear the callback so callers aren't left waiting
-        System.Action callback = onInterstitialClosedCallback;
+    private void HandleInterstitialClosed(LevelPlayAdInfo adInfo)
+    {
+        ShowBanner();
+        InvokeAndClearInterstitialCallback();
+        LoadInterstitial();
+    }
+
+    /// <summary>
+    /// Safely invokes and clears the interstitial callback so callers are never left waiting.
+    /// </summary>
+    private void InvokeAndClearInterstitialCallback()
+    {
+        Action callback = onInterstitialClosedCallback;
         onInterstitialClosedCallback = null;
         showInterstitialWhenReady = false;
         callback?.Invoke();
     }
 
-    private void OnInterstitialClosed(LevelPlayAdInfo adInfo)
+    private void UnsubscribeInterstitialEvents()
     {
+        if (interstitialAd == null) return;
 
-        // Restore banner
-        ShowBanner();
-
-        // Invoke and clear the callback
-        System.Action callback = onInterstitialClosedCallback;
-        onInterstitialClosedCallback = null;
-        callback?.Invoke();
-
-        // Auto-load next interstitial
-        LoadInterstitial();
+        interstitialAd.OnAdLoaded -= HandleInterstitialLoaded;
+        interstitialAd.OnAdLoadFailed -= HandleInterstitialLoadFailed;
+        interstitialAd.OnAdDisplayed -= HandleInterstitialDisplayed;
+        interstitialAd.OnAdDisplayFailed -= HandleInterstitialDisplayFailed;
+        interstitialAd.OnAdClosed -= HandleInterstitialClosed;
     }
 
-    private void OnDestroy()
+    #endregion
+
+    #region Game State
+
+    private void HandleGameStateChanged(GameStateEnum newState)
     {
-        // Unregister callbacks
-        LevelPlay.OnInitSuccess -= OnSdkInitialized;
-        LevelPlay.OnInitFailed -= OnSdkInitializationFailed;
+        if (ShouldSuppressBanner(newState))
+            HideBanner();
+        else
+            ShowBanner();
+    }
 
-        if (GameManager.Instance != null)
-            GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
+    /// <summary>
+    /// Banner should be hidden during active gameplay and level-complete sequences.
+    /// </summary>
+    private static bool ShouldSuppressBanner(GameStateEnum? state = null)
+    {
+        if (GameManager.Instance == null) return false;
 
-        if (bannerAd != null)
+        GameStateEnum current = state ?? GameManager.Instance.CurrentState;
+        return current is GameStateEnum.Playing or GameStateEnum.LevelComplete;
+    }
+
+    #endregion
+
+    #region Helpers
+
+    private bool IsAdSystemReady(object adInstance)
+    {
+        if (isInitialized && adInstance != null) return true;
+
+        Debug.LogWarning("LevelPlay SDK not initialized or ad instance is null.");
+        return false;
+    }
+
+    private static void TryExecuteAdAction(Action action, string operationName)
+    {
+        try
         {
-            bannerAd.OnAdLoaded -= OnBannerLoaded;
-            bannerAd.OnAdLoadFailed -= OnBannerLoadFailed;
-            bannerAd.OnAdDisplayed -= OnBannerDisplayed;
-            bannerAd.OnAdDisplayFailed -= OnBannerDisplayFailed;
+            action();
         }
-
-        if (interstitialAd != null)
+        catch (Exception e)
         {
-            interstitialAd.OnAdLoaded -= OnInterstitialLoaded;
-            interstitialAd.OnAdLoadFailed -= OnInterstitialLoadFailed;
-            interstitialAd.OnAdDisplayed -= OnInterstitialDisplayed;
-            interstitialAd.OnAdDisplayFailed -= OnInterstitialDisplayFailed;
-            interstitialAd.OnAdClosed -= OnInterstitialClosed;
+            Debug.LogError($"{operationName} failed: {e.Message}");
         }
     }
+
+    #endregion
 }

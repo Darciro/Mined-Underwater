@@ -54,6 +54,11 @@ public class AdsManagerRelay : UnityEngine.MonoBehaviour
                     GameManager.Instance.ClaimDoubleRewards();
                 else
                     UnityEngine.Debug.LogWarning("AdsManagerRelay: GameManager instance not found.");
+
+                if (LevelManager.Instance != null)
+                    LevelManager.Instance.LoadNextLevel();
+                else
+                    UnityEngine.Debug.LogWarning("AdsManagerRelay: LevelManager instance not found.");
             });
         else
             UnityEngine.Debug.LogWarning("AdsManagerRelay: AdsManager instance not found.");
