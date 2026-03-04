@@ -13,6 +13,11 @@ public enum GameStateEnum
     /// </summary>
     Idle,
 
+    /// <summary> 
+    /// The player is going through the tutorial
+    /// </summary>
+    Tutorial,
+
     /// <summary>
     /// Game is actively being played
     /// </summary>

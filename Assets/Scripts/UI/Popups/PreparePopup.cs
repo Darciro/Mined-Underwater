@@ -191,9 +191,10 @@ public class PreparePopup : MonoBehaviour
         GameManager.Instance.SetCurrentStage(selectedStageIndex);
 
         // Start the level through LevelManager
+        bool isTutorial = selectedStageIndex == 0;
         if (LevelManager.Instance != null)
         {
-            LevelManager.Instance.StartGame();
+            LevelManager.Instance.StartGame(isTutorial);
         }
         else
         {

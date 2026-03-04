@@ -16,6 +16,12 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI eggsText;
     [SerializeField] private TextMeshProUGUI coinsText;
 
+    [Header("Level Progress UI")]
+    [Tooltip("TextMeshPro showing collected/required eggs, e.g. '3/5'")]
+    [SerializeField] private TextMeshProUGUI eggProgressText;
+    [Tooltip("Slider filled from 0 to 1 based on eggs collected vs eggs required")]
+    [SerializeField] private Slider eggProgressSlider;
+
     [Header("Win Scene Stats")]
     [SerializeField] private TextMeshProUGUI levelNumberText;
     [SerializeField] private TextMeshProUGUI levelEggsText;
@@ -37,6 +43,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Slider sfxSlider;
 
     private ScoreManager scoreManager;
+    private Tutorials tutorials;
 
     private int previousEggs = 0;
     private int previousCoins = 0;
@@ -50,6 +57,7 @@ public class UIManager : MonoBehaviour
     private void Awake()
     {
         scoreManager = FindFirstObjectByType<ScoreManager>();
+        tutorials = FindFirstObjectByType<Tutorials>();
     }
 
     private void Start()
@@ -57,14 +65,9 @@ public class UIManager : MonoBehaviour
         GameVersionSetup();
         SetPaused(false);
 
-        if (scoreManager != null)
-        {
-            scoreManager.ResetEggs();
-            scoreManager.ResetCoins();
-        }
-
-        previousEggs = 0;
-        previousCoins = 0;
+        // Initialise previous values to current totals so no spurious animation fires on load
+        previousEggs = GameManager.Instance != null ? GameManager.Instance.TotalEggs : 0;
+        previousCoins = GameManager.Instance != null ? GameManager.Instance.TotalCoins : 0;
 
         InitializeTextAnimators();
         InitializeOptionsUI();
@@ -87,6 +90,7 @@ public class UIManager : MonoBehaviour
         UpdatePlayerAir();
         RefreshEggs(false);
         RefreshCoins(false);
+        UpdateEggProgress();
     }
 
     #region Initialization
@@ -210,9 +214,12 @@ public class UIManager : MonoBehaviour
 
     private void RefreshEggs(bool force)
     {
-        if (scoreManager == null || eggsTextAnimator == null) return;
+        if (eggsTextAnimator == null) return;
 
-        int currentEggs = scoreManager.GetEggsCollected();
+        // Show lifetime total so the counter never resets between levels
+        int currentEggs = GameManager.Instance != null
+            ? GameManager.Instance.TotalEggs
+            : (scoreManager != null ? scoreManager.GetEggsCollected() : 0);
 
         // Animate only on increment
         if (currentEggs > previousEggs)
@@ -233,6 +240,9 @@ public class UIManager : MonoBehaviour
             eggsTextAnimator.SetText(currentEggs.ToString());
             previousEggs = currentEggs;
         }
+
+        if (force)
+            UpdateEggProgress();
     }
 
     private IEnumerator SetStaticEggsAfterDelay(int eggs, float delay)
@@ -248,9 +258,12 @@ public class UIManager : MonoBehaviour
 
     private void RefreshCoins(bool force)
     {
-        if (scoreManager == null || coinsTextAnimator == null) return;
+        if (coinsTextAnimator == null) return;
 
-        int currentCoins = scoreManager.GetCoinsCollected();
+        // Show lifetime total so the counter never resets between levels
+        int currentCoins = GameManager.Instance != null
+            ? GameManager.Instance.TotalCoins
+            : (scoreManager != null ? scoreManager.GetCoinsCollected() : 0);
 
         // Animate only on increment
         if (currentCoins > previousCoins)
@@ -278,6 +291,29 @@ public class UIManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         if (coinsTextAnimator != null)
             coinsTextAnimator.SetText(coins.ToString());
+    }
+
+    #endregion
+
+    #region Egg Progress UI
+
+    /// <summary>
+    /// Updates the level egg-progress text ("collected/required") and fills the progress slider.
+    /// </summary>
+    private void UpdateEggProgress()
+    {
+        if (GameManager.Instance == null) return;
+
+        int levelEggs = GameManager.Instance.LevelEggs;
+        int eggRequirement = GameManager.Instance.GetEggRequirement();
+
+        if (eggProgressText != null)
+            eggProgressText.text = $"{levelEggs}/{eggRequirement}";
+
+        if (eggProgressSlider != null)
+            eggProgressSlider.value = eggRequirement > 0
+                ? Mathf.Clamp01((float)levelEggs / eggRequirement)
+                : 0f;
     }
 
     #endregion
@@ -372,10 +408,13 @@ public class UIManager : MonoBehaviour
 
     private void HandleGameStateChanged(GameStateEnum newState)
     {
-        // Update pause panel visibility based on state
+        // Update pause panel visibility based on state.
+        // Do not show the pause panel when the pause was triggered by a tutorial.
         if (pausePanel != null)
         {
-            pausePanel.SetActive(newState == GameStateEnum.Paused);
+            bool isTutorialPause = newState == GameStateEnum.Paused &&
+                tutorials != null && tutorials.IsTutorialActive;
+            pausePanel.SetActive(newState == GameStateEnum.Paused && !isTutorialPause);
         }
     }
 

@@ -48,23 +48,29 @@ public class LevelManager : MonoBehaviour
     /// <summary>
     /// Starts the game using the current stage set in GameManager
     /// </summary>
-    public void StartGame()
+    public void StartGame(bool isTutorial = false)
     {
         // Set game state to Playing when starting game
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.ChangeState(GameStateEnum.Playing);
+            GameManager.Instance.ChangeState(isTutorial ? GameStateEnum.Tutorial : GameStateEnum.Playing);
             GameManager.Instance.ResetLevelStats();
         }
 
         // Use scene transition if available, otherwise load directly
         if (sceneTransition != null)
         {
-            sceneTransition.StartSceneTransition("Main");
+            if (isTutorial)
+                sceneTransition.StartSceneTransition("Tutorial");
+            else
+                sceneTransition.StartSceneTransition("Main");
         }
         else
         {
-            SceneManager.LoadScene("Main");
+            if (isTutorial)
+                SceneManager.LoadScene("Tutorial");
+            else
+                SceneManager.LoadScene("Main");
         }
     }
 

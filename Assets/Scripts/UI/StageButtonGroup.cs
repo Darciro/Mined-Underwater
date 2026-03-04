@@ -1,194 +1,153 @@
 using System;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
-/// Manages a group of stage buttons with optional special/dark branches.
-/// Simple container for button slots and connection lines.
+/// Visual representation of a stage in the selector.
+/// Displays main/special/dark branches and handles click events.
 /// </summary>
 public class StageButtonGroup : MonoBehaviour
 {
-    #region Inspector Fields
+    private enum StageState { Active, Completed, Locked }
 
-    [Header("Configuration")]
-    [SerializeField] private bool hasPathLeft = false;
-
+    [Header("Paths")]
+    [SerializeField] private bool hasPathLeft;
     [SerializeField] private bool hasPathRight = true;
-
-    [SerializeField] private bool hasSpecialStage = false;
-
-    [SerializeField] private bool hasDarkStage = false;
-
-    [Header("Path Objects")]
     [SerializeField] private GameObject pathLeft;
-
     [SerializeField] private GameObject pathRight;
-
     [SerializeField] private GameObject pathUp;
-
     [SerializeField] private GameObject pathDown;
 
-    [Header("Button Slots")]
+    [Header("Branch Slots")]
     [SerializeField] private GameObject specialStage;
-
     [SerializeField] private GameObject darkStage;
 
+    [Header("Main Button")]
     [SerializeField] private GameObject mainStageButton;
-
-    [Header("Main stage")]
-    [SerializeField] private bool stageCompleted = false;
-    [SerializeField] private bool stageLocked = false;
     [SerializeField] private GameObject stageLevelText;
     [SerializeField] private GameObject activeState;
     [SerializeField] private GameObject completedState;
     [SerializeField] private GameObject lockedState;
 
-    #endregion
-
-    #region Private Fields
-
     private int mainStageIndex;
-    private int specialStageIndex;
-    private int darkStageIndex;
-    private Action<int> onStageSelectedCallback;
-
-    #endregion
-
-    #region Initialization
+    private bool isLocked;
+    private Action<int> onStageSelected;
+    private Button cachedButton;
 
     /// <summary>
-    /// Initializes the button group with stage indices
+    /// Configures the button group with stage data and selection callback.
     /// </summary>
     public void Initialize(int mainIndex, int specialIndex, int darkIndex, Action<int> onSelected)
     {
-        // Store indices and callback
         mainStageIndex = mainIndex;
-        specialStageIndex = specialIndex;
-        darkStageIndex = darkIndex;
-        onStageSelectedCallback = onSelected;
+        onStageSelected = onSelected;
 
-        // Update stage level text (0-based: 0 is tutorial, then 1, 2, 3...)
-        if (stageLevelText != null)
-        {
-            var textComponent = stageLevelText.GetComponent<TMPro.TextMeshProUGUI>();
-            if (textComponent != null)
-            {
-                textComponent.text = mainIndex.ToString();
-            }
-        }
-
-        // Query GameManager for stage state
-        if (GameManager.Instance != null)
-        {
-            stageLocked = !GameManager.Instance.IsStageUnlocked(mainIndex);
-            stageCompleted = GameManager.Instance.IsStageCompleted(mainIndex);
-        }
-
-        // Determine if special/dark stages exist
-        hasSpecialStage = specialIndex >= 0;
-        hasDarkStage = darkIndex >= 0;
-
-        // Setup paths
-        if (pathLeft != null)
-            pathLeft.SetActive(hasPathLeft);
-
-        if (pathRight != null)
-            pathRight.SetActive(hasPathRight);
-
-        if (pathUp != null)
-            pathUp.SetActive(hasSpecialStage);
-
-        if (pathDown != null)
-            pathDown.SetActive(hasDarkStage);
-
-        // Setup special/dark stages
-        if (specialStage != null)
-            specialStage.SetActive(hasSpecialStage);
-
-        if (darkStage != null)
-            darkStage.SetActive(hasDarkStage);
-
-        // Set main stage state based on locked/completed status
-        UpdateMainStageState();
-
-        // Setup button click handler
-        SetupButtonClickHandler();
+        CacheMainButton();
+        SetLabelText(mainIndex);
+        QueryStageState(mainIndex);
+        ConfigureBranches(specialIndex, darkIndex);
+        ConfigurePaths(specialIndex >= 0, darkIndex >= 0);
+        ApplyVisualState();
+        BindClickHandler();
     }
 
     /// <summary>
-    /// Updates the main stage visual state
-    /// </summary>
-    private void UpdateMainStageState()
-    {
-        if (stageLocked)
-        {
-            if (activeState != null) activeState.SetActive(false);
-            if (completedState != null) completedState.SetActive(false);
-            if (lockedState != null) lockedState.SetActive(true);
-        }
-        else if (stageCompleted)
-        {
-            if (activeState != null) activeState.SetActive(false);
-            if (completedState != null) completedState.SetActive(true);
-            if (lockedState != null) lockedState.SetActive(false);
-        }
-        else
-        {
-            if (activeState != null) activeState.SetActive(true);
-            if (completedState != null) completedState.SetActive(false);
-            if (lockedState != null) lockedState.SetActive(false);
-        }
-    }
-
-    /// <summary>
-    /// Sets up button click handler for main stage button
-    /// </summary>
-    private void SetupButtonClickHandler()
-    {
-        if (mainStageButton != null)
-        {
-            var button = mainStageButton.GetComponent<UnityEngine.UI.Button>();
-            if (button != null)
-            {
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => OnMainStageClicked());
-                button.interactable = !stageLocked;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Called when main stage button is clicked
-    /// </summary>
-    private void OnMainStageClicked()
-    {
-        if (!stageLocked)
-        {
-            onStageSelectedCallback?.Invoke(mainStageIndex);
-        }
-    }
-
-    /// <summary>
-    /// Refreshes the visual state of this button group
+    /// Re-queries GameManager and updates visuals (called when stages unlock).
     /// </summary>
     public void RefreshVisualState()
     {
-        if (GameManager.Instance != null)
-        {
-            stageLocked = !GameManager.Instance.IsStageUnlocked(mainStageIndex);
-            stageCompleted = GameManager.Instance.IsStageCompleted(mainStageIndex);
-            UpdateMainStageState();
+        if (GameManager.Instance == null) return;
 
-            // Update button interactability
-            if (mainStageButton != null)
-            {
-                var button = mainStageButton.GetComponent<UnityEngine.UI.Button>();
-                if (button != null)
-                {
-                    button.interactable = !stageLocked;
-                }
-            }
-        }
+        QueryStageState(mainStageIndex);
+        ApplyVisualState();
+        UpdateButtonInteractability();
     }
 
-    #endregion
+    private void CacheMainButton()
+    {
+        if (mainStageButton != null)
+            cachedButton = mainStageButton.GetComponent<Button>();
+    }
+
+    private void SetLabelText(int stageIndex)
+    {
+        if (stageLevelText == null) return;
+
+        var label = stageLevelText.GetComponent<TextMeshProUGUI>();
+        if (label != null)
+            label.text = stageIndex.ToString();
+    }
+
+    private void QueryStageState(int stageIndex)
+    {
+        if (GameManager.Instance == null) return;
+
+        isLocked = !GameManager.Instance.IsStageUnlocked(stageIndex);
+    }
+
+    private StageState GetCurrentState()
+    {
+        if (isLocked) return StageState.Locked;
+
+        if (GameManager.Instance != null && GameManager.Instance.IsStageCompleted(mainStageIndex))
+            return StageState.Completed;
+
+        return StageState.Active;
+    }
+
+    private void ConfigureBranches(int specialIndex, int darkIndex)
+    {
+        bool hasSpecial = specialIndex >= 0;
+        bool hasDark = darkIndex >= 0;
+
+        SetActiveIfNotNull(specialStage, hasSpecial);
+        SetActiveIfNotNull(darkStage, hasDark);
+    }
+
+    private void ConfigurePaths(bool hasSpecial, bool hasDark)
+    {
+        SetActiveIfNotNull(pathLeft, hasPathLeft);
+        SetActiveIfNotNull(pathRight, hasPathRight);
+        SetActiveIfNotNull(pathUp, hasSpecial);
+        SetActiveIfNotNull(pathDown, hasDark);
+    }
+
+    private void ApplyVisualState()
+    {
+        StageState state = GetCurrentState();
+
+        SetActiveIfNotNull(activeState, state == StageState.Active);
+        SetActiveIfNotNull(completedState, state == StageState.Completed);
+        SetActiveIfNotNull(lockedState, state == StageState.Locked);
+
+        UpdateButtonInteractability();
+    }
+
+    private void BindClickHandler()
+    {
+        if (cachedButton == null) return;
+
+        cachedButton.onClick.RemoveAllListeners();
+        cachedButton.onClick.AddListener(HandleClick);
+        cachedButton.interactable = !isLocked;
+    }
+
+    private void HandleClick()
+    {
+        if (!isLocked)
+            onStageSelected?.Invoke(mainStageIndex);
+    }
+
+    private void UpdateButtonInteractability()
+    {
+        if (cachedButton != null)
+            cachedButton.interactable = !isLocked;
+    }
+
+    private static void SetActiveIfNotNull(GameObject obj, bool active)
+    {
+        if (obj != null)
+            obj.SetActive(active);
+    }
 }

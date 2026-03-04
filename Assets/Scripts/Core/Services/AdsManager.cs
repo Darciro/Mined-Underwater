@@ -30,14 +30,14 @@ public class AdsManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
-
-        InitializeSdk();
     }
 
     private void Start()
     {
         if (GameManager.Instance != null)
             GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
+
+        InitializeSdk();
     }
 
     private void OnDestroy()
