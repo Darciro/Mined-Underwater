@@ -1,5 +1,4 @@
 using System.Collections;
-using MoreMountains.Feedbacks;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -10,7 +9,7 @@ using UnityEngine.Events;
 /// The first tutorial waits a configurable delay before appearing;
 /// each subsequent tutorial also waits the same delay after the previous one closes.
 /// </summary>
-public class Tutorials : MonoBehaviour
+public class TutorialManager : MonoBehaviour
 {
     #region Inspector Fields
 
@@ -39,15 +38,30 @@ public class Tutorials : MonoBehaviour
     [Tooltip("Tutorial explaining stage requirements")]
     private TutorialFrame requirementsTutorial;
 
-    [Header("Feedbacks")]
     [SerializeField]
-    [Tooltip("Feedback played when showing a tutorial frame")]
-    private MMF_Player showFeedback;
+    [Tooltip("Tutorial explaining air bubbles")]
+    private TutorialFrame airBubblesTutorial;
+
+    [SerializeField]
+    [Tooltip("Tutorial explaining collectibles and their benefits")]
+    private TutorialFrame collectiblesTutorial;
+
+    [SerializeField]
+    [Tooltip("Tutorial explaining how eggs work")]
+    private TutorialFrame eggsTutorial;
+
+    [Tooltip("Main spawner used in the tutorial to show how spawning works")]
+    [SerializeField]
+    private GameObject tutorialSpawners;
 
     [Header("Timing")]
     [SerializeField]
     [Tooltip("Seconds to wait before showing a tutorial")]
-    private float delayBeforeShow = 3f;
+    private float delayBeforeShow = 5f;
+
+    [SerializeField]
+    [Tooltip("Seconds to wait before showing the final (eggs) tutorial")]
+    private float delayBeforeEndTutorial = 10f;
 
     [SerializeField]
     [Tooltip("Overlay canvas group to block interactions when a tutorial is active")]
@@ -74,7 +88,7 @@ public class Tutorials : MonoBehaviour
     private void Start()
     {
         // Build the ordered sequence of tutorials to show
-        tutorialSequence = new[] { startTutorial, movementTutorial, healthbarTutorial, bubbleshotTutorial, resourcesTutorial, requirementsTutorial };
+        tutorialSequence = new[] { startTutorial, movementTutorial, healthbarTutorial, bubbleshotTutorial, resourcesTutorial, requirementsTutorial, airBubblesTutorial, collectiblesTutorial, eggsTutorial };
         currentTutorialIndex = 0;
 
         if (overlayTutorial != null)
@@ -150,7 +164,8 @@ public class Tutorials : MonoBehaviour
 
     private IEnumerator ShowAfterDelay(TutorialFrame tutorial)
     {
-        yield return new WaitForSeconds(delayBeforeShow);
+        float delay = tutorial == eggsTutorial ? delayBeforeEndTutorial : delayBeforeShow;
+        yield return new WaitForSeconds(delay);
 
         activeTutorial = tutorial;
         tutorial.OnClosed.AddListener(OnActiveTutorialClosed);
@@ -159,9 +174,6 @@ public class Tutorials : MonoBehaviour
             overlayTutorial.SetActive(true);
         tutorial.transform.localScale = Vector3.zero;
         tutorial.gameObject.SetActive(true);
-
-        if (showFeedback != null)
-            showFeedback.PlayFeedbacks();
 
         // Pause the game while a tutorial is active
         if (GameManager.Instance != null)
@@ -172,6 +184,7 @@ public class Tutorials : MonoBehaviour
 
     private void OnActiveTutorialClosed()
     {
+        TutorialFrame closedTutorial = activeTutorial;
         if (activeTutorial != null)
         {
             activeTutorial.OnClosed.RemoveListener(OnActiveTutorialClosed);

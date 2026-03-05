@@ -30,6 +30,9 @@ public class SpawnerManager : MonoBehaviour
         public float positionX = 0f;
         public float positionY = 0f;
 
+        [Header("Delay")]
+        public float delay = 0f;  // delay before this category's first spawn
+
         [System.NonSerialized] public int currentAlive;
     }
     [Header("Spawner Settings")]
@@ -93,6 +96,9 @@ public class SpawnerManager : MonoBehaviour
 
     private IEnumerator SpawnRoutine(SpawnCategory category)
     {
+        if (category.delay > 0f)
+            yield return new WaitForSeconds(category.delay);
+
         while (spawning)
         {
             // Only spawn when game is actively playing

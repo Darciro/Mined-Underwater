@@ -56,10 +56,11 @@ public class GameManager : MonoBehaviour
     public int CurrentLevel => currentLevel;
 
     /// <summary>
-    /// Calculates the nth Fibonacci number (1-indexed)
+    /// Calculates the product of the nth and (n+1)th Fibonacci numbers (1-indexed).
+    /// e.g. n=4 -> fib(4) * fib(5) = 5 * 8 = 40
     /// </summary>
     /// <param name="n">The position in the Fibonacci sequence</param>
-    /// <returns>The Fibonacci number at position n</returns>
+    /// <returns>The product of Fibonacci numbers at positions n and n+1</returns>
     private int CalculateFibonacci(int n)
     {
         if (n <= 0) return 1; // For level 0 or negative, return 1

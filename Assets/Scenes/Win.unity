@@ -456,7 +456,9 @@ MonoBehaviour:
   airText: {fileID: 0}
   eggsText: {fileID: 0}
   coinsText: {fileID: 0}
-  levelNumberText: {fileID: 5967329543195846250}
+  eggProgressText: {fileID: 0}
+  eggProgressSlider: {fileID: 0}
+  levelNumberText: {fileID: 0}
   levelEggsText: {fileID: 5967329542071416825}
   levelCoinsText: {fileID: 5967329542260836251}
   totalEggsText: {fileID: 0}
@@ -5734,7 +5736,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: x2 Claim
+  m_text: Collect x2
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c2f49fe8c22d94f9a9e6cd06ad490155, type: 2}
   m_sharedMaterial: {fileID: 3074828514974314926, guid: c2f49fe8c22d94f9a9e6cd06ad490155, type: 2}
@@ -16639,7 +16641,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5967329541829745278
 RectTransform:
   m_ObjectHideFlags: 0
@@ -16658,9 +16660,9 @@ RectTransform:
   - {fileID: 5967329543100388312}
   m_Father: {fileID: 5967329542354660125}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 536.1228, y: -100.048706}
   m_SizeDelta: {x: 182.44911, y: 200.09741}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &5967329541829745279
@@ -21868,7 +21870,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Claim
+  m_text: Collect
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c2f49fe8c22d94f9a9e6cd06ad490155, type: 2}
   m_sharedMaterial: {fileID: 3074828514974314926, guid: c2f49fe8c22d94f9a9e6cd06ad490155, type: 2}

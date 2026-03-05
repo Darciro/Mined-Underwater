@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     #region Serialized Fields
 
     [Header("Stats")]
+    [SerializeField] private bool isTutorial = false;
     [SerializeField] private int maxHealth = 50;
     [SerializeField] private int currentHealth;
     [SerializeField] private float speed = 5f;
@@ -896,7 +897,10 @@ public class PlayerController : MonoBehaviour
     {
         if (levelManager != null)
         {
-            levelManager.LoadGameOver();
+            if (isTutorial)
+                levelManager.RestartTutorial();
+            else
+                levelManager.LoadGameOver();
         }
     }
 

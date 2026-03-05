@@ -43,7 +43,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Slider sfxSlider;
 
     private ScoreManager scoreManager;
-    private Tutorials tutorials;
+    private TutorialManager tutorials;
 
     private int previousEggs = 0;
     private int previousCoins = 0;
@@ -57,7 +57,7 @@ public class UIManager : MonoBehaviour
     private void Awake()
     {
         scoreManager = FindFirstObjectByType<ScoreManager>();
-        tutorials = FindFirstObjectByType<Tutorials>();
+        tutorials = FindFirstObjectByType<TutorialManager>();
     }
 
     private void Start()

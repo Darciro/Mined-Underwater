@@ -130,6 +130,20 @@ public class LevelManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Restarts the tutorial scene when the player dies during the tutorial
+    /// </summary>
+    public void RestartTutorial()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ResetLevelStats();
+            GameManager.Instance.ChangeState(GameStateEnum.Tutorial);
+        }
+
+        StartCoroutine(WaitAndLoad("Tutorial", 2f));
+    }
+
+    /// <summary>
     /// Loads the stage selection scene
     /// </summary>
     public void LoadStageSelect()

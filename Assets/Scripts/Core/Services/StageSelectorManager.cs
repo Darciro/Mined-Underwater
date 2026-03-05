@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 /// <summary>
@@ -18,12 +19,22 @@ public class StageSelectorManager : MonoBehaviour
     [SerializeField] private int totalStages = 15;
     [SerializeField] private bool autoGenerateButtons = true;
 
+    [Header("Egg Requirement UI")]
+    [Tooltip("TextMeshPro to display the egg requirement of the selected stage")]
+    [SerializeField] private TextMeshProUGUI eggRequirementText;
+
     // Special stages start after main stages; dark stages offset further to avoid collision
     private const int DarkStageIndexOffset = 100;
+
+    /// <summary>Egg requirement for the currently selected stage.</summary>
+    private int selectedStageEggRequirement;
 
     private readonly List<StageButtonGroup> buttonGroups = new();
 
     public int TotalStages => totalStages;
+
+    /// <summary>Egg requirement for the last stage the player tapped.</summary>
+    public int SelectedStageEggRequirement => selectedStageEggRequirement;
 
     private void Start()
     {
@@ -131,6 +142,14 @@ public class StageSelectorManager : MonoBehaviour
             Debug.LogWarning($"[StageSelectorManager] Attempted to select locked stage {stageIndex}.");
             return;
         }
+
+        // Cache the egg requirement for the selected stage
+        selectedStageEggRequirement = GameManager.Instance != null
+            ? GameManager.Instance.CalculateEggRequirement(stageIndex)
+            : 0;
+
+        if (eggRequirementText != null)
+            eggRequirementText.text = selectedStageEggRequirement.ToString();
 
         if (preparePopup != null)
         {
