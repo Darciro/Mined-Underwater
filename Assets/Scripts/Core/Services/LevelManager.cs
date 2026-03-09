@@ -12,84 +12,50 @@ public class LevelManager : MonoBehaviour
 
     [SerializeField] private SceneTransition sceneTransition;
 
+    private GameManager gameManager => GameManager.Instance;
+
     private void Awake()
     {
-        // Singleton pattern - allow multiple instances per scene
-        // Since LevelManager is scene-specific, we update the instance each time
         Instance = this;
     }
 
     private void OnEnable()
     {
-        // Subscribe to level complete event
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnLevelComplete += OnLevelComplete;
-        }
+        if (gameManager != null)
+            gameManager.OnLevelComplete += OnLevelComplete;
     }
 
     private void OnDisable()
     {
-        // Unsubscribe from level complete event
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnLevelComplete -= OnLevelComplete;
-        }
+        if (gameManager != null)
+            gameManager.OnLevelComplete -= OnLevelComplete;
     }
 
-    /// <summary>
-    /// Called when the player completes a level
-    /// </summary>
     private void OnLevelComplete(int completedLevel)
     {
         LoadWinScene();
     }
 
-    /// <summary>
-    /// Starts the game using the current stage set in GameManager
-    /// </summary>
     public void StartGame(bool isTutorial = false)
     {
-        // Set game state to Playing when starting game
-        if (GameManager.Instance != null)
+        if (gameManager != null)
         {
-            GameManager.Instance.ChangeState(isTutorial ? GameStateEnum.Tutorial : GameStateEnum.Playing);
-            GameManager.Instance.ResetLevelStats();
+            gameManager.ChangeState(isTutorial ? GameStateEnum.Tutorial : GameStateEnum.Playing);
+            gameManager.ResetLevelStats();
         }
 
-        // Use scene transition if available, otherwise load directly
-        if (sceneTransition != null)
-        {
-            if (isTutorial)
-                sceneTransition.StartSceneTransition("Tutorial");
-            else
-                sceneTransition.StartSceneTransition("Main");
-        }
-        else
-        {
-            if (isTutorial)
-                SceneManager.LoadScene("Tutorial");
-            else
-                SceneManager.LoadScene("Main");
-        }
+        LoadScene(isTutorial ? "Tutorial" : "Main");
     }
 
-    /// <summary>
-    /// Legacy method - redirects to StartGame()
-    /// </summary>
     public void LoadGame()
     {
+        AdsManager.Instance?.HideBanner();
         StartGame();
     }
 
     public void RestartGame()
     {
-        // Reset level stats when restarting
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.ResetLevelStats();
-        }
-
+        gameManager?.ResetLevelStats();
         SceneManager.LoadScene("Main");
     }
 
@@ -100,79 +66,52 @@ public class LevelManager : MonoBehaviour
 
     public void LoadNextLevel()
     {
-        // Advance to next level and restart game
-        if (GameManager.Instance != null)
+        if (gameManager != null)
         {
-            GameManager.Instance.NextLevel();
-            GameManager.Instance.ChangeState(GameStateEnum.Playing);
+            gameManager.NextLevel();
+            gameManager.ChangeState(GameStateEnum.Playing);
         }
 
-        // Use scene transition if available, otherwise load directly
-        if (sceneTransition != null)
-        {
-            sceneTransition.StartSceneTransition("StageSelect");
-        }
-        else
-        {
-            SceneManager.LoadScene("StageSelect");
-        }
+        LoadScene("StageSelect");
     }
 
     public void LoadGameOver()
     {
-        // Trigger GameOver state in GameManager
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.ChangeState(GameStateEnum.GameOver);
-        }
-
+        gameManager?.ChangeState(GameStateEnum.GameOver);
         StartCoroutine(WaitAndLoad("GameOver", 2f));
     }
 
-    /// <summary>
-    /// Restarts the tutorial scene when the player dies during the tutorial
-    /// </summary>
     public void RestartTutorial()
     {
-        if (GameManager.Instance != null)
+        if (gameManager != null)
         {
-            GameManager.Instance.ResetLevelStats();
-            GameManager.Instance.ChangeState(GameStateEnum.Tutorial);
+            gameManager.ResetLevelStats();
+            gameManager.ChangeState(GameStateEnum.Tutorial);
         }
 
         StartCoroutine(WaitAndLoad("Tutorial", 2f));
     }
 
-    /// <summary>
-    /// Loads the stage selection scene
-    /// </summary>
     public void LoadStageSelect()
     {
-        // Set game state to MainMenu (stage select is part of menu flow)
-        if (GameManager.Instance != null)
+        bool hasCompletedTutorial = gameManager != null
+            ? gameManager.IsStageCompleted(0)
+            : PlayerPrefs.GetInt("StageCompleted_0", 0) == 1;
+
+        if (!hasCompletedTutorial)
         {
-            GameManager.Instance.ChangeState(GameStateEnum.MainMenu);
+            gameManager?.ChangeState(GameStateEnum.Tutorial);
+            LoadScene("Tutorial");
+            return;
         }
 
-        // Use scene transition if available, otherwise load directly
-        if (sceneTransition != null)
-        {
-            sceneTransition.StartSceneTransition("StageSelect");
-        }
-        else
-        {
-            SceneManager.LoadScene("StageSelect");
-        }
+        gameManager?.ChangeState(GameStateEnum.Playing);
+        LoadScene("StageSelect");
     }
 
     public void LoadMainMenu()
     {
-        // Set game state to MainMenu
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.ChangeState(GameStateEnum.MainMenu);
-        }
-
+        gameManager?.ChangeState(GameStateEnum.MainMenu);
         SceneManager.LoadScene("Menu");
     }
 
@@ -189,12 +128,15 @@ public class LevelManager : MonoBehaviour
 
     public void LoadCharacterScene()
     {
-        // Set game state to Character
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.ChangeState(GameStateEnum.MainMenu);
-        }
-
+        gameManager?.ChangeState(GameStateEnum.Playing);
         SceneManager.LoadScene("Character");
+    }
+
+    private void LoadScene(string sceneName)
+    {
+        if (sceneTransition != null)
+            sceneTransition.StartSceneTransition(sceneName);
+        else
+            SceneManager.LoadScene(sceneName);
     }
 }

@@ -994,10 +994,16 @@ public class PlayerController : MonoBehaviour
             yield break;
         }
 
-        Color originalColor = spriteRenderer.color;
-        spriteRenderer.color = Color.red;
+        Color originalColor = Color.white;
+        float blinkInterval = 0.15f;
 
-        yield return new WaitForSeconds(airDamageRate);
+        while (currentAir <= 0 && !isDead)
+        {
+            spriteRenderer.color = Color.red;
+            yield return new WaitForSeconds(blinkInterval);
+            spriteRenderer.color = originalColor;
+            yield return new WaitForSeconds(blinkInterval);
+        }
 
         spriteRenderer.color = originalColor;
         airBlinkCoroutine = null;
@@ -1017,6 +1023,16 @@ public class PlayerController : MonoBehaviour
         }
 
         currentAir += restoreAmount;
+
+        if (currentAir > 0 && airBlinkCoroutine != null)
+        {
+            StopCoroutine(airBlinkCoroutine);
+            airBlinkCoroutine = null;
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = Color.white;
+            }
+        }
 
         Vector3 popupPosition = transform.position + Vector3.up * 0.5f;
         ShowPopup(airPopupPrefab, popupPosition, popup =>

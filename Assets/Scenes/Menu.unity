@@ -5144,6 +5144,8 @@ MonoBehaviour:
   airText: {fileID: 0}
   eggsText: {fileID: 0}
   coinsText: {fileID: 0}
+  eggProgressText: {fileID: 0}
+  eggProgressSlider: {fileID: 0}
   levelNumberText: {fileID: 0}
   levelEggsText: {fileID: 0}
   levelCoinsText: {fileID: 0}

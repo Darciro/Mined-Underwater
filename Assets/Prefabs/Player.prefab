@@ -5109,6 +5109,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851c79fc23c25814b81e045284a8200d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  isTutorial: 0
   maxHealth: 25
   currentHealth: 25
   speed: 5
@@ -5127,7 +5128,7 @@ MonoBehaviour:
   maxY: 8
   projectilePrefab: {fileID: 128572, guid: 5d7c6dab597f2a84c96efed9400dfbec, type: 3}
   projectileSpeed: 15
-  projectileLifetime: 1
+  projectileLifetime: 1.5
   fireRate: 0.5
   defenseButtonHold: {fileID: 0}
   deathParticles: {fileID: 198882543454184864, guid: 6f7de817ffa64ab4aa07eef4b0e6e887, type: 3}
