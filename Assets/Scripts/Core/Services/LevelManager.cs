@@ -115,6 +115,18 @@ public class LevelManager : MonoBehaviour
         SceneManager.LoadScene("Menu");
     }
 
+    public void LoadInventory()
+    {
+        gameManager?.ChangeState(GameStateEnum.Playing);
+        SceneManager.LoadScene("Inventory");
+    }
+
+    public void LoadShop()
+    {
+        gameManager?.ChangeState(GameStateEnum.Playing);
+        SceneManager.LoadScene("Shop");
+    }
+
     public void QuitGame()
     {
         Application.Quit();
