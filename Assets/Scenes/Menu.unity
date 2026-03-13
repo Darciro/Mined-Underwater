@@ -5144,6 +5144,7 @@ MonoBehaviour:
   airText: {fileID: 0}
   eggsText: {fileID: 0}
   coinsText: {fileID: 0}
+  stageText: {fileID: 0}
   eggProgressText: {fileID: 0}
   eggProgressSlider: {fileID: 0}
   levelNumberText: {fileID: 0}
@@ -10464,7 +10465,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 776979155288657857, guid: f0d26709201eb2946b1d341f650316b2, type: 3}
       propertyPath: m_text
-      value: Start
+      value: Play
       objectReference: {fileID: 0}
     - target: {fileID: 776979155288657857, guid: f0d26709201eb2946b1d341f650316b2, type: 3}
       propertyPath: m_fontSize

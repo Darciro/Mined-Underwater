@@ -17,6 +17,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI coinsText;
 
     [Header("Level Progress UI")]
+    [Tooltip("The level number text shown on progress bar, e.g. 'Level 3'")]
+    [SerializeField] private TextMeshProUGUI stageText;
     [Tooltip("TextMeshPro showing collected/required eggs, e.g. '3/5'")]
     [SerializeField] private TextMeshProUGUI eggProgressText;
     [Tooltip("Slider filled from 0 to 1 based on eggs collected vs eggs required")]
@@ -337,6 +339,9 @@ public class UIManager : MonoBehaviour
         // Display level number
         if (levelNumberText != null)
             levelNumberText.text = $"Level {completedLevel}";
+
+        if (stageText != null)
+            stageText.text = $"Level {completedLevel}";
 
         // Display level stats
         if (levelEggsText != null)

@@ -11472,7 +11472,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 380823851}
         m_TargetAssemblyTypeName: LevelManager, Assembly-CSharp
-        m_MethodName: QuitGame
+        m_MethodName: LoadStageSelect
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

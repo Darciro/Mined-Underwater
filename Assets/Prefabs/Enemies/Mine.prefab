@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 4169861880693792493}
   - component: {fileID: 4796963732403357724}
   - component: {fileID: 3268165840074075572}
-  - component: {fileID: 5694768524515902809}
   - component: {fileID: -2702764433466827428}
+  - component: {fileID: 3259722798899261540}
   m_Layer: 7
   m_Name: Mine
   m_TagString: Enemy
@@ -158,17 +158,6 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 1.2491944
---- !u!247 &5694768524515902809
-ConstantForce2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5140958000244401713}
-  m_Enabled: 1
-  m_Force: {x: 0, y: 0}
-  m_RelativeForce: {x: -1, y: 0}
-  m_Torque: 0
 --- !u!114 &-2702764433466827428
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -176,7 +165,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5140958000244401713}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 442e5edb6cc426a4e8ee93fbf7b1830d, type: 3}
   m_Name: 
@@ -186,9 +175,42 @@ MonoBehaviour:
   maxDamageAmount: 20
   coinValue: 2
   hitParticles: {fileID: 8713912631512916485, guid: 55690877c568c7b41b85da6d2f1eb09f, type: 3}
-  coinPopupPrefab: {fileID: 0}
-  moveSpeed: 1
+  moveSpeed: 0.1
   verticalSpeed: 1
   minY: -4
   maxY: 4
   changeDirectionTime: 1
+  hitFeedback: {fileID: 0}
+  dieFeedback: {fileID: 0}
+--- !u!114 &3259722798899261540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5140958000244401713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 257b4c9f61ae48c4fb4119139666ff27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Mine
+  health: 1
+  minDamageAmount: 2
+  maxDamageAmount: 100
+  coinValue: 2
+  hitParticles: {fileID: 0}
+  moveSpeed: 0.1
+  verticalSpeed: 1
+  minY: -4
+  maxY: 4
+  changeDirectionTime: 1
+  hitFeedback: {fileID: 0}
+  dieFeedback: {fileID: 0}
+  blinkSpeed: 0.1
+  blinkCount: 15
+  shrinkScale: 0.9
+  growScale: 1.6
+  scaleSpeed: 1
+  detonationSpeed: 5
+  explosionTime: 0.5
+  explosionPrefab: {fileID: 19870976, guid: e30a7f5724a267d4c85627ec20fa2546, type: 3}

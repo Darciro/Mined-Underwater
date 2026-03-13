@@ -5,15 +5,20 @@ public class ProjectileDamage : MonoBehaviour
     [Header("Damage")]
     [SerializeField] private int minDamage = 1;
     [SerializeField] private int maxDamage = 10;
+
+    [Header("Settings")]
     [SerializeField] private bool isPlayerProjectile = true;
+
+    [Header("References")]
     [SerializeField] private GameObject damagePopupPrefab;
 
     private Canvas parentCanvas;
     private int rolledDamage;
 
+    #region Unity Lifecycle
+
     private void Awake()
     {
-        NormalizeDamageRange();
         RollDamage();
     }
 
@@ -25,36 +30,51 @@ public class ProjectileDamage : MonoBehaviour
             Debug.LogWarning("ProjectileDamage: Could not find Canvas with name 'UI' in scene!");
             return;
         }
+
         parentCanvas = canvasGO.GetComponent<Canvas>();
         if (parentCanvas == null)
-        {
             Debug.LogWarning("ProjectileDamage: Found 'UI' GameObject but it has no Canvas component!");
-        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (isPlayerProjectile)
-        {
-            // Player projectile hitting enemy
-            EnemyController enemy = other.GetComponent<EnemyController>();
-            if (enemy != null)
-            {
-                enemy.TakeDamage(rolledDamage);
-                ShowDamagePopup(rolledDamage, other.transform.position + Vector3.up * 0.5f);
-                // Destroy(gameObject);
-            }
-        }
+            HandlePlayerProjectileHit(other);
         else
+            HandleEnemyProjectileHit(other);
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private void HandlePlayerProjectileHit(Collider2D other)
+    {
+        Mine mine = other.GetComponent<Mine>();
+        if (mine != null)
         {
-            // Enemy projectile hitting player
-            PlayerController player = other.GetComponent<PlayerController>();
-            if (player != null)
-            {
-                player.TakeDamage(rolledDamage);
-                ShowDamagePopup(rolledDamage, other.transform.position + Vector3.up * 0.5f);
-                // Destroy(gameObject);
-            }
+            mine.Detonate();
+            Destroy(gameObject);
+            return;
+        }
+
+        EnemyController enemy = other.GetComponent<EnemyController>();
+        if (enemy != null)
+        {
+            enemy.TakeDamage(rolledDamage);
+            ShowDamagePopup(rolledDamage, other.transform.position + Vector3.up * 0.5f);
+            Destroy(gameObject);
+        }
+    }
+
+    private void HandleEnemyProjectileHit(Collider2D other)
+    {
+        PlayerController player = other.GetComponent<PlayerController>();
+        if (player != null)
+        {
+            player.TakeDamage(rolledDamage);
+            ShowDamagePopup(rolledDamage, other.transform.position + Vector3.up * 0.5f);
+            // Destroy(gameObject);
         }
     }
 
@@ -64,9 +84,7 @@ public class ProjectileDamage : MonoBehaviour
         if (maxDamage < 1) maxDamage = 1;
 
         if (maxDamage < minDamage)
-        {
             (minDamage, maxDamage) = (maxDamage, minDamage);
-        }
     }
 
     private void RollDamage()
@@ -74,13 +92,9 @@ public class ProjectileDamage : MonoBehaviour
         NormalizeDamageRange();
 
         // Unity int Random.Range is min inclusive, max exclusive.
-        if (maxDamage == int.MaxValue)
-        {
-            rolledDamage = Random.Range(minDamage, maxDamage);
-            return;
-        }
-
-        rolledDamage = Random.Range(minDamage, maxDamage + 1);
+        rolledDamage = maxDamage == int.MaxValue
+            ? Random.Range(minDamage, maxDamage)
+            : Random.Range(minDamage, maxDamage + 1);
     }
 
     private void ShowDamagePopup(int damageAmount, Vector3 worldPosition)
@@ -91,29 +105,22 @@ public class ProjectileDamage : MonoBehaviour
             return;
         }
 
-        // Convert world position to canvas position
         Vector2 screenPos = Camera.main.WorldToScreenPoint(worldPosition);
 
         GameObject popupGO = Instantiate(damagePopupPrefab, parentCanvas.transform);
         popupGO.GetComponent<RectTransform>().position = screenPos;
-
         popupGO.GetComponent<DamagePopup>().Setup(damageAmount);
     }
 
-    public int GetDamage()
-    {
-        return rolledDamage;
-    }
+    #endregion
 
-    public int GetMinDamage()
-    {
-        return minDamage;
-    }
+    #region Public API
 
-    public int GetMaxDamage()
-    {
-        return maxDamage;
-    }
+    public int GetDamage() => rolledDamage;
+
+    public int GetMinDamage() => minDamage;
+
+    public int GetMaxDamage() => maxDamage;
 
     public void SetDamage(int newDamage)
     {
@@ -128,4 +135,6 @@ public class ProjectileDamage : MonoBehaviour
         maxDamage = newMaxDamage;
         RollDamage();
     }
+
+    #endregion
 }

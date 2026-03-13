@@ -13,7 +13,8 @@ public class StageSelectorManager : MonoBehaviour
     [SerializeField] private GameObject stageButtonGroupPrefab;
 
     [Header("Prepare Popup")]
-    [SerializeField] private PreparePopup preparePopup;
+    // [SerializeField] private PreparePopup preparePopup;
+    [SerializeField] private StagePopup stagePopup;
 
     [Header("Stage Configuration")]
     [SerializeField] private int totalStages = 15;
@@ -151,14 +152,14 @@ public class StageSelectorManager : MonoBehaviour
         if (eggRequirementText != null)
             eggRequirementText.text = selectedStageEggRequirement.ToString();
 
-        if (preparePopup != null)
+        if (stagePopup != null)
         {
-            preparePopup.Show(stageIndex);
+            stagePopup.Show(stageIndex);
             return;
         }
 
         // Fallback when popup is missing
-        Debug.LogError("[StageSelectorManager] PreparePopup not assigned — starting stage directly.");
+        Debug.LogError("[StageSelectorManager] StagePopup not assigned — starting stage directly.");
         GameManager.Instance.SetCurrentStage(stageIndex);
         LevelManager.Instance?.StartGame(stageIndex == 0);
     }

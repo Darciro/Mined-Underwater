@@ -84,7 +84,8 @@ public class PreparePopup : MonoBehaviour
 
     private void Awake()
     {
-        // Setup button listeners
+        gameObject.SetActive(false); // Ensure popup starts hidden
+                                     // Setup button listeners
         if (startLevelButton != null)
         {
             startLevelButton.onClick.AddListener(OnStartLevelClicked);
@@ -141,6 +142,12 @@ public class PreparePopup : MonoBehaviour
     /// </summary>
     public void Close()
     {
+        // Play show animation/feedback
+        if (showFeedback != null)
+        {
+            showFeedback.PlayFeedbacks();
+        }
+
         gameObject.SetActive(false);
         selectedStageIndex = -1;
 
@@ -259,7 +266,7 @@ public class PreparePopup : MonoBehaviour
     /// </summary>
     public void OnPotionClicked()
     {
-        ShowShopItem(potionItem, true);
+        ShowShopItem(potionItem);
     }
 
     /// <summary>
@@ -267,7 +274,7 @@ public class PreparePopup : MonoBehaviour
     /// </summary>
     public void OnShieldClicked()
     {
-        ShowShopItem(shieldItem, true);
+        ShowShopItem(shieldItem);
     }
 
     /// <summary>
@@ -275,7 +282,7 @@ public class PreparePopup : MonoBehaviour
     /// </summary>
     public void OnBombClicked()
     {
-        ShowShopItem(bombItem, true);
+        ShowShopItem(bombItem);
     }
 
     /// <summary>
@@ -283,7 +290,7 @@ public class PreparePopup : MonoBehaviour
     /// </summary>
     public void OnMagnetClicked()
     {
-        ShowShopItem(magnetItem, true);
+        ShowShopItem(magnetItem);
     }
 
     /// <summary>

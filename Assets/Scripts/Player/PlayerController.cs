@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using MoreMountains.Feedbacks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
@@ -17,6 +20,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int maxHealth = 50;
     [SerializeField] private int currentHealth;
     [SerializeField] private float speed = 5f;
+    [SerializeField] private float velocity = 5f;
 
     [Header("Defense")]
     [SerializeField] private float damageReductionPercentage = 50f;
@@ -162,6 +166,14 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
+    #region Visual Feedback
+
+    [Header("FX")]
+    [SerializeField] private Volume globalVolume;
+    private Vignette vignette;
+
+    #endregion
+
     #region Unity Lifecycle
 
     private void Awake()
@@ -179,6 +191,26 @@ public class PlayerController : MonoBehaviour
 
         CacheInputActions();
         EnableInputActions();
+
+        if (globalVolume == null)
+        {
+            Debug.LogError("Global Volume is not assigned.", this);
+            return;
+        }
+
+        if (globalVolume.profile == null)
+        {
+            Debug.LogError("Global Volume has no profile assigned.", this);
+            return;
+        }
+
+        if (!globalVolume.profile.TryGet(out vignette))
+        {
+            Debug.LogError("No Vignette override found in the assigned Volume Profile.", this);
+            return;
+        }
+
+        vignette.intensity.overrideState = true;
     }
 
     private void OnEnable()
@@ -258,6 +290,10 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        // For testing: destroy enemy when pressing T
+        if (UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.tKey.wasPressedThisFrame)
+            RestoreAir(3);
+
         UpdateMovementInput();
         HandleFiring();
         UpdateAir();
@@ -312,7 +348,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 CalculateNewPosition(float currentSpeed)
     {
         Vector2 newPosition = rb.position;
-        newPosition.x += currentSpeed * Time.fixedDeltaTime;
+        newPosition.x += velocity * Time.fixedDeltaTime;
         newPosition.y += moveDirection.y * currentSpeed * Time.fixedDeltaTime;
         newPosition.y = Mathf.Clamp(newPosition.y, minY, maxY);
         return newPosition;
@@ -937,6 +973,13 @@ public class PlayerController : MonoBehaviour
         {
             TakeAirDamage(airDamageAmount);
             lastAirDamageTime = Time.time;
+        }
+
+        // Smoothly transition vignette intensity over 3 seconds
+        if (vignette != null)
+        {
+            float vignetteTarget = currentAir <= 0 ? 0.3f : 0f;
+            vignette.intensity.value = Mathf.MoveTowards(vignette.intensity.value, vignetteTarget, Time.deltaTime / 5f);
         }
     }
 

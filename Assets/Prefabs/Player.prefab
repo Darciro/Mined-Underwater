@@ -4946,7 +4946,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: -7.34, y: 0.02, z: 0}
-  m_LocalScale: {x: 1.3, y: 1.3, z: 1.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 7357620506308121401}
@@ -5113,6 +5113,7 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 25
   speed: 5
+  velocity: 5
   damageReductionPercentage: 50
   maxAir: 30
   currentAir: 0

@@ -1,3 +1,4 @@
+using MoreMountains.Feedbacks;
 using UnityEngine;
 
 public class EnemyController : MonoBehaviour
@@ -8,7 +9,6 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private int maxDamageAmount = 10;
     [SerializeField] private int coinValue = 1;
     [SerializeField] private ParticleSystem hitParticles;
-    [SerializeField] private GameObject coinPopupPrefab;
 
     public int DamageAmount => RollDamageAmount();
 
@@ -22,23 +22,23 @@ public class EnemyController : MonoBehaviour
     private ScoreManager scoreManager;
     private float verticalDirection;
     private float directionTimer;
-    private Canvas parentCanvas;
-    private Camera cachedMainCamera;
+    private Collider2D col;
+    private SpriteRenderer sr;
+    private Animator animator;
+    private bool isDead;
+
+    [Header("FX")]
+    [SerializeField] private MMF_Player hitFeedback;
+    [SerializeField] private MMF_Player dieFeedback;
 
     private void Start()
     {
         NormalizeDamageRange();
         scoreManager = FindFirstObjectByType<ScoreManager>();
+        col = GetComponent<Collider2D>();
+        sr = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
         InitializeRandomMovement();
-
-        // Find UI canvas for popups
-        GameObject canvasGO = GameObject.Find("UI");
-        if (canvasGO != null)
-        {
-            parentCanvas = canvasGO.GetComponent<Canvas>();
-        }
-
-        cachedMainCamera = Camera.main;
     }
 
     private void OnValidate()
@@ -48,70 +48,47 @@ public class EnemyController : MonoBehaviour
 
     private void Update()
     {
-        MoveEnemy();
+        if (!isDead) MoveEnemy();
+
+        // For testing: destroy enemy when pressing T
+        /** if (UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.tKey.wasPressedThisFrame)
+            TakeDamage(3); */
     }
 
     private void InitializeRandomMovement()
     {
-        // Start with random vertical direction
         verticalDirection = Random.Range(0, 2) == 0 ? -1f : 1f;
         directionTimer = changeDirectionTime;
     }
 
     private void MoveEnemy()
     {
-        // Move constantly to the left
-        transform.position += Vector3.left * moveSpeed * Time.deltaTime;
-
-        // Random vertical movement
         directionTimer -= Time.deltaTime;
         if (directionTimer <= 0f)
         {
-            // Change direction randomly
             verticalDirection = Random.Range(0, 2) == 0 ? -1f : 1f;
             directionTimer = changeDirectionTime;
         }
 
-        // Apply vertical movement
-        Vector3 newPosition = transform.position;
-        newPosition.y += verticalDirection * verticalSpeed * Time.deltaTime;
+        Vector3 pos = transform.position;
+        pos.x -= moveSpeed * Time.deltaTime;
+        pos.y += verticalDirection * verticalSpeed * Time.deltaTime;
 
-        // Clamp vertical position and reverse direction if hitting boundaries
-        if (newPosition.y <= minY)
+        if (pos.y <= minY)
         {
-            newPosition.y = minY;
+            pos.y = minY;
             verticalDirection = 1f;
         }
-        else if (newPosition.y >= maxY)
+        else if (pos.y >= maxY)
         {
-            newPosition.y = maxY;
+            pos.y = maxY;
             verticalDirection = -1f;
         }
 
-        transform.position = newPosition;
+        transform.position = pos;
 
-        // Destroy enemy if it goes too far left (off-screen)
-        if (transform.position.x < -15f)
-        {
+        if (pos.x < -15f)
             Destroy(gameObject);
-        }
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        /* PlayerController player = other.GetComponent<PlayerController>();
-
-        if (player != null)
-        {
-            player.TakeDamage(DamageAmount);
-            PlayHitParticles();
-            Die();
-
-            if (AudioManager.instance != null)
-            {
-                AudioManager.instance.PlayDamageSFX();
-            }
-        } */
     }
 
     private void NormalizeDamageRange()
@@ -120,77 +97,49 @@ public class EnemyController : MonoBehaviour
         if (maxDamageAmount < 1) maxDamageAmount = 1;
 
         if (maxDamageAmount < minDamageAmount)
-        {
             (minDamageAmount, maxDamageAmount) = (maxDamageAmount, minDamageAmount);
-        }
     }
 
     private int RollDamageAmount()
     {
-        NormalizeDamageRange();
-
         // Unity int Random.Range is min inclusive, max exclusive.
-        if (maxDamageAmount == int.MaxValue)
-        {
-            return Random.Range(minDamageAmount, maxDamageAmount);
-        }
-
-        return Random.Range(minDamageAmount, maxDamageAmount + 1);
+        return maxDamageAmount == int.MaxValue
+            ? Random.Range(minDamageAmount, maxDamageAmount)
+            : Random.Range(minDamageAmount, maxDamageAmount + 1);
     }
 
     public void TakeDamage(int damage)
     {
         health -= damage;
-
         CameraShakeManager.Instance.ShakeHeavy();
+        PlayHitParticles();
 
         if (health <= 0)
-        {
             Die();
-        }
+
+        hitFeedback?.PlayFeedbacks();
     }
 
     private void Die()
     {
-        if (scoreManager != null)
-        {
-            scoreManager.AddCoin();
-        }
-        ShowCoinPopup(coinValue, transform.position);
-        PlayHitParticles();
-        Destroy(gameObject);
+        isDead = true;
+
+        scoreManager?.AddCoin();
+        GetComponent<EnemyPickup>()?.SpawnPickup();
+        dieFeedback?.PlayFeedbacks();
+
+        if (col != null) col.enabled = false;
+        if (sr != null) sr.color = Color.gray;
+
+        if (animator != null) animator.enabled = false;
     }
 
     private void PlayHitParticles()
     {
-        if (hitParticles != null)
-        {
-            ParticleSystem particles = Instantiate(hitParticles, transform.position, Quaternion.identity);
-            float lifetime = particles.main.duration + particles.main.startLifetime.constantMax;
-            Destroy(particles.gameObject, lifetime);
-        }
-    }
+        if (hitParticles == null) return;
 
-    private void ShowCoinPopup(int coins, Vector3 worldPosition)
-    {
-        if (coinPopupPrefab == null || parentCanvas == null || cachedMainCamera == null)
-        {
-            return;
-        }
-
-        Vector2 screenPos = cachedMainCamera.WorldToScreenPoint(worldPosition);
-        GameObject popupGO = Instantiate(coinPopupPrefab, parentCanvas.transform);
-
-        RectTransform rectTransform = popupGO.GetComponent<RectTransform>();
-        if (rectTransform != null)
-        {
-            rectTransform.position = screenPos;
-        }
-
-        ScorePopup popup = popupGO.GetComponent<ScorePopup>();
-        if (popup != null)
-        {
-            popup.Setup(coins);
-        }
+        ParticleSystem particles = Instantiate(hitParticles, transform.position, Quaternion.identity);
+        float lifetime = particles.main.duration + particles.main.startLifetime.constantMax;
+        Destroy(particles.gameObject, lifetime);
     }
 }

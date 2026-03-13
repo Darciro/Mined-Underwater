@@ -12,8 +12,10 @@ GameObject:
   - component: {fileID: 8324338203185721677}
   - component: {fileID: 8105072337218742489}
   - component: {fileID: 9112708295532675635}
-  - component: {fileID: 5200161947373224961}
   - component: {fileID: 517381253427391438}
+  - component: {fileID: 5509252576761663059}
+  - component: {fileID: 1357513475873011035}
+  - component: {fileID: 8743885675422571120}
   m_Layer: 0
   m_Name: Fish_6
   m_TagString: Enemy
@@ -31,9 +33,11 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.28981715, y: 0.28981715, z: 0.28981715}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_LocalScale: {x: 0.3, y: 0.30000004, z: 0.30000004}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 2390639787562532791}
+  - {fileID: 4551661527204283256}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &8324338203185721677
@@ -144,8 +148,125 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!70 &5200161947373224961
-CapsuleCollider2D:
+--- !u!114 &517381253427391438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2095549369148848682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 442e5edb6cc426a4e8ee93fbf7b1830d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyController
+  health: 8
+  minDamageAmount: 3
+  maxDamageAmount: 5
+  coinValue: 3
+  hitParticles: {fileID: 8713912631512916485, guid: 55690877c568c7b41b85da6d2f1eb09f, type: 3}
+  moveSpeed: 5
+  verticalSpeed: 1.5
+  minY: -4
+  maxY: 4
+  changeDirectionTime: 3
+  hitFeedback: {fileID: 5116974586123778519}
+  dieFeedback: {fileID: 5272832965682721419}
+--- !u!114 &5509252576761663059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2095549369148848682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bba4795a8c1c7cf4f80b583c05087250, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyPickup
+  possiblePickups:
+  - prefab: {fileID: 3343501982003209353, guid: d99ec6aed5336bf40beb0a172c023f88, type: 3}
+    percentage: 15
+  - prefab: {fileID: 6576482441310453641, guid: fa86af667ccf80c458cabebfee51c4d0, type: 3}
+    percentage: 5
+  - prefab: {fileID: 6947379499002408640, guid: b3bab1674ed8b754f9fc13c31d826463, type: 3}
+    percentage: 100
+--- !u!114 &1357513475873011035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2095549369148848682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cb29398a27cf104bb97fac0554c9457, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.Tools::MoreMountains.Feedbacks.MMScaleShaker
+  ChannelMode: 0
+  Channel: 0
+  MMChannelDefinition: {fileID: 0}
+  ShakeDuration: 0.5
+  PlayOnAwake: 0
+  PermanentShake: 0
+  Interruptible: 1
+  AlwaysResetTargetValuesAfterShake: 0
+  OnlyUseShakerValues: 0
+  CooldownBetweenShakes: 0
+  Shaking: 0
+  ForwardDirection: 1
+  TimescaleMode: 0
+  Mode: 0
+  TargetTransform: {fileID: 0}
+  TargetRectTransform: {fileID: 0}
+  ShakeSpeed: 20
+  ShakeRange: 0.5
+  ShakeMainDirection: {x: 0, y: 1, z: 0}
+  RandomizeDirection: 0
+  ShakeAltDirection: {x: 0, y: 1, z: 0}
+  RandomizeDirectionOnPlay: 0
+  AddDirectionalNoise: 1
+  DirectionalNoiseStrengthMin: {x: 0.25, y: 0.25, z: 0.25}
+  DirectionalNoiseStrengthMax: {x: 0.25, y: 0.25, z: 0.25}
+  RandomnessSeed: {x: 0, y: 0, z: 0}
+  RandomizeSeedOnShake: 1
+  UseAttenuation: 1
+  AttenuationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.5
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  StartShakingButton: 0
+--- !u!60 &8743885675422571120
+PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -174,33 +295,1380 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -1.6850871, y: 0.1368294}
-  m_Size: {x: 9.667891, y: 4.2587957}
-  m_Direction: 1
---- !u!114 &517381253427391438
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 15, y: 8}
+    newSize: {x: 15, y: 8}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: -0.29, y: -3.3999999}
+      - {x: -0.35, y: -3.37}
+      - {x: -0.51, y: -3.1799998}
+      - {x: -0.58, y: -2.99}
+      - {x: -0.55, y: -2.84}
+      - {x: -0.42999998, y: -2.87}
+      - {x: -0.17999999, y: -3.02}
+      - {x: 0.11, y: -3.21}
+      - {x: 0.14, y: -3.22}
+      - {x: 0.22, y: -3.1299999}
+      - {x: 0.22, y: -3.1}
+      - {x: -0.26, y: -2.79}
+      - {x: -0.35999998, y: -2.69}
+      - {x: -0.26, y: -2.6}
+      - {x: -0.049999997, y: -2.56}
+      - {x: -0.03, y: -2.5}
+      - {x: -0.099999994, y: -2.32}
+      - {x: -0.11, y: -2.09}
+      - {x: 0.07, y: -2.09}
+      - {x: 0.21, y: -2.19}
+      - {x: 0.22999999, y: -2.19}
+      - {x: 0.31, y: -2.12}
+      - {x: 0.56, y: -2.12}
+      - {x: 0.75, y: -2.1}
+      - {x: 0.85999995, y: -2.08}
+      - {x: 0.9, y: -2.07}
+      - {x: 1.0699999, y: -2.03}
+      - {x: 1.22, y: -1.99}
+      - {x: 1.4499999, y: -1.86}
+      - {x: 1.9799999, y: -1.79}
+      - {x: 2.08, y: -1.78}
+      - {x: 2.27, y: -1.77}
+      - {x: 2.59, y: -1.78}
+      - {x: 3.1299999, y: -1.92}
+      - {x: 3.34, y: -2.03}
+      - {x: 3.61, y: -2.21}
+      - {x: 3.72, y: -2.33}
+      - {x: 3.81, y: -2.31}
+      - {x: 3.8, y: -2.1399999}
+      - {x: 3.74, y: -2.07}
+      - {x: 3.62, y: -1.9799999}
+      - {x: 3.48, y: -1.89}
+      - {x: 3.29, y: -1.8}
+      - {x: 3.27, y: -1.81}
+      - {x: 2.8999999, y: -1.61}
+      - {x: 2.79, y: -1.54}
+      - {x: 2.87, y: -1.4499999}
+      - {x: 3, y: -1.4}
+      - {x: 3.01, y: -1.31}
+      - {x: 2.8899999, y: -1.1999999}
+      - {x: 2.84, y: -1.1}
+      - {x: 2.85, y: -0.87}
+      - {x: 2.9099998, y: -0.75}
+      - {x: 2.96, y: -0.75}
+      - {x: 3, y: -0.72999996}
+      - {x: 3.03, y: -0.26999998}
+      - {x: 3.1399999, y: -0.14999999}
+      - {x: 3.3, y: -0.07}
+      - {x: 3.3999999, y: 0.049999997}
+      - {x: 3.51, y: 0.06}
+      - {x: 3.8999999, y: 0.07}
+      - {x: 3.9099998, y: 0.06}
+      - {x: 4.13, y: 0.02}
+      - {x: 4.43, y: -0.08}
+      - {x: 4.7599998, y: -0.26}
+      - {x: 4.87, y: -0.32999998}
+      - {x: 5.06, y: -0.45}
+      - {x: 5.35, y: -0.66999996}
+      - {x: 5.6099997, y: -0.91999996}
+      - {x: 5.6299996, y: -0.91999996}
+      - {x: 5.68, y: -0.89}
+      - {x: 5.68, y: -0.78999996}
+      - {x: 5.65, y: -0.76}
+      - {x: 5.69, y: -0.56}
+      - {x: 5.8199997, y: -0.77}
+      - {x: 5.9, y: -0.77}
+      - {x: 5.94, y: -0.71}
+      - {x: 5.94, y: -0.66999996}
+      - {x: 5.91, y: -0.62}
+      - {x: 5.79, y: -0.48}
+      - {x: 5.6, y: -0.25}
+      - {x: 5.45, y: 0.04}
+      - {x: 5.5099998, y: 0.13}
+      - {x: 5.5099998, y: 0.17999999}
+      - {x: 5.46, y: 0.22999999}
+      - {x: 5.3199997, y: 0.34}
+      - {x: 5.12, y: 0.48}
+      - {x: 5.37, y: 0.32999998}
+      - {x: 5.62, y: 0.14999999}
+      - {x: 5.66, y: 0.14999999}
+      - {x: 5.7, y: 0.17}
+      - {x: 5.69, y: 0.31}
+      - {x: 5.72, y: 0.42}
+      - {x: 5.83, y: 0.47}
+      - {x: 5.8399997, y: 0.53}
+      - {x: 5.7799997, y: 0.78}
+      - {x: 5.83, y: 0.81}
+      - {x: 5.83, y: 0.84}
+      - {x: 5.75, y: 1.06}
+      - {x: 5.74, y: 1.25}
+      - {x: 5.7, y: 1.29}
+      - {x: 5.6, y: 1.31}
+      - {x: 5.15, y: 1.3299999}
+      - {x: 5.5499997, y: 1.37}
+      - {x: 5.6099997, y: 1.38}
+      - {x: 5.58, y: 1.53}
+      - {x: 5.46, y: 1.53}
+      - {x: 5.39, y: 1.67}
+      - {x: 5.43, y: 1.6899999}
+      - {x: 5.35, y: 1.88}
+      - {x: 5.35, y: 1.9399999}
+      - {x: 5.31, y: 1.99}
+      - {x: 5.12, y: 2.1}
+      - {x: 5.0299997, y: 2.2}
+      - {x: 4.98, y: 2.44}
+      - {x: 5.0299997, y: 2.62}
+      - {x: 5.0299997, y: 2.75}
+      - {x: 4.95, y: 2.78}
+      - {x: 4.87, y: 2.59}
+      - {x: 4.66, y: 2.3999999}
+      - {x: 4.12, y: 2.06}
+      - {x: 4.0299997, y: 2}
+      - {x: 3.6699998, y: 1.81}
+      - {x: 3.62, y: 1.8}
+      - {x: 3.3, y: 1.67}
+      - {x: 3.07, y: 1.51}
+      - {x: 2.8799999, y: 1.5799999}
+      - {x: 2.78, y: 1.61}
+      - {x: 2.25, y: 1.68}
+      - {x: 2.1299999, y: 1.7099999}
+      - {x: 1.92, y: 1.8}
+      - {x: 1.92, y: 2.01}
+      - {x: 1.86, y: 2.05}
+      - {x: 1.52, y: 2.07}
+      - {x: 1.35, y: 2.11}
+      - {x: 1.18, y: 2.23}
+      - {x: 1.15, y: 2.36}
+      - {x: 1.28, y: 2.5}
+      - {x: 1.25, y: 2.58}
+      - {x: 1.03, y: 2.52}
+      - {x: 0.9, y: 2.52}
+      - {x: 0.75, y: 2.6}
+      - {x: 0.77, y: 2.71}
+      - {x: 0.93, y: 2.8799999}
+      - {x: 0.94, y: 2.95}
+      - {x: 0.9, y: 2.97}
+      - {x: 0.82, y: 2.97}
+      - {x: 0.45999998, y: 2.8899999}
+      - {x: -0.41, y: 2.61}
+      - {x: -0.55, y: 2.56}
+      - {x: -0.98999995, y: 2.34}
+      - {x: -1.11, y: 2.48}
+      - {x: -1.17, y: 2.61}
+      - {x: -1.17, y: 2.8899999}
+      - {x: -1.18, y: 2.96}
+      - {x: -1.2099999, y: 3.06}
+      - {x: -1.27, y: 3.11}
+      - {x: -1.3299999, y: 3.11}
+      - {x: -1.63, y: 2.9199998}
+      - {x: -1.74, y: 2.8999999}
+      - {x: -2.2, y: 2.84}
+      - {x: -2.3899999, y: 2.74}
+      - {x: -2.58, y: 2.6499999}
+      - {x: -2.7, y: 2.62}
+      - {x: -2.86, y: 2.7}
+      - {x: -3.01, y: 2.72}
+      - {x: -3.28, y: 2.72}
+      - {x: -3.53, y: 2.6599998}
+      - {x: -3.6699998, y: 2.6}
+      - {x: -3.76, y: 2.55}
+      - {x: -3.86, y: 2.48}
+      - {x: -4.04, y: 2.31}
+      - {x: -4.0899997, y: 2.25}
+      - {x: -4.19, y: 2.09}
+      - {x: -4.25, y: 1.93}
+      - {x: -4.2799997, y: 1.79}
+      - {x: -4.29, y: 1.66}
+      - {x: -4.2799997, y: 1.54}
+      - {x: -4.35, y: 1.36}
+      - {x: -4.71, y: 1.0799999}
+      - {x: -5.0099998, y: 0.65999997}
+      - {x: -5.13, y: 0.42}
+      - {x: -5.0899997, y: 0.41}
+      - {x: -4.94, y: 0.55}
+      - {x: -5.0099998, y: 0.34}
+      - {x: -5.0299997, y: 0.19999999}
+      - {x: -5, y: 0.17999999}
+      - {x: -4.7799997, y: 0.28}
+      - {x: -4.81, y: 0.16}
+      - {x: -4.8399997, y: 0.049999997}
+      - {x: -4.8199997, y: -0.02}
+      - {x: -4.71, y: 0.04}
+      - {x: -4.67, y: 0.16}
+      - {x: -4.49, y: -0.02}
+      - {x: -4.5099998, y: -0.17999999}
+      - {x: -4.47, y: -0.19999999}
+      - {x: -4.39, y: -0.12}
+      - {x: -4.2799997, y: -0.17}
+      - {x: -4.29, y: -0.26999998}
+      - {x: -4.2799997, y: -0.29}
+      - {x: -4.1, y: -0.29999998}
+      - {x: -4.0499997, y: -0.41}
+      - {x: -4.02, y: -0.45}
+      - {x: -3.9299998, y: -0.42999998}
+      - {x: -3.87, y: -0.48}
+      - {x: -3.78, y: -0.45999998}
+      - {x: -3.35, y: -0.64}
+      - {x: -3.27, y: -0.71}
+      - {x: -3.29, y: -0.78999996}
+      - {x: -3.47, y: -0.78}
+      - {x: -3.9199998, y: -0.68}
+      - {x: -3.9299998, y: -0.61}
+      - {x: -4.0299997, y: -0.58}
+      - {x: -4.06, y: -0.63}
+      - {x: -4.16, y: -0.57}
+      - {x: -4.21, y: -0.45}
+      - {x: -4.2599998, y: -0.44}
+      - {x: -4.29, y: -0.55}
+      - {x: -4.41, y: -0.51}
+      - {x: -4.42, y: -0.42999998}
+      - {x: -4.48, y: -0.39999998}
+      - {x: -4.62, y: -0.42999998}
+      - {x: -4.64, y: -0.35999998}
+      - {x: -4.7999997, y: -0.37}
+      - {x: -4.79, y: -0.34}
+      - {x: -4.73, y: -0.12}
+      - {x: -4.73, y: -0.08}
+      - {x: -4.7599998, y: -0.07}
+      - {x: -4.7999997, y: -0.11}
+      - {x: -4.94, y: -0.32}
+      - {x: -5.02, y: -0.21}
+      - {x: -5.14, y: -0.19}
+      - {x: -5.0299997, y: 0}
+      - {x: -5.0299997, y: 0.03}
+      - {x: -5.06, y: 0.04}
+      - {x: -5.0899997, y: 0.02}
+      - {x: -5.18, y: -0.06}
+      - {x: -5.2599998, y: -0.16}
+      - {x: -5.29, y: -0.06}
+      - {x: -5.41, y: -0.13}
+      - {x: -5.31, y: 0.04}
+      - {x: -5.2799997, y: 0.12}
+      - {x: -5.31, y: 0.14999999}
+      - {x: -5.44, y: 0.02}
+      - {x: -5.52, y: -0.099999994}
+      - {x: -5.5899997, y: -0.07}
+      - {x: -5.44, y: 0.13}
+      - {x: -5.33, y: 0.26999998}
+      - {x: -5.33, y: 0.29}
+      - {x: -5.3599997, y: 0.29999998}
+      - {x: -5.58, y: 0.14}
+      - {x: -5.7799997, y: -0.06}
+      - {x: -5.83, y: -0.08}
+      - {x: -5.92, y: -0.13}
+      - {x: -6.0899997, y: -0.29}
+      - {x: -6.19, y: -0.45999998}
+      - {x: -6.2, y: -0.53999996}
+      - {x: -6.2, y: -0.62}
+      - {x: -6.12, y: -0.91999996}
+      - {x: -6.0699997, y: -1.06}
+      - {x: -6, y: -1.14}
+      - {x: -5.96, y: -1.12}
+      - {x: -5.97, y: -1.04}
+      - {x: -6.0299997, y: -0.84999996}
+      - {x: -5.97, y: -0.91999996}
+      - {x: -5.94, y: -0.94}
+      - {x: -5.81, y: -0.87}
+      - {x: -5.83, y: -1.02}
+      - {x: -5.83, y: -1.24}
+      - {x: -5.8199997, y: -1.31}
+      - {x: -5.79, y: -1.35}
+      - {x: -5.7599998, y: -1.3399999}
+      - {x: -5.75, y: -1.16}
+      - {x: -5.66, y: -0.90999997}
+      - {x: -5.6, y: -0.98999995}
+      - {x: -5.54, y: -0.98999995}
+      - {x: -5.49, y: -1.17}
+      - {x: -5.45, y: -1.18}
+      - {x: -5.3599997, y: -1.14}
+      - {x: -5.14, y: -1.18}
+      - {x: -5.04, y: -1.16}
+      - {x: -4.99, y: -1.22}
+      - {x: -4.8199997, y: -1.24}
+      - {x: -4.7599998, y: -1.28}
+      - {x: -4.6, y: -1.31}
+      - {x: -4.52, y: -1.3}
+      - {x: -4.5, y: -1.53}
+      - {x: -4.43, y: -1.49}
+      - {x: -4.42, y: -1.43}
+      - {x: -4.42, y: -1.41}
+      - {x: -4.41, y: -1.4}
+      - {x: -4.42, y: -1.42}
+      - {x: -4.42, y: -1.49}
+      - {x: -4.43, y: -1.5}
+      - {x: -4.43, y: -1.8299999}
+      - {x: -4.42, y: -2.04}
+      - {x: -4.35, y: -2.35}
+      - {x: -4.2799997, y: -2.44}
+      - {x: -4.25, y: -2.4299998}
+      - {x: -4.24, y: -2.3999999}
+      - {x: -4.3199997, y: -2.07}
+      - {x: -4.2599998, y: -1.78}
+      - {x: -4.19, y: -1.4599999}
+      - {x: -4.11, y: -1.41}
+      - {x: -4.0699997, y: -1.49}
+      - {x: -4.0299997, y: -1.6999999}
+      - {x: -3.99, y: -1.8199999}
+      - {x: -3.8999999, y: -1.99}
+      - {x: -3.84, y: -1.9599999}
+      - {x: -3.78, y: -1.65}
+      - {x: -3.73, y: -1.49}
+      - {x: -3.6599998, y: -1.55}
+      - {x: -3.52, y: -1.5699999}
+      - {x: -3.51, y: -1.5699999}
+      - {x: -3.36, y: -1.61}
+      - {x: -3.24, y: -1.66}
+      - {x: -3.03, y: -1.68}
+      - {x: -2.6299999, y: -1.3299999}
+      - {x: -2.44, y: -1.26}
+      - {x: -2.33, y: -1.3}
+      - {x: -2.27, y: -1.4599999}
+      - {x: -2.29, y: -1.52}
+      - {x: -2.32, y: -1.62}
+      - {x: -2.35, y: -1.8}
+      - {x: -2.35, y: -2.04}
+      - {x: -2.3, y: -2.35}
+      - {x: -2.22, y: -2.5}
+      - {x: -2.18, y: -2.5}
+      - {x: -2.1299999, y: -2.4199998}
+      - {x: -2.06, y: -2.48}
+      - {x: -1.89, y: -2.84}
+      - {x: -1.7099999, y: -3.05}
+      - {x: -1.66, y: -3.02}
+      - {x: -1.66, y: -2.97}
+      - {x: -1.7199999, y: -2.8899999}
+      - {x: -1.87, y: -2.7}
+      - {x: -1.8399999, y: -2.53}
+      - {x: -1.76, y: -2.6499999}
+      - {x: -1.49, y: -2.95}
+      - {x: -1.26, y: -3.1699998}
+      - {x: -1.14, y: -3.26}
+      - {x: -1.0699999, y: -3.27}
+      - {x: -1.03, y: -3.25}
+      - {x: -1.04, y: -3.1699998}
+      - {x: -1, y: -3.08}
+      - {x: -0.81, y: -3.1699998}
+      - {x: -0.58, y: -3.33}
+      - {x: -0.25, y: -3.54}
+      - {x: 0.22, y: -3.83}
+      - {x: 0.25, y: -3.83}
+      - {x: 0.29999998, y: -3.75}
+      - {x: 0.29, y: -3.72}
+      - {x: 0.11, y: -3.61}
+  m_UseDelaunayMesh: 1
+--- !u!1 &4173791489083433075
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4551661527204283256}
+  - component: {fileID: 5272832965682721419}
+  m_Layer: 0
+  m_Name: DieFeedback
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4551661527204283256
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4173791489083433075}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1077809578025118660}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5272832965682721419
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2095549369148848682}
+  m_GameObject: {fileID: 4173791489083433075}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 442e5edb6cc426a4e8ee93fbf7b1830d, type: 3}
+  m_Script: {fileID: 11500000, guid: 6da43522623d4704e979466dc7650b65, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyController
-  health: 8
-  minDamageAmount: 3
-  maxDamageAmount: 5
-  coinValue: 3
-  hitParticles: {fileID: 8713912631512916485, guid: 55690877c568c7b41b85da6d2f1eb09f, type: 3}
-  coinPopupPrefab: {fileID: 0}
-  moveSpeed: 5
-  verticalSpeed: 1.5
-  minY: -4
-  maxY: 4
-  changeDirectionTime: 3
+  m_EditorClassIdentifier: MoreMountains.Tools::MoreMountains.Feedbacks.MMF_Player
+  Feedbacks: []
+  InitializationMode: 2
+  AutoInitialization: 1
+  SafeMode: 3
+  Direction: 0
+  AutoChangeDirectionOnEnd: 0
+  AutoPlayOnStart: 0
+  AutoPlayOnEnable: 0
+  ForceTimescaleMode: 0
+  ForcedTimescaleMode: 1
+  DurationMultiplier: 1
+  TimescaleMultiplier: 1
+  RandomizeDuration: 0
+  RandomDurationMultiplier: {x: 0.5, y: 1.5}
+  DisplayFullDurationDetails: 0
+  PlayerTimescaleMode: 0
+  OnlyPlayIfWithinRange: 0
+  RangeCenter: {fileID: 0}
+  RangeDistance: 5
+  UseRangeFalloff: 0
+  RangeFalloff:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  RemapRangeFalloff: {x: 0, y: 1}
+  IgnoreRangeEvents: 0
+  CooldownDuration: 0
+  InitialDelay: 0
+  CanPlay: 1
+  CanPlayWhileAlreadyPlaying: 1
+  ChanceToPlay: 100
+  FeedbacksIntensity: 1
+  Events:
+    TriggerMMFeedbacksEvents: 0
+    TriggerUnityEvents: 1
+    OnPlay:
+      m_PersistentCalls:
+        m_Calls: []
+    OnPause:
+      m_PersistentCalls:
+        m_Calls: []
+    OnStop:
+      m_PersistentCalls:
+        m_Calls: []
+    OnResume:
+      m_PersistentCalls:
+        m_Calls: []
+    OnChangeDirection:
+      m_PersistentCalls:
+        m_Calls: []
+    OnComplete:
+      m_PersistentCalls:
+        m_Calls: []
+    OnRestoreInitialValues:
+      m_PersistentCalls:
+        m_Calls: []
+    OnSkipToTheEnd:
+      m_PersistentCalls:
+        m_Calls: []
+    OnInitializationComplete:
+      m_PersistentCalls:
+        m_Calls: []
+    OnEnable:
+      m_PersistentCalls:
+        m_Calls: []
+    OnDisable:
+      m_PersistentCalls:
+        m_Calls: []
+  DebugActive: 0
+  InScriptDrivenPause: 0
+  FeedbacksList:
+  - rid: 4289184123301134849
+  - rid: 4289184123301134850
+  - rid: 4289184123301134851
+  - rid: 4289184123301134852
+  KeepPlayModeChanges: 0
+  PerformanceMode: 0
+  RestoreInitialValuesOnDisable: 0
+  StopFeedbacksOnDisable: 0
+  PlayCount: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 4289184123301134849
+      type: {class: MMF_ScaleShake, ns: MoreMountains.Feedbacks, asm: MoreMountains.Tools}
+      data:
+        Active: 1
+        UniqueID: -498943914
+        Label: Scale Shake
+        OriginalLabel: Scale Shake
+        ChannelMode: 0
+        Channel: 0
+        MMChannelDefinition: {fileID: 0}
+        Chance: 100
+        Timing:
+          TimescaleMode: 0
+          ExcludeFromHoldingPauses: 0
+          ContributeToTotalDuration: 1
+          InitialDelay: 0
+          CooldownDuration: 0
+          InterruptsOnStop: 1
+          NumberOfRepeats: 0
+          RepeatForever: 0
+          DelayBetweenRepeats: 1
+          PlayCount: 33
+          LimitPlayCount: 0
+          MaxPlayCount: 3
+          SetPlayCountToZeroOnReset: 0
+          MMFeedbacksDirectionCondition: 0
+          PlayDirection: 0
+          ConstantIntensity: 0
+          UseIntensityInterval: 0
+          IntensityIntervalMin: 0
+          IntensityIntervalMax: 0
+          Sequence: {fileID: 0}
+          TrackID: 0
+          Quantized: 0
+          TargetBPM: 120
+        AutomatedTargetAcquisition:
+          Mode: 0
+          ChildIndex: 0
+        RandomizeOutput: 1
+        RandomMultiplier: {x: 0.8, y: 1}
+        RandomizeDuration: 0
+        RandomDurationMultiplier: {x: 0.5, y: 2}
+        UseRange: 0
+        RangeDistance: 5
+        UseRangeFalloff: 0
+        RangeFalloff:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        RemapRangeFalloff: {x: 0, y: 1}
+        AutomaticShakerSetupButton:
+          ButtonText: 
+        Owner: {fileID: 5272832965682721419}
+        DebugActive: 0
+        TargetShaker: {fileID: 1357513475873011035}
+        Duration: 0.5
+        ResetShakerValuesAfterShake: 1
+        ResetTargetValuesAfterShake: 1
+        ShakeSpeed: 50
+        ShakeRange: 0.1
+        ShakeMainDirection: {x: 1, y: 1, z: 0}
+        RandomizeDirection: 1
+        ShakeAltDirection: {x: 0, y: 1, z: 0}
+        RandomizeDirectionOnPlay: 0
+        AddDirectionalNoise: 1
+        DirectionalNoiseStrengthMin: {x: 0.25, y: 0.25, z: 0.25}
+        DirectionalNoiseStrengthMax: {x: 0.25, y: 0.25, z: 0.25}
+        RandomnessSeed: {x: 0, y: 0, z: 0}
+        RandomizeSeedOnShake: 1
+        UseAttenuation: 1
+        AttenuationCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 0.5
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 4289184123301134850
+      type: {class: MMF_SquashAndStretch, ns: MoreMountains.Feedbacks, asm: MoreMountains.Tools}
+      data:
+        Active: 1
+        UniqueID: 44113397
+        Label: Squash and Stretch
+        OriginalLabel: Squash and Stretch
+        ChannelMode: 0
+        Channel: 0
+        MMChannelDefinition: {fileID: 0}
+        Chance: 100
+        Timing:
+          TimescaleMode: 0
+          ExcludeFromHoldingPauses: 0
+          ContributeToTotalDuration: 1
+          InitialDelay: 0
+          CooldownDuration: 0
+          InterruptsOnStop: 1
+          NumberOfRepeats: 0
+          RepeatForever: 0
+          DelayBetweenRepeats: 1
+          PlayCount: 33
+          LimitPlayCount: 0
+          MaxPlayCount: 3
+          SetPlayCountToZeroOnReset: 0
+          MMFeedbacksDirectionCondition: 0
+          PlayDirection: 0
+          ConstantIntensity: 0
+          UseIntensityInterval: 0
+          IntensityIntervalMin: 0
+          IntensityIntervalMax: 0
+          Sequence: {fileID: 0}
+          TrackID: 0
+          Quantized: 0
+          TargetBPM: 120
+        AutomatedTargetAcquisition:
+          Mode: 0
+          ChildIndex: 0
+        RandomizeOutput: 0
+        RandomMultiplier: {x: 0.8, y: 1}
+        RandomizeDuration: 0
+        RandomDurationMultiplier: {x: 0.5, y: 2}
+        UseRange: 0
+        RangeDistance: 5
+        UseRangeFalloff: 0
+        RangeFalloff:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        RemapRangeFalloff: {x: 0, y: 1}
+        AutomaticShakerSetupButton:
+          ButtonText: 
+        Owner: {fileID: 5272832965682721419}
+        DebugActive: 0
+        SquashAndStretchTarget: {fileID: 1077809578025118660}
+        Mode: 1
+        Axis: 4
+        AnimateScaleDuration: 0.2
+        RemapCurveZero: 0.5
+        RemapCurveOne: 1
+        Offset: 0
+        AnimateCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 0.3
+            value: 1.5
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        AllowAdditivePlays: 0
+        DetermineScaleOnPlay: 0
+        DestinationScale: 2
+    - rid: 4289184123301134851
+      type: {class: MMF_ParticlesInstantiation, ns: MoreMountains.Feedbacks, asm: MoreMountains.Tools}
+      data:
+        Active: 1
+        UniqueID: -1755680013
+        Label: Particles Instantiation
+        OriginalLabel: Particles Instantiation
+        ChannelMode: 0
+        Channel: 0
+        MMChannelDefinition: {fileID: 0}
+        Chance: 100
+        Timing:
+          TimescaleMode: 0
+          ExcludeFromHoldingPauses: 0
+          ContributeToTotalDuration: 1
+          InitialDelay: 0
+          CooldownDuration: 0
+          InterruptsOnStop: 1
+          NumberOfRepeats: 0
+          RepeatForever: 0
+          DelayBetweenRepeats: 1
+          PlayCount: 33
+          LimitPlayCount: 0
+          MaxPlayCount: 3
+          SetPlayCountToZeroOnReset: 0
+          MMFeedbacksDirectionCondition: 0
+          PlayDirection: 0
+          ConstantIntensity: 0
+          UseIntensityInterval: 0
+          IntensityIntervalMin: 0
+          IntensityIntervalMax: 0
+          Sequence: {fileID: 0}
+          TrackID: 0
+          Quantized: 0
+          TargetBPM: 120
+        AutomatedTargetAcquisition:
+          Mode: 0
+          ChildIndex: 0
+        RandomizeOutput: 0
+        RandomMultiplier: {x: 0.8, y: 1}
+        RandomizeDuration: 0
+        RandomDurationMultiplier: {x: 0.5, y: 2}
+        UseRange: 0
+        RangeDistance: 5
+        UseRangeFalloff: 0
+        RangeFalloff:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        RemapRangeFalloff: {x: 0, y: 1}
+        AutomaticShakerSetupButton:
+          ButtonText: 
+        Owner: {fileID: 5272832965682721419}
+        DebugActive: 0
+        Mode: 2
+        ObjectPoolSize: 5
+        MutualizePools: 0
+        ParentTransform: {fileID: 1077809578025118660}
+        CachedRecycle: 1
+        ParticlesPrefab: {fileID: 198012786351023796, guid: 46e56f62e4ff899488d1b27766d1eb6d, type: 3}
+        RandomParticlePrefabs: []
+        MainParticlesPrefabWeight: 1
+        RandomParticleWeights: 
+        ForceSetActiveOnPlay: 0
+        StopOnReset: 0
+        DeclaredDuration: 0
+        ForceStopAction: 0
+        StopAction: 0
+        PositionMode: 0
+        InstantiateParticlesPosition: {fileID: 4551661527204283256}
+        TargetWorldPosition: {x: 0, y: 0, z: 0}
+        Offset: {x: -1.5, y: 0, z: 0}
+        NestParticles: 1
+        ApplyRotation: 0
+        ApplyScale: 0
+        ForceSimulationSpeed: 0
+        ForcedSimulationSpeed: {x: 0.1, y: 1}
+    - rid: 4289184123301134852
+      type: {class: MMF_Rotation, ns: MoreMountains.Feedbacks, asm: MoreMountains.Tools}
+      data:
+        Active: 1
+        UniqueID: -317837426
+        Label: Rotation
+        OriginalLabel: Rotation
+        ChannelMode: 0
+        Channel: 0
+        MMChannelDefinition: {fileID: 0}
+        Chance: 100
+        Timing:
+          TimescaleMode: 0
+          ExcludeFromHoldingPauses: 0
+          ContributeToTotalDuration: 1
+          InitialDelay: 0
+          CooldownDuration: 0
+          InterruptsOnStop: 1
+          NumberOfRepeats: 0
+          RepeatForever: 0
+          DelayBetweenRepeats: 1
+          PlayCount: 16
+          LimitPlayCount: 0
+          MaxPlayCount: 3
+          SetPlayCountToZeroOnReset: 0
+          MMFeedbacksDirectionCondition: 0
+          PlayDirection: 0
+          ConstantIntensity: 0
+          UseIntensityInterval: 0
+          IntensityIntervalMin: 0
+          IntensityIntervalMax: 0
+          Sequence: {fileID: 0}
+          TrackID: 0
+          Quantized: 0
+          TargetBPM: 120
+        AutomatedTargetAcquisition:
+          Mode: 0
+          ChildIndex: 0
+        RandomizeOutput: 0
+        RandomMultiplier: {x: 0.8, y: 1}
+        RandomizeDuration: 0
+        RandomDurationMultiplier: {x: 0.5, y: 2}
+        UseRange: 0
+        RangeDistance: 5
+        UseRangeFalloff: 0
+        RangeFalloff:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        RemapRangeFalloff: {x: 0, y: 1}
+        AutomaticShakerSetupButton:
+          ButtonText: 
+        Owner: {fileID: 5272832965682721419}
+        DebugActive: 0
+        AnimateRotationTarget: {fileID: 1077809578025118660}
+        Mode: 1
+        RotationSpace: 1
+        MovementMode: 0
+        AnimateRotationDuration: 0.5
+        AnimatePositionSpeed: 1
+        RemapCurveZero: 0
+        RemapCurveOne: 180
+        AnimateX: 1
+        AnimateRotationTweenX:
+          MMTweenDefinitionType: 1
+          MMTweenCurve: 4
+          Curve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 0
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+          Initialized: 0
+          ConditionPropertyName: AnimateX
+          EnumConditionPropertyName: 
+          EnumConditions: 0000000000000000000000000000000000000000000000000000000000000000
+        AnimateY: 0
+        AnimateRotationTweenY:
+          MMTweenDefinitionType: 1
+          MMTweenCurve: 4
+          Curve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 0
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 0.3
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 0
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+          Initialized: 0
+          ConditionPropertyName: AnimateY
+          EnumConditionPropertyName: 
+          EnumConditions: 0000000000000000000000000000000000000000000000000000000000000000
+        AnimateZ: 0
+        AnimateRotationTweenZ:
+          MMTweenDefinitionType: 1
+          MMTweenCurve: 4
+          Curve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 0
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 0.3
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 0
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+          Initialized: 0
+          ConditionPropertyName: AnimateZ
+          EnumConditionPropertyName: 
+          EnumConditions: 0000000000000000000000000000000000000000000000000000000000000000
+        AllowAdditivePlays: 0
+        DetermineRotationOnPlay: 0
+        ToDestinationSpace: 0
+        DestinationAngles: {x: 0, y: 180, z: 0}
+        ToDestinationTransform: {fileID: 0}
+        ToDestinationTween:
+          MMTweenDefinitionType: 0
+          MMTweenCurve: 10
+          Curve:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 0
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+          Initialized: 0
+          ConditionPropertyName: 
+          EnumConditionPropertyName: Mode
+          EnumConditions: 0000010000000000000000000000000000000000000000000000000000000000
+        AnimateRotationX:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        AnimateRotationY:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        AnimateRotationZ:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        ToDestinationCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+--- !u!1 &8941921786747238664
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2390639787562532791}
+  - component: {fileID: 5116974586123778519}
+  m_Layer: 0
+  m_Name: HitFeedback
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2390639787562532791
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8941921786747238664}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1077809578025118660}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5116974586123778519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8941921786747238664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6da43522623d4704e979466dc7650b65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.Tools::MoreMountains.Feedbacks.MMF_Player
+  Feedbacks: []
+  InitializationMode: 2
+  AutoInitialization: 1
+  SafeMode: 3
+  Direction: 0
+  AutoChangeDirectionOnEnd: 0
+  AutoPlayOnStart: 0
+  AutoPlayOnEnable: 0
+  ForceTimescaleMode: 0
+  ForcedTimescaleMode: 1
+  DurationMultiplier: 1
+  TimescaleMultiplier: 1
+  RandomizeDuration: 0
+  RandomDurationMultiplier: {x: 0.5, y: 1.5}
+  DisplayFullDurationDetails: 0
+  PlayerTimescaleMode: 0
+  OnlyPlayIfWithinRange: 0
+  RangeCenter: {fileID: 0}
+  RangeDistance: 5
+  UseRangeFalloff: 0
+  RangeFalloff:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  RemapRangeFalloff: {x: 0, y: 1}
+  IgnoreRangeEvents: 0
+  CooldownDuration: 0
+  InitialDelay: 0
+  CanPlay: 1
+  CanPlayWhileAlreadyPlaying: 1
+  ChanceToPlay: 100
+  FeedbacksIntensity: 1
+  Events:
+    TriggerMMFeedbacksEvents: 0
+    TriggerUnityEvents: 1
+    OnPlay:
+      m_PersistentCalls:
+        m_Calls: []
+    OnPause:
+      m_PersistentCalls:
+        m_Calls: []
+    OnStop:
+      m_PersistentCalls:
+        m_Calls: []
+    OnResume:
+      m_PersistentCalls:
+        m_Calls: []
+    OnChangeDirection:
+      m_PersistentCalls:
+        m_Calls: []
+    OnComplete:
+      m_PersistentCalls:
+        m_Calls: []
+    OnRestoreInitialValues:
+      m_PersistentCalls:
+        m_Calls: []
+    OnSkipToTheEnd:
+      m_PersistentCalls:
+        m_Calls: []
+    OnInitializationComplete:
+      m_PersistentCalls:
+        m_Calls: []
+    OnEnable:
+      m_PersistentCalls:
+        m_Calls: []
+    OnDisable:
+      m_PersistentCalls:
+        m_Calls: []
+  DebugActive: 0
+  InScriptDrivenPause: 0
+  FeedbacksList:
+  - rid: 4289184123301134900
+  KeepPlayModeChanges: 0
+  PerformanceMode: 0
+  RestoreInitialValuesOnDisable: 0
+  StopFeedbacksOnDisable: 0
+  PlayCount: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 4289184123301134900
+      type: {class: MMF_ScaleShake, ns: MoreMountains.Feedbacks, asm: MoreMountains.Tools}
+      data:
+        Active: 1
+        UniqueID: -1230502363
+        Label: Scale Shake
+        OriginalLabel: Scale Shake
+        ChannelMode: 0
+        Channel: 0
+        MMChannelDefinition: {fileID: 0}
+        Chance: 100
+        Timing:
+          TimescaleMode: 0
+          ExcludeFromHoldingPauses: 0
+          ContributeToTotalDuration: 1
+          InitialDelay: 0
+          CooldownDuration: 0
+          InterruptsOnStop: 1
+          NumberOfRepeats: 0
+          RepeatForever: 0
+          DelayBetweenRepeats: 1
+          PlayCount: 14
+          LimitPlayCount: 0
+          MaxPlayCount: 3
+          SetPlayCountToZeroOnReset: 0
+          MMFeedbacksDirectionCondition: 0
+          PlayDirection: 0
+          ConstantIntensity: 0
+          UseIntensityInterval: 0
+          IntensityIntervalMin: 0
+          IntensityIntervalMax: 0
+          Sequence: {fileID: 0}
+          TrackID: 0
+          Quantized: 0
+          TargetBPM: 120
+        AutomatedTargetAcquisition:
+          Mode: 0
+          ChildIndex: 0
+        RandomizeOutput: 1
+        RandomMultiplier: {x: 0.8, y: 1}
+        RandomizeDuration: 0
+        RandomDurationMultiplier: {x: 0.5, y: 2}
+        UseRange: 0
+        RangeDistance: 5
+        UseRangeFalloff: 0
+        RangeFalloff:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        RemapRangeFalloff: {x: 0, y: 1}
+        AutomaticShakerSetupButton:
+          ButtonText: 
+        Owner: {fileID: 5116974586123778519}
+        DebugActive: 0
+        TargetShaker: {fileID: 1357513475873011035}
+        Duration: 0.25
+        ResetShakerValuesAfterShake: 1
+        ResetTargetValuesAfterShake: 1
+        ShakeSpeed: 30
+        ShakeRange: 0.15
+        ShakeMainDirection: {x: 1, y: 0, z: 0}
+        RandomizeDirection: 0
+        ShakeAltDirection: {x: 0, y: 1, z: 0}
+        RandomizeDirectionOnPlay: 0
+        AddDirectionalNoise: 1
+        DirectionalNoiseStrengthMin: {x: 0.25, y: 0.25, z: 0.25}
+        DirectionalNoiseStrengthMax: {x: 0.25, y: 0.25, z: 0.25}
+        RandomnessSeed: {x: 0, y: 0, z: 0}
+        RandomizeSeedOnShake: 1
+        UseAttenuation: 1
+        AttenuationCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 0.5
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4

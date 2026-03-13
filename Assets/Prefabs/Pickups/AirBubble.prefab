@@ -5032,7 +5032,7 @@ MonoBehaviour:
   pickupSFX: {fileID: 0}
   spriteRenderer: {fileID: 0}
   triggerCollider: {fileID: 3615656561977255618}
-  recoverAmount: 5
+  recoverAmount: 6
 --- !u!1 &9003875062173677278
 GameObject:
   m_ObjectHideFlags: 0

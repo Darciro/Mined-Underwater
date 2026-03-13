@@ -303,7 +303,7 @@ MonoBehaviour:
   pickupSFX: {fileID: 0}
   spriteRenderer: {fileID: 0}
   triggerCollider: {fileID: 7273580071213596829}
-  healAmount: 3
+  healAmount: 4
 --- !u!1 &7819665999453045470
 GameObject:
   m_ObjectHideFlags: 0
