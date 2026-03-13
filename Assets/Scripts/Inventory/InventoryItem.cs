@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -5,6 +6,8 @@ using UnityEngine.UI;
 
 public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    public static event Action OnItemMoved;
+
     [Header("UI References")]
     [SerializeField] private Image image;
     [SerializeField] private TextMeshProUGUI countText;
@@ -12,6 +15,8 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     [HideInInspector] public Item item;
     [HideInInspector] public int count = 1;
     [HideInInspector] public Transform parentAfterDrag;
+
+    private Transform _originalParent;
 
     private void Start()
     {
@@ -35,6 +40,7 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     public void OnBeginDrag(PointerEventData eventData)
     {
         image.raycastTarget = false; // Disable raycast target to allow drop detection  
+        _originalParent = transform.parent;
         parentAfterDrag = transform.parent; // Store the original parent to return to if needed
         transform.SetParent(transform.root); // Move to root to avoid being masked by other UI elements
     }
@@ -48,5 +54,7 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     {
         image.raycastTarget = true; // Re-enable raycast target
         transform.SetParent(parentAfterDrag); // Return to original parent if not dropped on a valid slot
+        if (parentAfterDrag != _originalParent)
+            OnItemMoved?.Invoke();
     }
 }

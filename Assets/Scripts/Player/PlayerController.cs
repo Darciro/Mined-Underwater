@@ -781,11 +781,11 @@ public class PlayerController : MonoBehaviour
         }
 
         // Check if shield is active and blocks the damage
-        if (isShieldActive && shieldCharges > 0)
+        /* if (isShieldActive && shieldCharges > 0)
         {
             ConsumeShieldCharge();
             return;
-        }
+        } */
 
         int finalDamage = CalculateFinalDamage(damage);
         ApplyDamage(finalDamage);
@@ -1365,169 +1365,6 @@ public class PlayerController : MonoBehaviour
         magnetCount = PlayerPrefs.GetInt("ItemCount_Magnet", 0);
 
     }
-
-    /// <summary>
-    /// Gets the damage boost from upgrades for projectiles
-    /// </summary>
-    public int GetDamageBoost()
-    {
-        return baseDamage - 1; // Return the bonus damage (base is 1)
-    }
-
-    /// <summary>
-    /// Uses a health potion to restore 10 health
-    /// </summary>
-    public void UsePotion()
-    {
-        if (potionCount <= 0)
-        {
-            return;
-        }
-
-        if (currentHealth >= maxHealth)
-        {
-            return;
-        }
-
-        potionCount--;
-        PlayerPrefs.SetInt("ItemCount_Potion", potionCount);
-        PlayerPrefs.Save();
-
-        Heal(10);
-    }
-
-    /// <summary>
-    /// Activates shield protection
-    /// </summary>
-    public void UseShield()
-    {
-        if (shieldCharges <= 0)
-        {
-            return;
-        }
-
-        isShieldActive = true;
-    }
-
-    /// <summary>
-    /// Consumes one shield charge when blocking damage
-    /// </summary>
-    private void ConsumeShieldCharge()
-    {
-        if (shieldCharges > 0)
-        {
-            shieldCharges--;
-            PlayerPrefs.SetInt("ItemCount_Shield", shieldCharges);
-            PlayerPrefs.Save();
-
-
-            if (shieldCharges <= 0)
-            {
-                isShieldActive = false;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Uses a bomb to destroy all enemies on screen
-    /// </summary>
-    public void UseBomb()
-    {
-        if (bombCount <= 0)
-        {
-            return;
-        }
-
-        bombCount--;
-        PlayerPrefs.SetInt("ItemCount_Bomb", bombCount);
-        PlayerPrefs.Save();
-
-        // Find and destroy all enemies
-        EnemyController[] enemies = FindObjectsByType<EnemyController>(FindObjectsSortMode.None);
-        foreach (EnemyController enemy in enemies)
-        {
-            enemy.TakeDamage(9999); // Deal massive damage to instantly kill
-        }
-
-    }
-
-    /// <summary>
-    /// Activates magnet to auto-collect pickups
-    /// </summary>
-    public void UseMagnet()
-    {
-        if (magnetCount <= 0)
-        {
-            return;
-        }
-
-        magnetCount--;
-        PlayerPrefs.SetInt("ItemCount_Magnet", magnetCount);
-        PlayerPrefs.Save();
-
-        isMagnetActive = true;
-        StartCoroutine(MagnetEffectCoroutine());
-    }
-
-    /// <summary>
-    /// Coroutine for magnet effect duration
-    /// </summary>
-    private System.Collections.IEnumerator MagnetEffectCoroutine()
-    {
-        float duration = 10f; // Magnet lasts 10 seconds
-        float elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            // Pull all nearby collectables towards player
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 5f); // 5 unit radius
-            foreach (Collider2D col in colliders)
-            {
-                PickupBase pickup = col.GetComponent<PickupBase>();
-                if (pickup != null)
-                {
-                    // Move pickup towards player
-                    Vector2 direction = ((Vector2)transform.position - (Vector2)col.transform.position).normalized;
-                    col.transform.position = Vector2.MoveTowards(col.transform.position, transform.position, 10f * Time.deltaTime);
-                }
-            }
-
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        isMagnetActive = false;
-    }
-
-    /// <summary>
-    /// Gets the current potion count
-    /// </summary>
-    public int GetPotionCount() => potionCount;
-
-    /// <summary>
-    /// Gets the current shield charges
-    /// </summary>
-    public int GetShieldCharges() => shieldCharges;
-
-    /// <summary>
-    /// Gets the current bomb count
-    /// </summary>
-    public int GetBombCount() => bombCount;
-
-    /// <summary>
-    /// Gets the current magnet count
-    /// </summary>
-    public int GetMagnetCount() => magnetCount;
-
-    /// <summary>
-    /// Checks if shield is currently active
-    /// </summary>
-    public bool IsShieldActive() => isShieldActive;
-
-    /// <summary>
-    /// Checks if magnet is currently active
-    /// </summary>
-    public bool IsMagnetActive() => isMagnetActive;
 
     #endregion
 }

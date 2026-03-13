@@ -2,12 +2,30 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
+public class InventorySlotData
+{
+    public int slotIndex;
+    public string itemName;
+    public int count;
+}
+
+[Serializable]
+public class InventorySaveData
+{
+    public List<InventorySlotData> slots = new List<InventorySlotData>();
+}
+
 /// <summary>
 /// Singleton MonoBehaviour that owns the runtime inventory state.
-/// Initialises from an InventorySO asset on Awake; all changes are in-memory only.
+/// Persists across scene loads via DontDestroyOnLoad; saves to PlayerPrefs on every change.
 /// </summary>
 public class InventoryManager : MonoBehaviour
 {
+    public static InventoryManager Instance { get; private set; }
+
+    private const string SaveKey = "InventoryData";
+
     public InventorySlot[] inventorySlots;
     public GameObject inventoryItemPrefab;
     public int maxStackSize = 4;
@@ -16,14 +34,35 @@ public class InventoryManager : MonoBehaviour
     [Header("Item Info")]
     [SerializeField] private ItemInfo ItemInfo;
 
+    [Header("Known Items (for save/load)")]
+    [SerializeField] private Item[] allItems;
+
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(transform.root.gameObject);
+    }
+
+    private void Start()
+    {
+        LoadInventory();
+    }
+
     private void OnEnable()
     {
         InventorySlot.OnSlotClicked += HandleSlotClicked;
+        InventoryItem.OnItemMoved += SaveInventory;
     }
 
     private void OnDisable()
     {
         InventorySlot.OnSlotClicked -= HandleSlotClicked;
+        InventoryItem.OnItemMoved -= SaveInventory;
     }
 
     private void HandleSlotClicked(InventoryItem inventoryItem)
@@ -58,6 +97,7 @@ public class InventoryManager : MonoBehaviour
             {
                 existingItem.count++;
                 existingItem.UpdateCount();
+                SaveInventory();
                 return true;
             }
         }
@@ -69,6 +109,7 @@ public class InventoryManager : MonoBehaviour
             if (existingItem == null)
             {
                 SpawnNewItem(item, slot);
+                SaveInventory();
                 return true;
             }
         }
@@ -80,5 +121,50 @@ public class InventoryManager : MonoBehaviour
         GameObject newItem = Instantiate(inventoryItemPrefab, slot.transform);
         InventoryItem inventoryItem = newItem.GetComponent<InventoryItem>();
         inventoryItem.InitialiseItem(item);
+    }
+
+    public void SaveInventory()
+    {
+        var saveData = new InventorySaveData();
+        for (int i = 0; i < inventorySlots.Length; i++)
+        {
+            InventoryItem inventoryItem = inventorySlots[i].GetComponentInChildren<InventoryItem>();
+            if (inventoryItem != null)
+            {
+                saveData.slots.Add(new InventorySlotData
+                {
+                    slotIndex = i,
+                    itemName = inventoryItem.item.name,
+                    count = inventoryItem.count
+                });
+            }
+        }
+        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(saveData));
+        PlayerPrefs.Save();
+    }
+
+    public void LoadInventory()
+    {
+        if (!PlayerPrefs.HasKey(SaveKey)) return;
+
+        InventorySaveData saveData = JsonUtility.FromJson<InventorySaveData>(
+            PlayerPrefs.GetString(SaveKey)
+        );
+
+        foreach (InventorySlotData slotData in saveData.slots)
+        {
+            Item item = Array.Find(allItems, i => i.name == slotData.itemName);
+            if (item == null || slotData.slotIndex >= inventorySlots.Length) continue;
+
+            InventorySlot slot = inventorySlots[slotData.slotIndex];
+            SpawnNewItem(item, slot);
+
+            InventoryItem spawnedItem = slot.GetComponentInChildren<InventoryItem>();
+            if (spawnedItem != null)
+            {
+                spawnedItem.count = slotData.count;
+                spawnedItem.UpdateCount();
+            }
+        }
     }
 }

@@ -641,6 +641,10 @@ MonoBehaviour:
   maxStackSize: 4
   selectedSlot: -1
   ItemInfo: {fileID: 623279620}
+  allItems:
+  - {fileID: 11400000, guid: f35dcd6aa93c504488c33d88d07cb432, type: 2}
+  - {fileID: 11400000, guid: 5d8ddf24b75ece94ebd2ab1501f33a0f, type: 2}
+  - {fileID: 11400000, guid: 239be6c9eb9108a4c8788536265200cd, type: 2}
 --- !u!1 &61196685
 GameObject:
   m_ObjectHideFlags: 0
