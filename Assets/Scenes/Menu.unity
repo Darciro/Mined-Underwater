@@ -10435,13 +10435,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: StartGameButton
       objectReference: {fileID: 0}
+    - target: {fileID: 776979154425011544, guid: f0d26709201eb2946b1d341f650316b2, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 804461bef59b141dba258fc997c8ca15, type: 3}
     - target: {fileID: 776979154425011545, guid: f0d26709201eb2946b1d341f650316b2, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 776979154425011545, guid: f0d26709201eb2946b1d341f650316b2, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 1
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 776979154425011545, guid: f0d26709201eb2946b1d341f650316b2, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -16473,7 +16477,7 @@ PrefabInstance:
     - target: {fileID: 776979154425011544, guid: f0d26709201eb2946b1d341f650316b2, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: f87d9d25262734d879c2da72faf95bf2, type: 3}
+      objectReference: {fileID: 21300000, guid: 6bbcba4e267be464998897741b81d508, type: 3}
     - target: {fileID: 776979154425011545, guid: f0d26709201eb2946b1d341f650316b2, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
       value: 1

@@ -64,6 +64,11 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Smoothing for advanced touch movement. 0 = no smoothing.")]
     [SerializeField] private float fingerInputSmoothing = 18f;
 
+    [Header("Equipment")]
+    [SerializeField] private InventorySlot inventorySlotLeft;
+    [SerializeField] private InventorySlot inventorySlotCenter;
+    [SerializeField] private InventorySlot inventorySlotRight;
+
     [Header("UI Popups")]
     [SerializeField] private GameObject damagePopupPrefab;
     [SerializeField] private GameObject healPopupPrefab;
@@ -1364,6 +1369,40 @@ public class PlayerController : MonoBehaviour
         bombCount = PlayerPrefs.GetInt("ItemCount_Bomb", 0);
         magnetCount = PlayerPrefs.GetInt("ItemCount_Magnet", 0);
 
+        // AttachInventorySlotsByIndex();
+    }
+
+    private void AttachInventorySlotsByIndex()
+    {
+        InventoryManager manager = FindFirstObjectByType<InventoryManager>();
+        if (manager == null || manager.inventorySlots == null)
+        {
+            inventorySlotLeft = null;
+            inventorySlotCenter = null;
+            inventorySlotRight = null;
+            return;
+        }
+
+        inventorySlotLeft = GetNonEmptySlotAtIndex(manager.inventorySlots, 0);
+        inventorySlotCenter = GetNonEmptySlotAtIndex(manager.inventorySlots, 1);
+        inventorySlotRight = GetNonEmptySlotAtIndex(manager.inventorySlots, 2);
+    }
+
+    private InventorySlot GetNonEmptySlotAtIndex(InventorySlot[] slots, int index)
+    {
+        if (index < 0 || index >= slots.Length)
+        {
+            return null;
+        }
+
+        InventorySlot slot = slots[index];
+        if (slot == null)
+        {
+            return null;
+        }
+
+        InventoryItem item = slot.GetComponentInChildren<InventoryItem>();
+        return item != null ? slot : null;
     }
 
     #endregion

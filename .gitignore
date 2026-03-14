@@ -30,6 +30,7 @@ Assets/_Recovery*
 *.userprefs
 .history/
 UserSettings/
+.vsconfig
 
 # ========== OS-Specific ==========
 .DS_Store
@@ -47,5 +48,6 @@ Thumbs.db
 # ========== Imports ==========
 Assets/_Imports/
 
-# ========== AI Helpers ==========
+# ========== AI Helpers and others ==========
 ARCHITECTURE.md
+user.keystore

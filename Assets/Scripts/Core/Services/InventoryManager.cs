@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 [Serializable]
 public class InventorySlotData
@@ -22,8 +24,6 @@ public class InventorySaveData
 /// </summary>
 public class InventoryManager : MonoBehaviour
 {
-    public static InventoryManager Instance { get; private set; }
-
     private const string SaveKey = "InventoryData";
 
     public InventorySlot[] inventorySlots;
@@ -37,36 +37,51 @@ public class InventoryManager : MonoBehaviour
     [Header("Known Items (for save/load)")]
     [SerializeField] private Item[] allItems;
 
-    private void Awake()
-    {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-        DontDestroyOnLoad(transform.root.gameObject);
-    }
-
     private void Start()
     {
+        RefreshItemInfoReference();
         LoadInventory();
     }
 
     private void OnEnable()
     {
+        SceneManager.sceneLoaded += OnSceneLoaded;
         InventorySlot.OnSlotClicked += HandleSlotClicked;
         InventoryItem.OnItemMoved += SaveInventory;
     }
 
     private void OnDisable()
     {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
         InventorySlot.OnSlotClicked -= HandleSlotClicked;
         InventoryItem.OnItemMoved -= SaveInventory;
     }
 
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        RefreshItemInfoReference();
+    }
+
+    private void RefreshItemInfoReference()
+    {
+        ItemInfo = null;
+
+        GameObject[] rootObjects = SceneManager.GetActiveScene().GetRootGameObjects();
+        for (int i = 0; i < rootObjects.Length; i++)
+        {
+            ItemInfo foundInfo = rootObjects[i].GetComponentInChildren<ItemInfo>(true);
+            if (foundInfo != null)
+            {
+                ItemInfo = foundInfo;
+                break;
+            }
+        }
+    }
+
     private void HandleSlotClicked(InventoryItem inventoryItem)
     {
+        Debug.Log($"Clicked on slot with item: {inventoryItem.item.name}");
+
         if (ItemInfo != null)
             ItemInfo.Show(inventoryItem.item, inventoryItem.count);
     }
@@ -118,7 +133,14 @@ public class InventoryManager : MonoBehaviour
 
     public void SpawnNewItem(Item item, InventorySlot slot)
     {
-        GameObject newItem = Instantiate(inventoryItemPrefab, slot.transform);
+        GameObject newItem;
+        if(slot.alternativePosition != null) {
+            // slot.alternativePosition.gameObject.GetComponent<Image>().sprite = null;
+            newItem = Instantiate(inventoryItemPrefab, slot.alternativePosition.transform); 
+        } else {
+            newItem = Instantiate(inventoryItemPrefab, slot.transform);
+        }
+        // GameObject newItem = Instantiate(inventoryItemPrefab, slot.transform);
         InventoryItem inventoryItem = newItem.GetComponent<InventoryItem>();
         inventoryItem.InitialiseItem(item);
     }

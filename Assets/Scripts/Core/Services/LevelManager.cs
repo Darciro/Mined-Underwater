@@ -4,6 +4,9 @@ using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
+    private const string TutorialCompletedKey = "StageCompleted_0";
+    private const string HighestUnlockedStageKey = "HighestUnlockedStage";
+
     #region Singleton
 
     public static LevelManager Instance { get; private set; }
@@ -92,13 +95,32 @@ public class LevelManager : MonoBehaviour
         StartCoroutine(WaitAndLoad("Tutorial", 2f));
     }
 
-    public void LoadStageSelect()
+    public void LoadStageSelect(bool hasSkipedTutorial = false)
     {
+        if (hasSkipedTutorial)
+        {
+            // Skipping tutorial should count as tutorial completion and unlock stage 1.
+            PlayerPrefs.SetInt(TutorialCompletedKey, 1);
+
+            if (gameManager != null)
+            {
+                gameManager.UnlockStage(1);
+            }
+            else
+            {
+                int highestUnlockedStage = PlayerPrefs.GetInt(HighestUnlockedStageKey, 0);
+                if (highestUnlockedStage < 1)
+                    PlayerPrefs.SetInt(HighestUnlockedStageKey, 1);
+            }
+
+            PlayerPrefs.Save();
+        }
+
         bool hasCompletedTutorial = gameManager != null
             ? gameManager.IsStageCompleted(0)
-            : PlayerPrefs.GetInt("StageCompleted_0", 0) == 1;
+            : PlayerPrefs.GetInt(TutorialCompletedKey, 0) == 1;
 
-        if (!hasCompletedTutorial)
+        if (!hasCompletedTutorial && !hasSkipedTutorial)
         {
             gameManager?.ChangeState(GameStateEnum.Tutorial);
             LoadScene("Tutorial");

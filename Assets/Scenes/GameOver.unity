@@ -548,6 +548,7 @@ MonoBehaviour:
   airText: {fileID: 0}
   eggsText: {fileID: 0}
   coinsText: {fileID: 0}
+  stageText: {fileID: 0}
   eggProgressText: {fileID: 0}
   eggProgressSlider: {fileID: 0}
   levelNumberText: {fileID: 0}
@@ -11473,7 +11474,7 @@ MonoBehaviour:
       - m_Target: {fileID: 380823851}
         m_TargetAssemblyTypeName: LevelManager, Assembly-CSharp
         m_MethodName: LoadStageSelect
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
