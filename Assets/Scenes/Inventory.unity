@@ -2003,7 +2003,7 @@ GameObject:
   - component: {fileID: 454207082}
   - component: {fileID: 454207081}
   m_Layer: 5
-  m_Name: InfoText
+  m_Name: InfoTitle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2996,7 +2996,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemInfo
   itemNameText: {fileID: 704432764}
+  itemDescriptionText: {fileID: 1479299168}
   itemTypeText: {fileID: 1470692155}
+  itemPriceText: {fileID: 148818864}
   actionTypeText: {fileID: 0}
   rangeText: {fileID: 0}
   iconImage: {fileID: 2097924387}
@@ -17722,7 +17724,7 @@ GameObject:
   - component: {fileID: 1479299169}
   - component: {fileID: 1479299168}
   m_Layer: 5
-  m_Name: Info
+  m_Name: InfoText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

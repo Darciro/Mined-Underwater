@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
 [CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]
 public class Item : ScriptableObject
 {
-    public TileBase tile;
+    public string name;
+    public string description;
+    public string price;
     public Sprite icon;
     public ItemType itemType;
     public ActionType actionType;
@@ -16,10 +17,12 @@ public class Item : ScriptableObject
 
 public enum ItemType
 {
-    None,
-    Pickaxe,
-    Shovel,
-    Axe
+    Weapon,
+    Armor,
+    Consumable,
+    Equipment,
+    Upgrade,
+    Currency
 }
 
 public enum ActionType

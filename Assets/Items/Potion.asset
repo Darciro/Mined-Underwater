@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b11fa9b692514142b229b5286eb50d6, type: 3}
   m_Name: Potion
   m_EditorClassIdentifier: Assembly-CSharp::Item
-  tile: {fileID: 0}
+  name: Potion
+  description: Some cool descritpion aahsheo ahduaus!
+  price: 10
   icon: {fileID: 21300000, guid: 42a545f2e86a447528d6aa3aa8895963, type: 3}
-  itemType: 0
+  itemType: 2
   actionType: 0
   range: {x: 5, y: 4}
   stackable: 1

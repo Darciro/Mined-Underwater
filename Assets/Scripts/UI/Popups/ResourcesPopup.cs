@@ -65,7 +65,7 @@ public class ResourcesPopup : MonoBehaviour
 
     #region Private Fields
 
-    private ShopItemSO currentItem;
+    // private ShopItemSO currentItem;
 
     #endregion
 
@@ -111,15 +111,15 @@ public class ResourcesPopup : MonoBehaviour
     /// </summary>
     /// <param name="item">The shop item to display</param>
     /// <param name="soon">Indicates if the item will be available soon</param>
-    public void Show(ShopItemSO item, bool soon = false)
+    public void Show(bool soon = false)
     {
-        if (item == null)
+        /* if (item == null)
         {
             Debug.LogError("Cannot show ResourcesPopup with null item!");
             return;
-        }
+        } */
 
-        currentItem = item;
+        // currentItem = item;
 
         // Update UI elements
         UpdateUI();
@@ -154,7 +154,7 @@ public class ResourcesPopup : MonoBehaviour
     public void Close()
     {
         gameObject.SetActive(false);
-        currentItem = null;
+        // currentItem = null;
     }
 
     #endregion
@@ -166,10 +166,10 @@ public class ResourcesPopup : MonoBehaviour
     /// </summary>
     private void UpdateUI()
     {
-        if (currentItem == null) return;
+        // if (currentItem == null) return;
 
         // Update type text
-        if (typeText != null)
+        /* if (typeText != null)
         {
             typeText.text = currentItem.itemType == ShopItemType.Upgrade ? "UPGRADE" : "ITEM";
         }
@@ -201,7 +201,7 @@ public class ResourcesPopup : MonoBehaviour
         if (costText != null)
         {
             costText.text = $"{currentItem.cost} Coins";
-        }
+        } */
 
         // Update buy button interactability based on available coins
         UpdateBuyButtonState();
@@ -212,13 +212,13 @@ public class ResourcesPopup : MonoBehaviour
     /// </summary>
     private void UpdateBuyButtonState()
     {
-        if (buyButton == null || currentItem == null) return;
+        /* if (buyButton == null || currentItem == null) return;
 
         if (GameManager.Instance != null)
         {
             bool canAfford = GameManager.Instance.TotalCoins >= currentItem.cost;
             buyButton.interactable = canAfford;
-        }
+        } */
     }
 
     /// <summary>
@@ -226,7 +226,7 @@ public class ResourcesPopup : MonoBehaviour
     /// </summary>
     private void OnBuyClicked()
     {
-        if (currentItem == null)
+        /* if (currentItem == null)
         {
             Debug.LogWarning("Cannot purchase - no item selected!");
             return;
@@ -273,7 +273,7 @@ public class ResourcesPopup : MonoBehaviour
         {
             purchaseSuccessFeedback.PlayFeedbacks();
         }
-
+ */
 
         // Close the popup after successful purchase
         Close();
@@ -284,7 +284,7 @@ public class ResourcesPopup : MonoBehaviour
     /// </summary>
     private void ApplyPurchase()
     {
-        if (currentItem == null) return;
+        /* if (currentItem == null) return;
 
         // Apply based on item type
         if (currentItem.itemType == ShopItemType.Upgrade)
@@ -311,7 +311,7 @@ public class ResourcesPopup : MonoBehaviour
         }
         else
         {
-        }
+        } */
     }
 
     /// <summary>
@@ -319,11 +319,11 @@ public class ResourcesPopup : MonoBehaviour
     /// </summary>
     private void ApplyUpgrade()
     {
-        string upgradeKey = GetUpgradePrefsKey(currentItem.effectType);
+        /* string upgradeKey = GetUpgradePrefsKey(currentItem.effectType);
         int currentLevel = PlayerPrefs.GetInt(upgradeKey, 0);
         currentLevel++;
         PlayerPrefs.SetInt(upgradeKey, currentLevel);
-        PlayerPrefs.Save();
+        PlayerPrefs.Save(); */
 
     }
 
@@ -332,29 +332,29 @@ public class ResourcesPopup : MonoBehaviour
     /// </summary>
     private void AddItemToInventory()
     {
-        string itemKey = GetItemPrefsKey(currentItem.effectType);
+       /*  string itemKey = GetItemPrefsKey(currentItem.effectType);
         int currentCount = PlayerPrefs.GetInt(itemKey, 0);
         currentCount += currentItem.usesCount;
         PlayerPrefs.SetInt(itemKey, currentCount);
-        PlayerPrefs.Save();
+        PlayerPrefs.Save(); */
 
     }
 
     /// <summary>
     /// Gets the PlayerPrefs key for an upgrade type
     /// </summary>
-    private string GetUpgradePrefsKey(ShopEffectType effectType)
+    /* private string GetUpgradePrefsKey(ShopEffectType effectType)
     {
         return $"UpgradeLevel_{effectType}";
-    }
+    } */
 
     /// <summary>
     /// Gets the PlayerPrefs key for an item type
     /// </summary>
-    private string GetItemPrefsKey(ShopEffectType effectType)
+    /* private string GetItemPrefsKey(ShopEffectType effectType)
     {
         return $"ItemCount_{effectType}";
-    }
+    } */
 
     /// <summary>
     /// Called when the close button is clicked

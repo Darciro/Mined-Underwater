@@ -10,7 +10,9 @@ public class ItemInfo : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private TextMeshProUGUI itemNameText;
+    [SerializeField] private TextMeshProUGUI itemDescriptionText;
     [SerializeField] private TextMeshProUGUI itemTypeText;
+    [SerializeField] private TextMeshProUGUI itemPriceText;
     [SerializeField] private TextMeshProUGUI actionTypeText;
     [SerializeField] private TextMeshProUGUI rangeText;
     [SerializeField] private Image iconImage;
@@ -35,7 +37,9 @@ public class ItemInfo : MonoBehaviour
         if (item == null) return;
 
         if (itemNameText != null) itemNameText.text = item.name;
+        if (itemDescriptionText != null) itemDescriptionText.text = item.description;
         if (itemTypeText != null) itemTypeText.text = item.itemType.ToString();
+        if (itemPriceText != null) itemPriceText.text = item.price;
         if (actionTypeText != null) actionTypeText.text = item.actionType.ToString();
         if (rangeText != null) rangeText.text = $"{item.range.x} x {item.range.y}";
         if (iconImage != null) iconImage.sprite = item.icon;
