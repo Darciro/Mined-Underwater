@@ -11018,10 +11018,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 488517299}
-        m_TargetAssemblyTypeName: Playground, Assembly-CSharp
-        m_MethodName: PickupItem
-        m_Mode: 3
+      - m_Target: {fileID: 380823851}
+        m_TargetAssemblyTypeName: LevelManager, Assembly-CSharp
+        m_MethodName: LoadShop
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

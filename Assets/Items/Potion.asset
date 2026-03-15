@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: Potion
   m_EditorClassIdentifier: Assembly-CSharp::Item
   name: Potion
-  description: Some cool descritpion aahsheo ahduaus!
-  price: 10
+  description: Restores some health
+  price: 15
   icon: {fileID: 21300000, guid: 42a545f2e86a447528d6aa3aa8895963, type: 3}
   itemType: 2
   actionType: 0
   range: {x: 5, y: 4}
   stackable: 1
+  effect: {fileID: 11400000, guid: a02732e35e22e2147afdeaa96a14cfac, type: 2}

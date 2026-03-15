@@ -18,6 +18,8 @@ public class ItemInfo : MonoBehaviour
     [SerializeField] private Image iconImage;
     [SerializeField] private Button closeButton;
 
+    public Item CurrentItem { get; private set; }
+
     private void Awake()
     {
         if (closeButton != null)
@@ -35,6 +37,8 @@ public class ItemInfo : MonoBehaviour
     public void Show(Item item, int count)
     {
         if (item == null) return;
+
+        CurrentItem = item;
 
         if (itemNameText != null) itemNameText.text = item.name;
         if (itemDescriptionText != null) itemDescriptionText.text = item.description;

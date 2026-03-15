@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: Oxygen
   m_EditorClassIdentifier: Assembly-CSharp::Item
   name: Oxygen
-  description: Some desc here
+  description: Restores a small amount of oxygen
   price: 15
   icon: {fileID: 21300000, guid: 6954fcc6c1af94ea997cf56e45f095c2, type: 3}
-  itemType: 0
+  itemType: 2
   actionType: 0
   range: {x: 5, y: 4}
   stackable: 1
+  effect: {fileID: 11400000, guid: 31b2c52a4eacb5f42b14c85df5abac7a, type: 2}

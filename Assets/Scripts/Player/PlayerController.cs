@@ -1276,6 +1276,18 @@ public class PlayerController : MonoBehaviour
         return damageReductionPercentage;
     }
 
+    public void TemporaryDefenseBoost(float bonusPercentage, float duration)
+    {
+        StartCoroutine(DefenseBoostCoroutine(bonusPercentage, duration));
+    }
+
+    private IEnumerator DefenseBoostCoroutine(float bonusPercentage, float duration)
+    {
+        damageReductionPercentage = Mathf.Clamp(damageReductionPercentage + bonusPercentage, 0f, 100f);
+        yield return new WaitForSeconds(duration);
+        damageReductionPercentage = Mathf.Clamp(damageReductionPercentage - bonusPercentage, 0f, 100f);
+    }
+
     /// <summary>
     /// Gets the player's movement speed
     /// </summary>

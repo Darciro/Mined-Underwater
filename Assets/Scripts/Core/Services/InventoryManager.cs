@@ -39,10 +39,12 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private Item[] allItems;
 
     private Coroutine _pendingUseSave;
+    private PlayerController _player;
 
     private void Start()
     {
         RefreshItemInfoReference();
+        RefreshPlayerReference();
         LoadInventory();
     }
 
@@ -63,6 +65,12 @@ public class InventoryManager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         RefreshItemInfoReference();
+        RefreshPlayerReference();
+    }
+
+    private void RefreshPlayerReference()
+    {
+        _player = FindObjectOfType<PlayerController>();
     }
 
     private void RefreshItemInfoReference()
@@ -137,6 +145,67 @@ public class InventoryManager : MonoBehaviour
         return false;
     }
 
+    public bool AddItemOnStoreData(Item item)
+    {
+        InventorySaveData saveData;
+
+        if (PlayerPrefs.HasKey(SaveKey))
+        {
+            string rawJson = PlayerPrefs.GetString(SaveKey);
+            saveData = JsonUtility.FromJson<InventorySaveData>(rawJson) ?? new InventorySaveData();
+        }
+        else
+        {
+            saveData = new InventorySaveData();
+        }
+
+        if (item.stackable)
+        {
+            foreach (InventorySlotData slotData in saveData.slots)
+            {
+                if (slotData.itemName == item.name && slotData.count < maxStackSize)
+                {
+                    slotData.count++;
+                    string updatedJson = JsonUtility.ToJson(saveData);
+                    PlayerPrefs.SetString(SaveKey, updatedJson);
+                    PlayerPrefs.Save();
+                    return true;
+                }
+            }
+        }
+
+        int totalSlots = inventorySlots.Length;
+        for (int i = 0; i < totalSlots; i++)
+        {
+            bool occupied = false;
+            foreach (InventorySlotData slotData in saveData.slots)
+            {
+                if (slotData.slotIndex == i)
+                {
+                    occupied = true;
+                    break;
+                }
+            }
+
+            if (!occupied)
+            {
+                saveData.slots.Add(new InventorySlotData
+                {
+                    slotIndex = i,
+                    itemName = item.name,
+                    count = 1
+                });
+
+                string updatedJson = JsonUtility.ToJson(saveData);
+                PlayerPrefs.SetString(SaveKey, updatedJson);
+                PlayerPrefs.Save();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void SpawnNewItem(Item item, InventorySlot slot)
     {
         GameObject newItem;
@@ -178,18 +247,24 @@ public class InventoryManager : MonoBehaviour
 
     public void UseSelectedItem(InventoryItem itemInSlot)
     {
-        if(itemInSlot != null) {
-            Item item = itemInSlot.item;
-            if(item.stackable) {
-                itemInSlot.count--;
-                if(itemInSlot.count <= 0) {
-                    Destroy(itemInSlot.gameObject);
-                } else {
-                    itemInSlot.UpdateCount();
-                }
-            } else  {
+        if (itemInSlot == null) return;
+
+        Item item = itemInSlot.item;
+
+        if (item.effect != null && _player != null)
+            item.effect.Use(_player);
+
+        if (item.stackable)
+        {
+            itemInSlot.count--;
+            if (itemInSlot.count <= 0)
                 Destroy(itemInSlot.gameObject);
-            }
+            else
+                itemInSlot.UpdateCount();
+        }
+        else
+        {
+            Destroy(itemInSlot.gameObject);
         }
 
         ScheduleSaveAfterUse();

@@ -3814,7 +3814,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1572095453
 Transform:
   m_ObjectHideFlags: 0
@@ -4469,7 +4469,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1843871137
 Transform:
   m_ObjectHideFlags: 0
@@ -4492,7 +4492,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1843871136}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 61919fae0a3f99d4fb041ebf8c0c28b2, type: 3}
   m_Name: 
@@ -5120,6 +5120,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 323809478621370460, guid: ed6ea99bfece5d341b22033d58cf4cea, type: 3}
       propertyPath: currentHealth
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 323809478621370460, guid: ed6ea99bfece5d341b22033d58cf4cea, type: 3}
+      propertyPath: airDepletionStartDelay
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1775348283013330685, guid: ed6ea99bfece5d341b22033d58cf4cea, type: 3}
