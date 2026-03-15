@@ -27,6 +27,13 @@ public class StagePopup : MonoBehaviour
     [Tooltip("Optional feedback to play when popup shows (Feel/MMFeedbacks)")]
     private MMF_Player showFeedback;
 
+    [Header("Objectives Preview")]
+    [Tooltip("Container where objective rows are spawned (e.g. a VerticalLayoutGroup)")]
+    [SerializeField] private Transform objectivesContainer;
+
+    [Tooltip("Prefab with an ObjectiveItemUI component used to display each objective")]
+    [SerializeField] private ObjectiveItemUI objectiveItemPrefab;
+
     private int selectedStageIndex = -1;
 
     #region Unity Lifecycle
@@ -69,6 +76,7 @@ public class StagePopup : MonoBehaviour
 
         // Update UI elements
         UpdateStageInfo(stageIndex);
+        PopulateObjectives(stageIndex);
 
         // Enable the popup
         gameObject.SetActive(true);
@@ -106,6 +114,29 @@ public class StagePopup : MonoBehaviour
         {
             int eggRequirement = GameManager.Instance.CalculateEggRequirement(stageIndex);
             eggRequirementText.text = $"x {eggRequirement}";
+        }
+    }
+
+    private void PopulateObjectives(int stageIndex)
+    {
+        if (objectivesContainer == null || objectiveItemPrefab == null) return;
+
+        // Clear only previously spawned ObjectiveItemUI rows
+        for (int i = objectivesContainer.childCount - 1; i >= 0; i--)
+        {
+            var child = objectivesContainer.GetChild(i);
+            if (child.GetComponent<ObjectiveItemUI>() != null)
+                Destroy(child.gameObject);
+        }
+
+        if (ObjectivesManager.Instance == null || ObjectivesManager.Instance.Database == null) return;
+
+        var objectives = ObjectivesManager.Instance.Database.GetObjectivesForStage(stageIndex);
+        foreach (var data in objectives)
+        {
+            if (data == null) continue;
+            var item = Instantiate(objectiveItemPrefab, objectivesContainer);
+            item.InitializeStatic(data);
         }
     }
 

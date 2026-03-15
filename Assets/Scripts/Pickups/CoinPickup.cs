@@ -14,6 +14,8 @@ public class CoinPickup : PickupBase
             scoreManager.AddCoin();
         }
 
+        ObjectivesManager.Instance?.ReportCoinCollected();
+
         player.ShowCoinCollectionPopup();
     }
 }

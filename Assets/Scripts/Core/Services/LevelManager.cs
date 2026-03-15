@@ -47,6 +47,9 @@ public class LevelManager : MonoBehaviour
             gameManager.ResetLevelStats();
         }
 
+        // Initialize objectives for the stage that is about to begin
+        ObjectivesManager.Instance?.InitializeForStage(gameManager?.CurrentLevel ?? 0);
+
         LoadScene(isTutorial ? "Tutorial" : "Main");
     }
 

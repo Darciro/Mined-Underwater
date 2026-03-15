@@ -32,6 +32,14 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI totalCoinsText;
     [SerializeField] private TextMeshProUGUI eggRequirementText;
 
+    [Header("Star Rating")]
+    [Tooltip("GameObject shown when the player earns at least 1 star")]
+    [SerializeField] private GameObject star1;
+    [Tooltip("GameObject shown when the player earns at least 2 stars")]
+    [SerializeField] private GameObject star2;
+    [Tooltip("GameObject shown when the player earns 3 stars")]
+    [SerializeField] private GameObject star3;
+
     [Header("UI Animations")]
     [Tooltip("Text Animator style tag (must exist in a Text Animator StyleSheet, e.g. 'score', 'egg')")]
     [SerializeField] private string animationTag = "score";
@@ -360,6 +368,12 @@ public class UIManager : MonoBehaviour
         // Display egg requirement (for reference)
         if (eggRequirementText != null)
             eggRequirementText.text = $"x {eggRequirement}";
+
+        // Display star rating — only the matching star is shown
+        int stars = GameManager.Instance.LastStarRating;
+        if (star1 != null) star1.SetActive(stars == 1);
+        if (star2 != null) star2.SetActive(stars == 2);
+        if (star3 != null) star3.SetActive(stars == 3);
     }
 
     /// <summary>

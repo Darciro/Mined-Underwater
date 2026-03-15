@@ -458,6 +458,13 @@ public class GameManager : MonoBehaviour
     #region Win Condition
 
     /// <summary>
+    /// Star rating awarded at the end of the last completed level.
+    /// 1 star = egg requirement met.
+    /// +1 star per completed objective, capped at 3.
+    /// </summary>
+    public int LastStarRating { get; private set; } = 0;
+
+    /// <summary>
     /// Checks if the player has met the win condition for the current level
     /// </summary>
     private void CheckWinCondition()
@@ -471,10 +478,21 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Called when the level is won. Changes state and invokes event.
+    /// Called when the level is won. Calculates the star rating, changes state, and invokes the event.
     /// </summary>
     private void OnLevelWon()
     {
+        // 1 star for meeting the egg requirement, +1 per completed objective, max 3
+        int completedObjectives = 0;
+        if (ObjectivesManager.Instance != null)
+        {
+            foreach (var progress in ObjectivesManager.Instance.ActiveObjectives)
+            {
+                if (progress.IsCompleted) completedObjectives++;
+            }
+        }
+        LastStarRating = Mathf.Clamp(1 + completedObjectives, 1, 3);
+
         // Change to level complete state
         ChangeState(GameStateEnum.LevelComplete);
 

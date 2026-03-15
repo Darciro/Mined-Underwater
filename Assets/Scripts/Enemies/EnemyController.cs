@@ -10,6 +10,12 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private int coinValue = 1;
     [SerializeField] private ParticleSystem hitParticles;
 
+    [Tooltip("Unique name that identifies this enemy type for objectives (e.g. \"Mine\", \"Fish\"). Must match ObjectiveData.enemyTypeName exactly (case-insensitive).")]
+    [SerializeField] private string enemyTypeName = "Enemy";
+
+    /// <summary>The type identifier used to match KillSpecificEnemy objectives.</summary>
+    public string EnemyTypeName => enemyTypeName;
+
     public int DamageAmount => RollDamageAmount();
 
     [Header("Movement")]
@@ -127,6 +133,8 @@ public class EnemyController : MonoBehaviour
         scoreManager?.AddCoin();
         GetComponent<EnemyPickup>()?.SpawnPickup();
         dieFeedback?.PlayFeedbacks();
+
+        ObjectivesManager.Instance?.ReportEnemyKilled(enemyTypeName);
 
         if (col != null) col.enabled = false;
         if (sr != null) sr.color = Color.gray;

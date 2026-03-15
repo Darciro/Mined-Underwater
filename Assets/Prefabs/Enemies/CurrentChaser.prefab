@@ -284,7 +284,7 @@ GameObject:
   - component: {fileID: 4333136545364154631}
   - component: {fileID: 2156837662132098912}
   m_Layer: 0
-  m_Name: Fish_4
+  m_Name: CurrentChaser
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -432,6 +432,7 @@ MonoBehaviour:
   maxDamageAmount: 2
   coinValue: 1
   hitParticles: {fileID: 8713912631512916485, guid: 55690877c568c7b41b85da6d2f1eb09f, type: 3}
+  enemyTypeName: CurrentChaser
   moveSpeed: 10
   verticalSpeed: 1
   minY: -4
