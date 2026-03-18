@@ -453,12 +453,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyPickup
   possiblePickups:
-  - prefab: {fileID: 3343501982003209353, guid: d99ec6aed5336bf40beb0a172c023f88, type: 3}
-    percentage: 50
-  - prefab: {fileID: 6576482441310453641, guid: fa86af667ccf80c458cabebfee51c4d0, type: 3}
-    percentage: 50
-  - prefab: {fileID: 6947379499002408640, guid: b3bab1674ed8b754f9fc13c31d826463, type: 3}
-    percentage: 100
+  - dropName: Oxygen
+    prefab: {fileID: 3343501982003209353, guid: d99ec6aed5336bf40beb0a172c023f88, type: 3}
+    percentage: 15
+    minAmount: 1
+    maxAmount: 1
+  - dropName: Heal
+    prefab: {fileID: 6576482441310453641, guid: fa86af667ccf80c458cabebfee51c4d0, type: 3}
+    percentage: 15
+    minAmount: 1
+    maxAmount: 1
+  - dropName: Coins
+    prefab: {fileID: 6947379499002408640, guid: b3bab1674ed8b754f9fc13c31d826463, type: 3}
+    percentage: 70
+    minAmount: 15
+    maxAmount: 30
 --- !u!114 &8120408226463395897
 MonoBehaviour:
   m_ObjectHideFlags: 0

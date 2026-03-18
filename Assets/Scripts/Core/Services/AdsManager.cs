@@ -194,8 +194,6 @@ public class AdsManager : MonoBehaviour
 
         var currentState = state ?? GameManager.Instance.CurrentState;
 
-        Debug.Log($"Checking banner suppression for state: {currentState}");
-
         if (currentState == GameStateEnum.Paused && SceneManager.GetActiveScene().name == "Tutorial")
             return true;
 

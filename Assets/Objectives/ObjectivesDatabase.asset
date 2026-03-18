@@ -27,9 +27,49 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 38087718e30abee4fbc70a0e79e980d7, type: 2}
   - stageIndex: 4
     objectives:
-    - {fileID: 11400000, guid: 05fabffce5cd5434483fe3d35e5d49d0, type: 2}
+    - {fileID: 11400000, guid: 3d3ec948a1f8282428ada604158a5afa, type: 2}
     - {fileID: 11400000, guid: 4a2fc7e3774ff594b9bdb64af70e3ca5, type: 2}
   - stageIndex: 5
     objectives:
     - {fileID: 11400000, guid: 05fabffce5cd5434483fe3d35e5d49d0, type: 2}
-    - {fileID: 11400000, guid: 05fabffce5cd5434483fe3d35e5d49d0, type: 2}
+    - {fileID: 11400000, guid: 3d3ec948a1f8282428ada604158a5afa, type: 2}
+  - stageIndex: 6
+    objectives:
+    - {fileID: 11400000, guid: 03af0829595e8ab4cb07b860dc21ffad, type: 2}
+    - {fileID: 11400000, guid: 4595b662ab960a7428236298d84869f6, type: 2}
+  - stageIndex: 7
+    objectives:
+    - {fileID: 11400000, guid: 4595b662ab960a7428236298d84869f6, type: 2}
+    - {fileID: 11400000, guid: 4764419b87235a045b1bca7875020707, type: 2}
+  - stageIndex: 8
+    objectives:
+    - {fileID: 11400000, guid: 4595b662ab960a7428236298d84869f6, type: 2}
+    - {fileID: 11400000, guid: 29616298a894c5b449602d44303c8911, type: 2}
+  - stageIndex: 9
+    objectives:
+    - {fileID: 11400000, guid: b0bf4027417674844958efde9d7970a5, type: 2}
+    - {fileID: 11400000, guid: 10add4b95db3bed4cbad1eb1a60c7237, type: 2}
+  - stageIndex: 10
+    objectives:
+    - {fileID: 11400000, guid: 29616298a894c5b449602d44303c8911, type: 2}
+    - {fileID: 11400000, guid: f83098c5b26f3ba419afabd7042381d4, type: 2}
+  - stageIndex: 11
+    objectives:
+    - {fileID: 11400000, guid: 876fd935267f6b24f9eea7b5d05bf300, type: 2}
+    - {fileID: 11400000, guid: 130cb1d5c44ac0e469753956b859a480, type: 2}
+  - stageIndex: 12
+    objectives:
+    - {fileID: 11400000, guid: ecd68c4b272e72042b6fbe4eb5eeea3f, type: 2}
+    - {fileID: 11400000, guid: 876fd935267f6b24f9eea7b5d05bf300, type: 2}
+  - stageIndex: 13
+    objectives:
+    - {fileID: 11400000, guid: 973caef558bccaa40ad50de9059fe86c, type: 2}
+    - {fileID: 11400000, guid: 130cb1d5c44ac0e469753956b859a480, type: 2}
+  - stageIndex: 14
+    objectives:
+    - {fileID: 11400000, guid: e2dee2885026ea14ebcae70afb98bf95, type: 2}
+    - {fileID: 11400000, guid: eb769f2c7f0d9c84ebae256d1005e557, type: 2}
+  - stageIndex: 15
+    objectives:
+    - {fileID: 11400000, guid: fc4d2ecbd69ff6b41b3d79bc173f49c8, type: 2}
+    - {fileID: 11400000, guid: 791e272b963843b45a5dba749e7d0e90, type: 2}

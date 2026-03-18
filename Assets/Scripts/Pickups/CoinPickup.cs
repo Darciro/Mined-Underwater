@@ -6,12 +6,17 @@ using UnityEngine;
 /// </summary>
 public class CoinPickup : PickupBase
 {
+    [Header("Coin Amount")]
+    public int minCoins = 1;
+    public int maxCoins = 1;
+
     protected override void OnPickup(PlayerController player)
     {
         ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
         if (scoreManager != null)
         {
-            scoreManager.AddCoin();
+            int amount = Random.Range(minCoins, maxCoins + 1);
+            scoreManager.AddCoins(amount);
         }
 
         ObjectivesManager.Instance?.ReportCoinCollected();

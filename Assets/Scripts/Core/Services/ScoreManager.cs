@@ -46,6 +46,12 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
+    public void AddCoins(int amount)
+    {
+        for (int i = 0; i < amount; i++)
+            AddCoin();
+    }
+
     public void ResetCoins()
     {
         coinsCollected = 0;

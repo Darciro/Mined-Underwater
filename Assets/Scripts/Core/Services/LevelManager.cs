@@ -108,12 +108,18 @@ public class LevelManager : MonoBehaviour
             if (gameManager != null)
             {
                 gameManager.UnlockStage(1);
+                gameManager.RecordStageStars(0, 3);
             }
             else
             {
                 int highestUnlockedStage = PlayerPrefs.GetInt(HighestUnlockedStageKey, 0);
                 if (highestUnlockedStage < 1)
                     PlayerPrefs.SetInt(HighestUnlockedStageKey, 1);
+
+                // Save 3 stars for tutorial directly if GameManager is unavailable
+                int savedTutorialStars = PlayerPrefs.GetInt("StageStars_0", 0);
+                if (3 > savedTutorialStars)
+                    PlayerPrefs.SetInt("StageStars_0", 3);
             }
 
             PlayerPrefs.Save();

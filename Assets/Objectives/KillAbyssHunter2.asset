@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a2f73f5d3eb76df46b280adbb35f9124, type: 3}
-  m_Name: KillEggSnatcher2
+  m_Name: KillAbyssHunter2
   m_EditorClassIdentifier: Assembly-CSharp::ObjectiveData
-  objectiveName: 'Kill EggSnatcher '
+  objectiveName: 'Kill AbyssHunter '
   type: 1
-  targetAmount: 4
-  enemyTypeName: EggSnatcher
+  targetAmount: 2
+  enemyTypeName: AbyssHunter

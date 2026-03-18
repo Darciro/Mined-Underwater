@@ -4,8 +4,11 @@ using UnityEngine;
 [Serializable]
 public struct PickupEntry
 {
+    public string dropName;
     public GameObject prefab;
     [Range(0f, 100f)] public float percentage;
+    public int minAmount;
+    public int maxAmount;
 }
 
 public class EnemyPickup : MonoBehaviour
@@ -42,7 +45,16 @@ public class EnemyPickup : MonoBehaviour
 
             cumulative += entry.percentage;
             if (roll < cumulative)
-                return Instantiate(entry.prefab, transform.position, Quaternion.identity);
+            {
+                GameObject spawned = Instantiate(entry.prefab, transform.position, Quaternion.identity);
+                CoinPickup coinPickup = spawned.GetComponent<CoinPickup>();
+                if (coinPickup != null)
+                {
+                    coinPickup.minCoins = entry.minAmount;
+                    coinPickup.maxCoins = entry.maxAmount;
+                }
+                return spawned;
+            }
         }
 
         return null;

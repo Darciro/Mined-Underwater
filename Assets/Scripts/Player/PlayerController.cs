@@ -296,8 +296,8 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         // For testing: destroy enemy when pressing T
-        if (UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.tKey.wasPressedThisFrame)
-            RestoreAir(3);
+        /* if (UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.tKey.wasPressedThisFrame)
+            RestoreAir(3); */
 
         UpdateMovementInput();
         HandleFiring();
@@ -462,6 +462,12 @@ public class PlayerController : MonoBehaviour
     private bool CheckFireButtonPressed()
     {
         if (fireButtonPressedFromUI)
+        {
+            return true;
+        }
+
+        // Spacebar shortcut — always checked regardless of touchscreen presence
+        if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             return true;
         }

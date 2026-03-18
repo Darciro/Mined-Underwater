@@ -127,6 +127,8 @@ MonoBehaviour:
   pickupSFX: {fileID: 0}
   spriteRenderer: {fileID: 0}
   triggerCollider: {fileID: 1000957177830328542}
+  minCoins: 1
+  maxCoins: 1
 --- !u!1 &8860671053020492880
 GameObject:
   m_ObjectHideFlags: 0

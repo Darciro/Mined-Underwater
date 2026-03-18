@@ -38,6 +38,9 @@ public class GameManager : MonoBehaviour
     [Tooltip("Current state of the game")]
     private GameStateEnum currentState = GameStateEnum.MainMenu;
 
+    [Header("Level Complete")]
+    [SerializeField] private GameObject letterbox;
+
     /// <summary>
     /// Gets the current game state
     /// </summary>
@@ -85,6 +88,7 @@ public class GameManager : MonoBehaviour
     private const string STAGE_COMPLETED_KEY_PREFIX = "StageCompleted_";
     private const string STAGE_EGGS_KEY_PREFIX = "StageEggs_";
     private const string STAGE_COINS_KEY_PREFIX = "StageCoins_";
+    private const string STAGE_STARS_KEY_PREFIX = "StageStars_";
 
     private int highestUnlockedStage = 0;
 
@@ -228,10 +232,6 @@ public class GameManager : MonoBehaviour
                 // case GameStateEnum.GameOver:
                 Time.timeScale = 0f;
                 break;
-            case GameStateEnum.LevelComplete:
-                // Keep time running for celebration/transition
-                Time.timeScale = 1f;
-                break;
             case GameStateEnum.MainMenu:
                 // Time scale for main menu can be customized
                 Time.timeScale = 1f;
@@ -270,7 +270,7 @@ public class GameManager : MonoBehaviour
     public void NextLevel()
     {
         // Mark current stage as completed and save its stats
-        SaveStageCompletion(currentLevel, levelEggs, levelCoins);
+        SaveStageCompletion(currentLevel, levelEggs, levelCoins, LastStarRating);
 
         // Unlock next stage if not already unlocked
         int nextStage = currentLevel + 1;
@@ -518,6 +518,17 @@ public class GameManager : MonoBehaviour
         }
         LastStarRating = Mathf.Clamp(1 + completedObjectives, 1, 3);
 
+        // Tutorial always awards 3 stars
+        if (currentLevel == 0)
+            LastStarRating = 3;
+
+        // Activate letterbox and play its feedbacks
+        if (letterbox != null)
+        {
+            letterbox.SetActive(true);
+            letterbox.GetComponent<MoreMountains.Feedbacks.MMF_Player>()?.PlayFeedbacks();
+        }
+
         // Change to level complete state
         ChangeState(GameStateEnum.LevelComplete);
 
@@ -577,6 +588,33 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Gets the best star rating for a specific stage
+    /// </summary>
+    /// <param name="stageIndex">The stage index (0-based)</param>
+    /// <returns>Best star rating (1-3) for the stage, or 0 if not completed</returns>
+    public int GetStageStars(int stageIndex)
+    {
+        string key = STAGE_STARS_KEY_PREFIX + stageIndex;
+        return PlayerPrefs.GetInt(key, 0);
+    }
+
+    /// <summary>
+    /// Saves a star rating for a stage if it is better than the current saved value.
+    /// </summary>
+    /// <param name="stageIndex">The stage index (0-based)</param>
+    /// <param name="stars">Star rating to record (1-3)</param>
+    public void RecordStageStars(int stageIndex, int stars)
+    {
+        string key = STAGE_STARS_KEY_PREFIX + stageIndex;
+        int current = PlayerPrefs.GetInt(key, 0);
+        if (stars > current)
+        {
+            PlayerPrefs.SetInt(key, stars);
+            PlayerPrefs.Save();
+        }
+    }
+
+    /// <summary>
     /// Unlocks a specific stage
     /// </summary>
     /// <param name="stageIndex">The stage index to unlock (0-based)</param>
@@ -596,7 +634,8 @@ public class GameManager : MonoBehaviour
     /// <param name="stageIndex">The stage index (0-based)</param>
     /// <param name="eggs">Eggs collected in this completion</param>
     /// <param name="coins">Coins collected in this completion</param>
-    private void SaveStageCompletion(int stageIndex, int eggs, int coins)
+    /// <param name="stars">Star rating earned in this completion (1-3)</param>
+    private void SaveStageCompletion(int stageIndex, int eggs, int coins, int stars)
     {
         // Mark as completed
         string completedKey = STAGE_COMPLETED_KEY_PREFIX + stageIndex;
@@ -616,6 +655,14 @@ public class GameManager : MonoBehaviour
         if (coins > previousBestCoins)
         {
             PlayerPrefs.SetInt(coinsKey, coins);
+        }
+
+        // Save stars if better than previous best
+        string starsKey = STAGE_STARS_KEY_PREFIX + stageIndex;
+        int previousBestStars = PlayerPrefs.GetInt(starsKey, 0);
+        if (stars > previousBestStars)
+        {
+            PlayerPrefs.SetInt(starsKey, stars);
         }
 
         PlayerPrefs.Save();

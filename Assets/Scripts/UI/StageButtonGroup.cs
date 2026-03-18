@@ -30,6 +30,10 @@ public class StageButtonGroup : MonoBehaviour
     [SerializeField] private GameObject completedState;
     [SerializeField] private GameObject lockedState;
 
+    [Header("Stars")]
+    [SerializeField] private GameObject stageStar;
+    [SerializeField] private Transform stageStarParent;
+
     private int mainStageIndex;
     private bool isLocked;
     private Action<int> onStageSelected;
@@ -121,7 +125,23 @@ public class StageButtonGroup : MonoBehaviour
         SetActiveIfNotNull(completedState, state == StageState.Completed);
         SetActiveIfNotNull(lockedState, state == StageState.Locked);
 
+        PopulateStars(state);
         UpdateButtonInteractability();
+    }
+
+    private void PopulateStars(StageState state)
+    {
+        if (stageStar == null || stageStarParent == null) return;
+
+        // Clear existing stars
+        foreach (Transform child in stageStarParent)
+            Destroy(child.gameObject);
+
+        if (state != StageState.Completed) return;
+
+        int stars = GameManager.Instance != null ? GameManager.Instance.GetStageStars(mainStageIndex) : 0;
+        for (int i = 0; i < stars; i++)
+            Instantiate(stageStar, stageStarParent);
     }
 
     private void BindClickHandler()
