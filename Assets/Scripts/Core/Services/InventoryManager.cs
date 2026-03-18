@@ -1,9 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 [Serializable]
 public class InventorySlotData
@@ -70,7 +70,7 @@ public class InventoryManager : MonoBehaviour
 
     private void RefreshPlayerReference()
     {
-        _player = FindObjectOfType<PlayerController>();
+        _player = FindFirstObjectByType<PlayerController>();
     }
 
     private void RefreshItemInfoReference()
@@ -96,7 +96,7 @@ public class InventoryManager : MonoBehaviour
         if (ItemInfo != null)
             ItemInfo.Show(inventoryItem.item, inventoryItem.count);
 
-        if(SceneManager.GetActiveScene().name == "Main" || SceneManager.GetActiveScene().name == "_Playground")
+        if (SceneManager.GetActiveScene().name == "Main" || SceneManager.GetActiveScene().name == "_Playground")
             UseSelectedItem(inventoryItem);
     }
 
@@ -142,6 +142,35 @@ public class InventoryManager : MonoBehaviour
                 return true;
             }
         }
+        return false;
+    }
+
+    public bool CanAddItem(Item item)
+    {
+        InventorySaveData saveData = PlayerPrefs.HasKey(SaveKey)
+            ? JsonUtility.FromJson<InventorySaveData>(PlayerPrefs.GetString(SaveKey)) ?? new InventorySaveData()
+            : new InventorySaveData();
+
+        if (item.stackable)
+        {
+            foreach (InventorySlotData slotData in saveData.slots)
+            {
+                if (slotData.itemName == item.name && slotData.count < maxStackSize)
+                    return true;
+            }
+        }
+
+        int totalSlots = inventorySlots.Length;
+        for (int i = 0; i < totalSlots; i++)
+        {
+            bool occupied = false;
+            foreach (InventorySlotData slotData in saveData.slots)
+            {
+                if (slotData.slotIndex == i) { occupied = true; break; }
+            }
+            if (!occupied) return true;
+        }
+
         return false;
     }
 
@@ -209,10 +238,13 @@ public class InventoryManager : MonoBehaviour
     public void SpawnNewItem(Item item, InventorySlot slot)
     {
         GameObject newItem;
-        if(slot.alternativePosition != null) {
+        if (slot.alternativePosition != null)
+        {
             // slot.alternativePosition.gameObject.GetComponent<Image>().sprite = null;
-            newItem = Instantiate(inventoryItemPrefab, slot.alternativePosition.transform); 
-        } else {
+            newItem = Instantiate(inventoryItemPrefab, slot.alternativePosition.transform);
+        }
+        else
+        {
             newItem = Instantiate(inventoryItemPrefab, slot.transform);
         }
         // GameObject newItem = Instantiate(inventoryItemPrefab, slot.transform);
@@ -224,17 +256,25 @@ public class InventoryManager : MonoBehaviour
     {
         InventorySlot slot = inventorySlots[selectedSlot];
         InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
-        if(itemInSlot != null) {
+        if (itemInSlot != null)
+        {
             Item item = itemInSlot.item;
-            if(use) {
-                if(item.stackable) {
+            if (use)
+            {
+                if (item.stackable)
+                {
                     itemInSlot.count--;
-                    if(itemInSlot.count <= 0) {
+                    if (itemInSlot.count <= 0)
+                    {
                         Destroy(itemInSlot.gameObject);
-                    } else {
+                    }
+                    else
+                    {
                         itemInSlot.UpdateCount();
                     }
-                } else  {
+                }
+                else
+                {
                     Destroy(itemInSlot.gameObject);
                 }
 

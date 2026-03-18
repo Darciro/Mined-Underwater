@@ -351,6 +351,31 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Spends eggs from the player's total
+    /// </summary>
+    /// <param name="amount">Amount of eggs to spend</param>
+    /// <returns>True if the purchase was successful, false if not enough eggs</returns>
+    public bool SpendEggs(int amount)
+    {
+        if (amount < 0)
+        {
+            Debug.LogWarning("Cannot spend negative eggs!");
+            return false;
+        }
+
+        if (totalEggs < amount)
+        {
+            Debug.LogWarning($"Not enough eggs! Have {totalEggs}, need {amount}");
+            return false;
+        }
+
+        totalEggs -= amount;
+        SavePersistentData();
+        RefreshDebug();
+        return true;
+    }
+
+    /// <summary>
     /// Resets all level-specific statistics (eggs, coins)
     /// </summary>
     public void ResetLevelStats()

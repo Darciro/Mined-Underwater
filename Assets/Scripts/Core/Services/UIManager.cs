@@ -244,6 +244,17 @@ public class UIManager : MonoBehaviour
             // Start coroutine to set static text after animation completes
             eggsAnimationCoroutine = StartCoroutine(SetStaticEggsAfterDelay(currentEggs, .75f));
         }
+        else if (currentEggs < previousEggs)
+        {
+            // Update static text immediately when eggs are spent
+            if (eggsAnimationCoroutine != null)
+            {
+                StopCoroutine(eggsAnimationCoroutine);
+                eggsAnimationCoroutine = null;
+            }
+            eggsTextAnimator.SetText(currentEggs.ToString());
+            previousEggs = currentEggs;
+        }
         else if (force)
         {
             // Static text on force initialization
@@ -287,6 +298,17 @@ public class UIManager : MonoBehaviour
 
             // Start coroutine to set static text after animation completes
             coinsAnimationCoroutine = StartCoroutine(SetStaticCoinsAfterDelay(currentCoins, .75f));
+        }
+        else if (currentCoins < previousCoins)
+        {
+            // Update static text immediately when coins are spent
+            if (coinsAnimationCoroutine != null)
+            {
+                StopCoroutine(coinsAnimationCoroutine);
+                coinsAnimationCoroutine = null;
+            }
+            coinsTextAnimator.SetText(currentCoins.ToString());
+            previousCoins = currentCoins;
         }
         else if (force)
         {

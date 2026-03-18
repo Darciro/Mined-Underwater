@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Defense Boost Effect", menuName = "Inventory/Effects/Defense Boost")]
+[CreateAssetMenu(fileName = "New Defense Boost Effect", menuName = "Mined Underwater/Inventory/Effects/Defense Boost")]
 public class BoostDefenseEffect : ItemEffect
 {
     [Min(0f)]

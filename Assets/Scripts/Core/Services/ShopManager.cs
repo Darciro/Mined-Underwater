@@ -1,23 +1,33 @@
+using NUnit.Framework;
 using UnityEngine;
 
 [DisallowMultipleComponent]
 public class ShopManager : MonoBehaviour
 {
     [SerializeField] private ItemInfo itemInfo;
-    [SerializeField] private GameObject buyButton;
-    
+
     public InventoryManager inventoryManager;
+    public PlayerController playerController;
+    public GameObject shopSucessPanel;
 
     private void Awake()
     {
         if (inventoryManager == null)
             inventoryManager = FindFirstObjectByType<InventoryManager>();
+
+        if (playerController == null)
+            playerController = FindFirstObjectByType<PlayerController>();
     }
 
     public void ShowItem(Item item)
     {
         if (itemInfo != null)
-            itemInfo.Show(item, 1);
+        {
+            if (item.itemType == ItemType.Upgrade)
+                itemInfo.Show(item, 1, false);
+            else
+                itemInfo.Show(item, 1);
+        }
     }
 
     public void BuyItem()
@@ -27,37 +37,63 @@ public class ShopManager : MonoBehaviour
 
         Item item = itemInfo.CurrentItem;
 
-        if (!int.TryParse(item.price, out int cost))
+        if (!CanBuyItem(item, out int cost))
+            return;
+
+        if (item.itemType == ItemType.Upgrade)
+        {
+            item.effect.Use(playerController);
+            GameManager.Instance.SpendEggs(cost);
+        }
+        else
+        {
+            inventoryManager.AddItemOnStoreData(item);
+            GameManager.Instance.SpendCoins(cost);
+        }
+
+        if (shopSucessPanel != null)
+            shopSucessPanel.SetActive(true);
+    }
+
+    private bool CanBuyItem(Item item, out int cost, bool upgrade = false)
+    {
+        cost = 0;
+
+        if (!int.TryParse(item.price, out cost))
         {
             Debug.LogWarning($"Item '{item.name}' has an invalid price: '{item.price}'.");
-            return;
+            return false;
         }
 
-        if (GameManager.Instance == null)
+        if (GameManager.Instance == null || inventoryManager == null)
         {
-            Debug.LogError("GameManager instance not found!");
-            return;
+            Debug.LogError("GameManager or InventoryManager instance not found!");
+            return false;
         }
 
-        if (GameManager.Instance.TotalCoins < cost)
+        if (upgrade)
         {
-            Debug.Log($"Not enough coins to buy '{item.name}'. Have {GameManager.Instance.TotalCoins}, need {cost}.");
-            return;
+            if (GameManager.Instance.TotalEggs < cost)
+            {
+                Debug.Log($"Not enough eggs to buy '{item.name}'. Have {GameManager.Instance.TotalEggs}, need {cost}.");
+                return false;
+            }
         }
-
-        if (inventoryManager == null)
+        else
         {
-            Debug.LogError("InventoryManager not found!");
-            return;
+            if (GameManager.Instance.TotalCoins < cost)
+            {
+                Debug.Log($"Not enough coins to buy '{item.name}'. Have {GameManager.Instance.TotalCoins}, need {cost}.");
+                return false;
+            }
+
+            if (!inventoryManager.CanAddItem(item))
+            {
+                Debug.Log($"Inventory is full. Cannot buy '{item.name}'.");
+                return false;
+            }
         }
 
-        if (!inventoryManager.AddItemOnStoreData(item))
-        {
-            Debug.Log($"Inventory is full. Cannot buy '{item.name}'.");
-            return;
-        }
-
-        GameManager.Instance.SpendCoins(cost);
-        Debug.Log($"Bought '{item.name}' for {cost} coins. Remaining: {GameManager.Instance.TotalCoins}.");
+        return true;
     }
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-[CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]
+[CreateAssetMenu(fileName = "New Item", menuName = "Mined Underwater/Inventory/Item")]
 public class Item : ScriptableObject
 {
     public string name;
@@ -10,8 +10,6 @@ public class Item : ScriptableObject
     public string price;
     public Sprite icon;
     public ItemType itemType;
-    public ActionType actionType;
-    public Vector2Int range = new Vector2Int(5, 4);
     public bool stackable = true;
 
     [Header("The item effect")]
@@ -26,12 +24,4 @@ public enum ItemType
     Equipment,
     Upgrade,
     Currency
-}
-
-public enum ActionType
-{
-    None,
-    Mine,
-    Dig,
-    Chop
 }

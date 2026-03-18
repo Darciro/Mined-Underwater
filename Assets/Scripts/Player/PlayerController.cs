@@ -955,6 +955,15 @@ public class PlayerController : MonoBehaviour
         return maxHealth;
     }
 
+    public void IncreaseMaxHealth(int amount)
+    {
+        if (amount <= 0)
+            return;
+
+        maxHealth += amount;
+        currentHealth += amount;
+    }
+
     #endregion
 
     #region Air System
@@ -1091,6 +1100,15 @@ public class PlayerController : MonoBehaviour
                 airPopup.Setup(restoreAmount);
             }
         });
+    }
+
+    public void IncreaseMaxOxygen(int amount)
+    {
+        if (amount <= 0)
+            return;
+
+        maxAir += amount;
+        currentAir += amount;
     }
 
     public void ShowEggCollectionPopup()

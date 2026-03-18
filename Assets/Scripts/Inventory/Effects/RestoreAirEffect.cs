@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Restore Air Effect", menuName = "Inventory/Effects/Restore Air")]
+[CreateAssetMenu(fileName = "New Restore Air Effect", menuName = "Mined Underwater/Inventory/Effects/Restore Air")]
 public class RestoreAirEffect : ItemEffect
 {
     [Min(1)]
