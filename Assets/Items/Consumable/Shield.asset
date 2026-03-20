@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b11fa9b692514142b229b5286eb50d6, type: 3}
+  m_Name: Shield
+  m_EditorClassIdentifier: Assembly-CSharp::Item
+  name: Shield
+  description: Negates a portion of incoming damage
+  price: 10
+  icon: {fileID: 21300000, guid: af4cc505a01a64425a7e1e7e85912203, type: 3}
+  itemType: 2
+  stackable: 0
+  effect: {fileID: 11400000, guid: c116b320bb5343e488820c1d71beae90, type: 2}

@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f6a1e09be3df0b409314ac5df44613f, type: 3}
+  m_Name: ShieldEffect
+  m_EditorClassIdentifier: Assembly-CSharp::ShieldEffect
+  shieldAmount: 15
+  shieldPrefab: {fileID: 4926586974890541824, guid: c09f5e5acdc05324b9dd50c35599f96c, type: 3}

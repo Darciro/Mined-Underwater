@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Singleton manager responsible for handling game states and tracking collectibles (eggs and coins).
@@ -178,9 +179,19 @@ public class GameManager : MonoBehaviour
         // Load persistent data from PlayerPrefs
         LoadPersistentData();
 
+        // Apply spawner configuration for the saved level on first scene load
+        ApplySpawnerForLevel(currentLevel);
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
 #if UNITY_EDITOR
         UpdateDebugValues();
 #endif
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void OnApplicationQuit()
@@ -196,6 +207,18 @@ public class GameManager : MonoBehaviour
         {
             SavePersistentData();
         }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name != "Main" && scene.name != "_Playground") return;
+
+        // Re-discover spawner managers from the freshly loaded scene (stale references
+        // become null when Main unloads; this keeps the array current each reload)
+        var found = FindObjectsByType<SpawnerManager>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        System.Array.Sort(found, (a, b) => a.transform.GetSiblingIndex().CompareTo(b.transform.GetSiblingIndex()));
+        spawnerManagers = found;
+        ApplySpawnerForLevel(currentLevel -1);
     }
 
     #endregion
@@ -484,14 +507,30 @@ public class GameManager : MonoBehaviour
     private void OnValidate()
     {
         if (!Application.isPlaying) return;
+        
+        if(SceneManager.GetActiveScene().name == "_Playground"){
+            currentLevel = debugSetLevelTarget;    
+            highestUnlockedStage = Mathf.Max(highestUnlockedStage, currentLevel);
+            ResetLevelStats();
+            currentLevel = debugSetLevelTarget;    
+            ApplySpawnerForLevel(currentLevel);
+            SavePersistentData();
+            RefreshDebug();
+        };  
+    
+    }
 
+    /* private void OnValidate()
+    {
+        if (!Application.isPlaying) return;
+        
         currentLevel = debugSetLevelTarget;
         highestUnlockedStage = Mathf.Max(highestUnlockedStage, currentLevel);
         ResetLevelStats();
         ApplySpawnerForLevel(currentLevel);
         SavePersistentData();
         RefreshDebug();
-    }
+    } */
 #endif
 
     #endregion

@@ -51,11 +51,11 @@ MonoBehaviour:
   - id: Enemies
     prefabs:
     - prefab: {fileID: 1368450285661821294, guid: ce2b9005ad193704cb6de7c020498710, type: 3}
-      weight: 5
+      weight: 10
     - prefab: {fileID: 1368450285661821294, guid: 12dca181d75250946bc962a5c39911ee, type: 3}
       weight: 1
     - prefab: {fileID: 1368450285661821294, guid: 7ffa37c3280d90848a0a34156216e54f, type: 3}
-      weight: 5
+      weight: 7
     - prefab: {fileID: 222518630985027575, guid: a25f1ed18caf517449e5fe143a539a47, type: 3}
       weight: 1
     - prefab: {fileID: 2095549369148848682, guid: 5b25fa4db88758f43a873a948121fce9, type: 3}

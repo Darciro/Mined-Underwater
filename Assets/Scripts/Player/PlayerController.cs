@@ -75,6 +75,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject eggCollectionPopupPrefab;
     [SerializeField] private GameObject coinCollectionPopupPrefab;
 
+    [Header("Debug")]
+    [SerializeField] private Item[] debugItems;
+    private int debugItemIndex = 0;
+
     #endregion
 
     #region Shop System - Upgrades & Inventory
@@ -93,6 +97,8 @@ public class PlayerController : MonoBehaviour
 
     // Active item effects
     private bool isShieldActive = false;
+    private int shieldPoints = 0;
+    private GameObject shieldInstance;
     private bool isMagnetActive = false;
 
     #endregion
@@ -295,9 +301,10 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        // For testing: destroy enemy when pressing T
-        /* if (UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.tKey.wasPressedThisFrame)
-            RestoreAir(3); */
+#if UNITY_EDITOR
+        if (UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.tKey.wasPressedThisFrame)
+            DebugCycleUseItem();
+#endif
 
         UpdateMovementInput();
         HandleFiring();
@@ -791,14 +798,32 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Check if shield is active and blocks the damage
-        /* if (isShieldActive && shieldCharges > 0)
-        {
-            ConsumeShieldCharge();
-            return;
-        } */
-
         int finalDamage = CalculateFinalDamage(damage);
+
+        if (isShieldActive && shieldPoints > 0)
+        {
+            int absorbed = Mathf.Min(finalDamage, shieldPoints);
+            shieldPoints -= absorbed;
+            finalDamage -= absorbed;
+
+            if (shieldPoints <= 0)
+            {
+                isShieldActive = false;
+                if (shieldInstance != null)
+                {
+                    Destroy(shieldInstance);
+                    shieldInstance = null;
+                }
+            }
+
+            if (finalDamage <= 0)
+            {
+                // StartInvincibilityFrames();
+                TriggerCameraShake();
+                return;
+            }
+        }
+
         ApplyDamage(finalDamage);
         StartInvincibilityFrames();
         TriggerCameraShake();
@@ -969,6 +994,25 @@ public class PlayerController : MonoBehaviour
         maxHealth += amount;
         currentHealth += amount;
     }
+
+    public void AddShield(int amount, GameObject instance = null)
+    {
+        if (amount <= 0)
+            return;
+
+        shieldPoints += amount;
+        isShieldActive = true;
+
+        if (instance != null)
+        {
+            if (shieldInstance != null)
+                Destroy(shieldInstance);
+            shieldInstance = instance;
+        }
+    }
+
+    public bool HasShield() => isShieldActive;
+    public int GetShieldPoints() => shieldPoints;
 
     #endregion
 
@@ -1286,6 +1330,35 @@ public class PlayerController : MonoBehaviour
         hasLoggedMissingCamera = true;
         Debug.LogWarning("PlayerController: No MainCamera found (tagged 'MainCamera'). Damage popups require a camera to convert world-to-screen.");
     }
+
+#if UNITY_EDITOR
+    private void DebugCycleUseItem()
+    {
+        if (debugItems == null || debugItems.Length == 0)
+        {
+            Debug.LogWarning("PlayerController [Debug]: No items assigned to debugItems list.");
+            return;
+        }
+
+        Item item = debugItems[debugItemIndex];
+        debugItemIndex = (debugItemIndex + 1) % debugItems.Length;
+
+        if (item == null)
+        {
+            Debug.LogWarning($"PlayerController [Debug]: Item at index {debugItemIndex} is null.");
+            return;
+        }
+
+        if (item.effect == null)
+        {
+            Debug.LogWarning($"PlayerController [Debug]: Item '{item.name}' has no effect assigned.");
+            return;
+        }
+
+        Debug.Log($"PlayerController [Debug]: Using item '{item.name}'.");
+        item.effect.Use(this);
+    }
+#endif
 
     #endregion
 

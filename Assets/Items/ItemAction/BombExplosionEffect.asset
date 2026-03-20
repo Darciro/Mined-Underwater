@@ -19,6 +19,6 @@ MonoBehaviour:
   shrinkScale: 0.7
   growScale: 1.6
   scaleSpeed: 4
-  detonationSpeed: 0.5
-  explosionTime: 1
+  detonationSpeed: 0.25
+  explosionTime: 0.5
   explosionPrefab: {fileID: 19804094, guid: 2aa1e7c21640d254492fa8035a6411e1, type: 3}
