@@ -7,7 +7,6 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private int health = 50;
     [SerializeField] private int minDamageAmount = 10;
     [SerializeField] private int maxDamageAmount = 10;
-    [SerializeField] private int coinValue = 1;
     [SerializeField] private ParticleSystem hitParticles;
 
     [Tooltip("Unique name that identifies this enemy type for objectives (e.g. \"Mine\", \"Fish\"). Must match ObjectiveData.enemyTypeName exactly (case-insensitive).")]

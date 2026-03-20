@@ -430,11 +430,10 @@ MonoBehaviour:
   health: 3
   minDamageAmount: 1
   maxDamageAmount: 2
-  coinValue: 1
   hitParticles: {fileID: 8713912631512916485, guid: 55690877c568c7b41b85da6d2f1eb09f, type: 3}
   enemyTypeName: CurrentChaser
-  moveSpeed: 10
-  verticalSpeed: 1
+  moveSpeed: 8
+  verticalSpeed: 2
   minY: -4
   maxY: 4
   changeDirectionTime: 5
@@ -460,12 +459,12 @@ MonoBehaviour:
     maxAmount: 1
   - dropName: Heal
     prefab: {fileID: 6576482441310453641, guid: fa86af667ccf80c458cabebfee51c4d0, type: 3}
-    percentage: 5
+    percentage: 10
     minAmount: 1
     maxAmount: 1
   - dropName: Coins
     prefab: {fileID: 6947379499002408640, guid: b3bab1674ed8b754f9fc13c31d826463, type: 3}
-    percentage: 90
+    percentage: 85
     minAmount: 2
     maxAmount: 5
 --- !u!114 &4333136545364154631

@@ -1059,7 +1059,7 @@ Transform:
   - {fileID: 569232253}
   - {fileID: 1713628707}
   - {fileID: 1657479046}
-  - {fileID: 1843871137}
+  - {fileID: 846359742}
   - {fileID: 1552066040}
   - {fileID: 313439285}
   - {fileID: 133226873}
@@ -1173,6 +1173,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundScrollerBehaviour
   moveSpeed: {x: 0.001, y: 0}
+--- !u!1 &846359741
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 846359742}
+  m_Layer: 0
+  m_Name: SpawnerManagers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &846359742
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 846359741}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1843871137}
+  - {fileID: 958469135}
+  m_Father: {fileID: 697582559}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &882925686
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1448,6 +1481,146 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 947088771}
   m_CullTransparentMesh: 0
+--- !u!1 &958469134
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 958469135}
+  - component: {fileID: 958469136}
+  m_Layer: 0
+  m_Name: SpawnerLevel01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &958469135
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 958469134}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.87194, y: -0.39609998, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 846359742}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &958469136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 958469134}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61919fae0a3f99d4fb041ebf8c0c28b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpawnerManager
+  startDelay: 7
+  xOffset: 2
+  verticalPadding: 1
+  categories:
+  - id: Enemies
+    prefabs:
+    - prefab: {fileID: 8895167228765654315, guid: 7d7bebfc23a4f6f479978675f192c437, type: 3}
+      weight: 5
+    - prefab: {fileID: 8591909063767616375, guid: fbb25642ae562914e9d9a7723771b3d4, type: 3}
+      weight: 3
+    - prefab: {fileID: 1368450285661821294, guid: 7ffa37c3280d90848a0a34156216e54f, type: 3}
+      weight: 7
+    - prefab: {fileID: 1368450285661821294, guid: ce2b9005ad193704cb6de7c020498710, type: 3}
+      weight: 10
+    - prefab: {fileID: 4002973947527691230, guid: cf6a860dccac6624d9e2cae5dfd0b3fb, type: 3}
+      weight: 1
+    - prefab: {fileID: 2095549369148848682, guid: 5b25fa4db88758f43a873a948121fce9, type: 3}
+      weight: 2
+    minInterval: 0.1
+    maxInterval: 3
+    maxAlive: 99
+    overrideX: 0
+    overrideY: 0
+    positionX: 0
+    positionY: 0
+    delay: 0
+  - id: Mines
+    prefabs:
+    - prefab: {fileID: 5140958000244401713, guid: c3b54eabd6fc9c54497de4546730a6e1, type: 3}
+      weight: 1
+    minInterval: 1
+    maxInterval: 60
+    maxAlive: 99
+    overrideX: 0
+    overrideY: 0
+    positionX: 0
+    positionY: 0
+    delay: 0
+  - id: Algae
+    prefabs:
+    - prefab: {fileID: 6302121137921910542, guid: fe36c1d7d4afe744a9f6a13d7202bdd0, type: 3}
+      weight: 1
+    - prefab: {fileID: 5688472207543062955, guid: a6849fb2867735c47b00921db485910c, type: 3}
+      weight: 1
+    - prefab: {fileID: 7584417016382597454, guid: 10f22d83bb64e2f409ea3a54b9ff15fa, type: 3}
+      weight: 1
+    - prefab: {fileID: 5892558693161547608, guid: c2b1da7d8a76c3c4da56506ba2095b71, type: 3}
+      weight: 1
+    - prefab: {fileID: 3444672872854437698, guid: 7c4345e2afc528e408440f469e634fde, type: 3}
+      weight: 1
+    - prefab: {fileID: 5749775487112885830, guid: 41e360c2c3cb262428d94d2a52f9bb40, type: 3}
+      weight: 1
+    minInterval: 1
+    maxInterval: 5
+    maxAlive: 99
+    overrideX: 0
+    overrideY: 1
+    positionX: 0
+    positionY: -4
+    delay: 0
+  - id: Eggs
+    prefabs:
+    - prefab: {fileID: 3289658432319805963, guid: b507cd9834aeccc4da083160b0404803, type: 3}
+      weight: 1
+    minInterval: 1
+    maxInterval: 5
+    maxAlive: 99
+    overrideX: 0
+    overrideY: 0
+    positionX: 0
+    positionY: 0
+    delay: 0
+  - id: Pickups
+    prefabs:
+    - prefab: {fileID: 6576482441310453641, guid: c4c7a9960ba7c594a9fa996925163675, type: 3}
+      weight: 1
+    minInterval: 10
+    maxInterval: 30
+    maxAlive: 99
+    overrideX: 0
+    overrideY: 0
+    positionX: 0
+    positionY: 0
+    delay: 0
+  - id: AirBubbles
+    prefabs:
+    - prefab: {fileID: 3343501982003209353, guid: 0ccd5398264815a4dad594065c41fb7a, type: 3}
+      weight: 1
+    minInterval: 10
+    maxInterval: 30
+    maxAlive: 99
+    overrideX: 0
+    overrideY: 0
+    positionX: 0
+    positionY: 0
+    delay: 0
 --- !u!114 &971314429 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8465506216221412018, guid: 60944c34bcefe3943b5b64d21984178e, type: 3}
@@ -3372,12 +3545,12 @@ GameObject:
   - component: {fileID: 1843871137}
   - component: {fileID: 1843871138}
   m_Layer: 0
-  m_Name: SpawnerManager
+  m_Name: SpawnerLevelOriginal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1843871137
 Transform:
   m_ObjectHideFlags: 0
@@ -3391,7 +3564,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 697582559}
+  m_Father: {fileID: 846359742}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1843871138
 MonoBehaviour:

@@ -358,7 +358,6 @@ public class InventoryManager : MonoBehaviour
         }
 
         string rawJson = PlayerPrefs.GetString(SaveKey);
-        Debug.Log($"Inventory raw save json: {rawJson}");
 
         InventorySaveData saveData = JsonUtility.FromJson<InventorySaveData>(rawJson);
 

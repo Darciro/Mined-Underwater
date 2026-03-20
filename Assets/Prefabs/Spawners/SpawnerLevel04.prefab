@@ -1,0 +1,130 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &973726111668752009
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2750046357563602417}
+  - component: {fileID: 1553361127045323785}
+  m_Layer: 0
+  m_Name: SpawnerLevel04
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &2750046357563602417
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973726111668752009}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.87194, y: -0.39609998, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1553361127045323785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973726111668752009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61919fae0a3f99d4fb041ebf8c0c28b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpawnerManager
+  startDelay: 7
+  xOffset: 2
+  verticalPadding: 1
+  categories:
+  - id: Enemies
+    prefabs:
+    - prefab: {fileID: 1368450285661821294, guid: ce2b9005ad193704cb6de7c020498710, type: 3}
+      weight: 3
+    - prefab: {fileID: 1368450285661821294, guid: 12dca181d75250946bc962a5c39911ee, type: 3}
+      weight: 1
+    - prefab: {fileID: 1368450285661821294, guid: 6afa7a68a90af4d42ade6fa97405508c, type: 3}
+      weight: 1
+    - prefab: {fileID: 1368450285661821294, guid: 7ffa37c3280d90848a0a34156216e54f, type: 3}
+      weight: 2
+    - prefab: {fileID: 222518630985027575, guid: a25f1ed18caf517449e5fe143a539a47, type: 3}
+      weight: 1
+    - prefab: {fileID: 8943641418641736998, guid: 3d20295b6cb1ece46a36b24482401326, type: 3}
+      weight: 2
+    minInterval: 0.1
+    maxInterval: 3
+    maxAlive: 99
+    overrideX: 0
+    overrideY: 0
+    positionX: 0
+    positionY: 0
+    delay: 0
+  - id: Algae
+    prefabs:
+    - prefab: {fileID: 6302121137921910542, guid: fe36c1d7d4afe744a9f6a13d7202bdd0, type: 3}
+      weight: 1
+    - prefab: {fileID: 5688472207543062955, guid: a6849fb2867735c47b00921db485910c, type: 3}
+      weight: 1
+    - prefab: {fileID: 7584417016382597454, guid: 10f22d83bb64e2f409ea3a54b9ff15fa, type: 3}
+      weight: 1
+    - prefab: {fileID: 5892558693161547608, guid: c2b1da7d8a76c3c4da56506ba2095b71, type: 3}
+      weight: 1
+    - prefab: {fileID: 3444672872854437698, guid: 7c4345e2afc528e408440f469e634fde, type: 3}
+      weight: 1
+    - prefab: {fileID: 5749775487112885830, guid: 41e360c2c3cb262428d94d2a52f9bb40, type: 3}
+      weight: 1
+    minInterval: 1
+    maxInterval: 5
+    maxAlive: 99
+    overrideX: 0
+    overrideY: 1
+    positionX: 0
+    positionY: -4
+    delay: 0
+  - id: Eggs
+    prefabs:
+    - prefab: {fileID: 3289658432319805963, guid: b507cd9834aeccc4da083160b0404803, type: 3}
+      weight: 1
+    minInterval: 1
+    maxInterval: 5
+    maxAlive: 99
+    overrideX: 0
+    overrideY: 0
+    positionX: 0
+    positionY: 0
+    delay: 0
+  - id: Pickups
+    prefabs:
+    - prefab: {fileID: 6576482441310453641, guid: c4c7a9960ba7c594a9fa996925163675, type: 3}
+      weight: 1
+    minInterval: 10
+    maxInterval: 30
+    maxAlive: 99
+    overrideX: 0
+    overrideY: 0
+    positionX: 0
+    positionY: 0
+    delay: 0
+  - id: AirBubbles
+    prefabs:
+    - prefab: {fileID: 3343501982003209353, guid: 0ccd5398264815a4dad594065c41fb7a, type: 3}
+      weight: 1
+    minInterval: 10
+    maxInterval: 30
+    maxAlive: 99
+    overrideX: 0
+    overrideY: 0
+    positionX: 0
+    positionY: 0
+    delay: 0

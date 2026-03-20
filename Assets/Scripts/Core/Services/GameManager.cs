@@ -41,6 +41,9 @@ public class GameManager : MonoBehaviour
     [Header("Level Complete")]
     [SerializeField] private GameObject letterbox;
 
+    [Header("Spawner Managers")]
+    [SerializeField] private SpawnerManager[] spawnerManagers;
+
     /// <summary>
     /// Gets the current game state
     /// </summary>
@@ -143,6 +146,7 @@ public class GameManager : MonoBehaviour
 #if UNITY_EDITOR
     [Header("DEBUG - Game Progress (Read Only)")]
     [SerializeField] private int debugCurrentLevel;
+    [SerializeField] private int debugSetLevelTarget;
     [SerializeField] private int debugEggRequirement;
     [SerializeField] private int debugHighestUnlockedStage;
     [Space(10)]
@@ -476,6 +480,18 @@ public class GameManager : MonoBehaviour
         SavePersistentData();
         RefreshDebug();
     }
+
+    private void OnValidate()
+    {
+        if (!Application.isPlaying) return;
+
+        currentLevel = debugSetLevelTarget;
+        highestUnlockedStage = Mathf.Max(highestUnlockedStage, currentLevel);
+        ResetLevelStats();
+        ApplySpawnerForLevel(currentLevel);
+        SavePersistentData();
+        RefreshDebug();
+    }
 #endif
 
     #endregion
@@ -679,10 +695,27 @@ public class GameManager : MonoBehaviour
             currentLevel = stageIndex;
             ResetLevelStats();
             RefreshDebug();
+            ApplySpawnerForLevel(stageIndex);
         }
         else
         {
             Debug.LogWarning($"Cannot set current stage to {stageIndex} - stage is locked!");
+        }
+    }
+
+    /// <summary>
+    /// Disables all spawner managers and enables only the one matching the given level index.
+    /// </summary>
+    /// <param name="level">The level index whose spawner should be activated</param>
+    private void ApplySpawnerForLevel(int level)
+    {
+        if (spawnerManagers == null || spawnerManagers.Length == 0)
+            return;
+
+        for (int i = 0; i < spawnerManagers.Length; i++)
+        {
+            if (spawnerManagers[i] == null) continue;
+            spawnerManagers[i].gameObject.SetActive(i == level);
         }
     }
 
