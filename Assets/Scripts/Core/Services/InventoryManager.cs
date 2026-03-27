@@ -40,6 +40,7 @@ public class InventoryManager : MonoBehaviour
 
     private Coroutine _pendingUseSave;
     private PlayerController _player;
+    private bool _itemUseInProgress;
 
     private void Start()
     {
@@ -116,7 +117,7 @@ public class InventoryManager : MonoBehaviour
         for (int i = 0; i < inventorySlots.Length; i++)
         {
             InventorySlot slot = inventorySlots[i];
-            InventoryItem existingItem = slot.transform.GetComponentInChildren<InventoryItem>();
+            InventoryItem existingItem = slot.GetItem();
             if (
                 existingItem != null
                 && existingItem.item == item
@@ -134,7 +135,7 @@ public class InventoryManager : MonoBehaviour
         for (int i = 0; i < inventorySlots.Length; i++)
         {
             InventorySlot slot = inventorySlots[i];
-            InventoryItem existingItem = slot.transform.GetComponentInChildren<InventoryItem>();
+            InventoryItem existingItem = slot.GetItem();
             if (existingItem == null)
             {
                 SpawnNewItem(item, slot);
@@ -255,7 +256,7 @@ public class InventoryManager : MonoBehaviour
     public Item GetSelectedItem(bool use)
     {
         InventorySlot slot = inventorySlots[selectedSlot];
-        InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
+        InventoryItem itemInSlot = slot.GetItem();
         if (itemInSlot != null)
         {
             Item item = itemInSlot.item;
@@ -285,9 +286,69 @@ public class InventoryManager : MonoBehaviour
         return null;
     }
 
+    public void SellItem()
+    {
+        if (ItemInfo == null || ItemInfo.CurrentItem == null)
+            return;
+
+        Item item = ItemInfo.CurrentItem;
+
+        Debug.Log($"Attempting to sell '{item.name}' with sell price '{item.sellPrice}'.");
+
+        if (!int.TryParse(item.sellPrice, out int sellCost))
+        {
+            Debug.LogWarning($"Item '{item.name}' has an invalid sell price: '{item.sellPrice}'.");
+            return;
+        }
+
+        if (GameManager.Instance == null)
+        {
+            Debug.LogError("GameManager instance not found!");
+            return;
+        }
+
+        bool removed = false;
+        for (int i = 0; i < inventorySlots.Length; i++)
+        {
+            InventoryItem itemInSlot = inventorySlots[i].GetItem();
+            if (itemInSlot != null && itemInSlot.item == item)
+            {
+                if (item.stackable)
+                {
+                    itemInSlot.count--;
+                    if (itemInSlot.count <= 0)
+                        Destroy(itemInSlot.gameObject);
+                    else
+                        itemInSlot.UpdateCount();
+                }
+                else
+                {
+                    Destroy(itemInSlot.gameObject);
+                }
+
+                removed = true;
+                break;
+            }
+        }
+
+        if (!removed)
+        {
+            Debug.LogWarning($"Item '{item.name}' not found in inventory.");
+            return;
+        }
+
+        GameManager.Instance.AddCoins(sellCost);
+
+        Debug.Log($"Sold '{item.name}' for {sellCost} coins.");
+
+        ScheduleSaveAfterUse();
+        ItemInfo.Hide();
+    }
+
     public void UseSelectedItem(InventoryItem itemInSlot)
     {
-        if (itemInSlot == null) return;
+        if (_itemUseInProgress || itemInSlot == null) return;
+        _itemUseInProgress = true;
 
         Item item = itemInSlot.item;
 
@@ -324,15 +385,31 @@ public class InventoryManager : MonoBehaviour
     {
         yield return null;
         _pendingUseSave = null;
+        _itemUseInProgress = false;
         SaveInventory();
     }
 
     public void SaveInventory()
     {
-        var saveData = new InventorySaveData();
+        // Load existing save so we don't wipe slots that belong to other scenes
+        InventorySaveData saveData;
+        if (PlayerPrefs.HasKey(SaveKey))
+        {
+            saveData = JsonUtility.FromJson<InventorySaveData>(PlayerPrefs.GetString(SaveKey))
+                       ?? new InventorySaveData();
+        }
+        else
+        {
+            saveData = new InventorySaveData();
+        }
+
+        // Update only the slots this scene owns
         for (int i = 0; i < inventorySlots.Length; i++)
         {
-            InventoryItem inventoryItem = inventorySlots[i].GetComponentInChildren<InventoryItem>();
+            // Remove existing entry for this slot index
+            saveData.slots.RemoveAll(s => s.slotIndex == i);
+
+            InventoryItem inventoryItem = inventorySlots[i].GetItem();
             if (inventoryItem != null)
             {
                 saveData.slots.Add(new InventorySlotData
@@ -343,6 +420,7 @@ public class InventoryManager : MonoBehaviour
                 });
             }
         }
+
         string json = JsonUtility.ToJson(saveData);
         PlayerPrefs.SetString(SaveKey, json);
         Debug.Log($"Saving inventory json: {json}");
@@ -369,7 +447,7 @@ public class InventoryManager : MonoBehaviour
             InventorySlot slot = inventorySlots[slotData.slotIndex];
             SpawnNewItem(item, slot);
 
-            InventoryItem spawnedItem = slot.GetComponentInChildren<InventoryItem>();
+            InventoryItem spawnedItem = slot.GetItem();
             if (spawnedItem != null)
             {
                 spawnedItem.count = slotData.count;

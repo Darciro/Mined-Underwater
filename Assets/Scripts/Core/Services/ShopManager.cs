@@ -51,8 +51,8 @@ public class ShopManager : MonoBehaviour
             GameManager.Instance.SpendCoins(cost);
         }
 
-        if (shopSucessPanel != null) {}
-            shopSucessPanel.SetActive(true);
+        if (shopSucessPanel != null) { }
+        shopSucessPanel.SetActive(true);
 
         Debug.Log($"Bought '{item.name}' for {(item.itemType == ItemType.Upgrade ? cost + " eggs" : cost + " coins")}.");
     }

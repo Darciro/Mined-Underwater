@@ -26,18 +26,28 @@ public class InventorySlot : MonoBehaviour, IDropHandler, IPointerClickHandler
         image.color = defaultColor;
     }
 
+    public InventoryItem GetItem()
+    {
+        if (alternativePosition != null)
+        {
+            InventoryItem item = alternativePosition.GetComponentInChildren<InventoryItem>();
+            if (item != null) return item;
+        }
+        return GetComponentInChildren<InventoryItem>();
+    }
+
     public void OnDrop(PointerEventData eventData)
     {
-        if (transform.childCount == 0)
+        if (GetItem() == null)
         {
             InventoryItem item = eventData.pointerDrag.GetComponent<InventoryItem>();
-            item.parentAfterDrag = transform;
+            item.parentAfterDrag = alternativePosition != null ? alternativePosition.transform : transform;
         }
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        InventoryItem item = GetComponentInChildren<InventoryItem>();
+        InventoryItem item = GetItem();
         if (item != null)
         {
             OnSlotClicked?.Invoke(item);

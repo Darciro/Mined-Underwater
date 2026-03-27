@@ -2197,59 +2197,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 143b23ad82a02d84695194ebe41bc775, type: 3}
---- !u!1 &488517297
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 488517298}
-  - component: {fileID: 488517299}
-  m_Layer: 5
-  m_Name: Playground
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &488517298
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 488517297}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.10397, y: 1.10397, z: 1.10397}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1065.9086, y: 478.2588}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &488517299
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 488517297}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b61fb35a5f34e484f96001a6f336ec40, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Playground
-  inventoryManager: {fileID: 45557383}
-  itemAvailable:
-  - {fileID: 11400000, guid: f35dcd6aa93c504488c33d88d07cb432, type: 2}
-  - {fileID: 11400000, guid: 5d8ddf24b75ece94ebd2ab1501f33a0f, type: 2}
-  - {fileID: 11400000, guid: 239be6c9eb9108a4c8788536265200cd, type: 2}
 --- !u!1 &508689498
 GameObject:
   m_ObjectHideFlags: 0
@@ -3000,6 +2947,7 @@ MonoBehaviour:
   itemDescriptionText: {fileID: 1479299168}
   itemTypeText: {fileID: 1470692155}
   itemPriceText: {fileID: 148818864}
+  itemSellPriceText: {fileID: 1366584535}
   iconCoin: {fileID: 0}
   eggCoin: {fileID: 0}
   iconImage: {fileID: 2097924387}
@@ -9532,10 +9480,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 488517299}
-        m_TargetAssemblyTypeName: Playground, Assembly-CSharp
-        m_MethodName: PickupItem
-        m_Mode: 3
+      - m_Target: {fileID: 45557383}
+        m_TargetAssemblyTypeName: InventoryManager, Assembly-CSharp
+        m_MethodName: SellItem
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -12097,7 +12045,7 @@ GameObject:
   - component: {fileID: 1366584536}
   - component: {fileID: 1366584535}
   m_Layer: 5
-  m_Name: Text_Gold
+  m_Name: Text_Sell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18371,7 +18319,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1653312140
 RectTransform:
   m_ObjectHideFlags: 0
@@ -18387,10 +18335,10 @@ RectTransform:
   - {fileID: 27640114}
   m_Father: {fileID: 1271406154}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 145}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 534.8662, y: -72.6}
+  m_SizeDelta: {x: 343.24414, y: 145}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1653312141
 MonoBehaviour:
@@ -18436,7 +18384,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 488517299}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Playground, Assembly-CSharp
         m_MethodName: PickupItem
         m_Mode: 3
@@ -18840,8 +18788,8 @@ MonoBehaviour:
   airSlider: {fileID: 0}
   airSliderAlt: {fileID: 0}
   airText: {fileID: 0}
-  eggsText: {fileID: 0}
-  coinsText: {fileID: 0}
+  eggsText: {fileID: 1089763231}
+  coinsText: {fileID: 978294525}
   stageText: {fileID: 0}
   eggProgressText: {fileID: 0}
   eggProgressSlider: {fileID: 0}
@@ -21271,4 +21219,3 @@ SceneRoots:
   - {fileID: 430859050}
   - {fileID: 1065480523}
   - {fileID: 45557382}
-  - {fileID: 488517298}

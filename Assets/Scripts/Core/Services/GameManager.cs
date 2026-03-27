@@ -218,7 +218,7 @@ public class GameManager : MonoBehaviour
         var found = FindObjectsByType<SpawnerManager>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         System.Array.Sort(found, (a, b) => a.transform.GetSiblingIndex().CompareTo(b.transform.GetSiblingIndex()));
         spawnerManagers = found;
-        ApplySpawnerForLevel(currentLevel -1);
+        ApplySpawnerForLevel(currentLevel - 1);
     }
 
     #endregion
@@ -377,6 +377,19 @@ public class GameManager : MonoBehaviour
         return true;
     }
 
+    public void AddCoins(int amount)
+    {
+        if (amount <= 0)
+        {
+            Debug.LogWarning("Cannot add zero or negative coins!");
+            return;
+        }
+
+        totalCoins += amount;
+        SavePersistentData();
+        RefreshDebug();
+    }
+
     /// <summary>
     /// Spends eggs from the player's total
     /// </summary>
@@ -507,17 +520,19 @@ public class GameManager : MonoBehaviour
     private void OnValidate()
     {
         if (!Application.isPlaying) return;
-        
-        if(SceneManager.GetActiveScene().name == "_Playground"){
-            currentLevel = debugSetLevelTarget;    
+
+        if (SceneManager.GetActiveScene().name == "_Playground")
+        {
+            currentLevel = debugSetLevelTarget;
             highestUnlockedStage = Mathf.Max(highestUnlockedStage, currentLevel);
             ResetLevelStats();
-            currentLevel = debugSetLevelTarget;    
+            currentLevel = debugSetLevelTarget;
             ApplySpawnerForLevel(currentLevel);
             SavePersistentData();
             RefreshDebug();
-        };  
-    
+        }
+        ;
+
     }
 
     /* private void OnValidate()

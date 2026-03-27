@@ -13,6 +13,7 @@ public class ItemInfo : MonoBehaviour
     [SerializeField] private TextMeshProUGUI itemDescriptionText;
     [SerializeField] private TextMeshProUGUI itemTypeText;
     [SerializeField] private TextMeshProUGUI itemPriceText;
+    [SerializeField] private TextMeshProUGUI itemSellPriceText;
     [SerializeField] private Image iconCoin;
     [SerializeField] private Image eggCoin;
     [SerializeField] private Image iconImage;
@@ -55,6 +56,7 @@ public class ItemInfo : MonoBehaviour
         if (itemDescriptionText != null) itemDescriptionText.text = item.description;
         if (itemTypeText != null) itemTypeText.text = item.itemType.ToString();
         if (itemPriceText != null) itemPriceText.text = item.price;
+        if (itemSellPriceText != null) itemSellPriceText.text = item.sellPrice;
         if (iconImage != null) iconImage.sprite = item.icon;
 
         gameObject.SetActive(true);
