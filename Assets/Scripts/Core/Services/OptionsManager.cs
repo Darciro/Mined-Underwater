@@ -1,6 +1,9 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 public class OptionsManager : MonoBehaviour
 {
@@ -230,6 +233,34 @@ public class OptionsManager : MonoBehaviour
     private void ApplyLanguage(string languageCode)
     {
         OnLanguageChanged?.Invoke(languageCode);
+    }
+
+    public void SetLocale(string localeCode)
+    {
+        StartCoroutine(SetLocaleCoroutine(localeCode));
+    }
+
+    private IEnumerator SetLocaleCoroutine(string localeCode)
+    {
+        yield return LocalizationSettings.InitializationOperation;
+
+        var availableLocales = LocalizationSettings.AvailableLocales.Locales;
+        Locale targetLocale = null;
+
+        foreach (var locale in availableLocales)
+        {
+            if (locale.Identifier.Code == localeCode)
+            {
+                targetLocale = locale;
+                break;
+            }
+        }
+
+        if (targetLocale != null)
+        {
+            LocalizationSettings.SelectedLocale = targetLocale;
+            SetLanguage(localeCode);
+        }
     }
 
     #endregion

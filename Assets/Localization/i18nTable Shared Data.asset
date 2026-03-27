@@ -1,0 +1,148 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: i18nTable Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: i18nTable
+  m_TableCollectionNameGuidString: 2f0d34724dc3bbf4084862d91a8b5e77
+  m_Entries:
+  - m_Id: 268107100160
+    m_Key: menu.play
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28930286137344
+    m_Key: menu.settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28930286137345
+    m_Key: menu.quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28930286137346
+    m_Key: menu.version
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478272
+    m_Key: settings.movement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478273
+    m_Key: settings.sounds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478274
+    m_Key: settings.music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478275
+    m_Key: settings.vibration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478276
+    m_Key: settings.language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478277
+    m_Key: settings.rate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478278
+    m_Key: settings.credits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478279
+    m_Key: settings.support
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54961265029120
+    m_Key: stage.character
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54961265029121
+    m_Key: stage.stage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54961265029122
+    m_Key: stage.objectives
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54961265029123
+    m_Key: stage.objectives.collectEggs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54961265029124
+    m_Key: stage.rewards
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54961269223424
+    m_Key: stage.startLevel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58391471697920
+    m_Key: inventory.quickAccess
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58391475892224
+    m_Key: inventory.quickAccess.Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58391475892225
+    m_Key: inventory.inventory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58391475892226
+    m_Key: inventory.sell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58391475892227
+    m_Key: inventory.cost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58391475892228
+    m_Key: inventory.missions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62709616717824
+    m_Key: main.pause
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62709646077952
+    m_Key: main.pause.continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62709646077953
+    m_Key: main.pause.settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62709646077954
+    m_Key: main.pause.restart
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62709646077955
+    m_Key: main.pause.selectLevel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62709646077956
+    m_Key: main.pause.giveUp
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 4289184486618300867
+  references:
+    version: 2
+    RefIds:
+    - rid: 4289184486618300867
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1774616370638

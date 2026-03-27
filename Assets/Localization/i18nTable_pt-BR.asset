@@ -1,0 +1,144 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: i18nTable_pt-BR
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: pt-BR
+  m_SharedData: {fileID: 11400000, guid: 2f0d34724dc3bbf4084862d91a8b5e77, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 268107100160
+    m_Localized: Jogar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28930286137344
+    m_Localized: "Configura\xE7\xF5es"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28930286137345
+    m_Localized: Desistir
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28930286137346
+    m_Localized: "Vers\xE3o"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478272
+    m_Localized: Alternar movimento
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478273
+    m_Localized: Efeitos sonoros
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478274
+    m_Localized: "M\xFAsica"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478275
+    m_Localized: "Vibra\xE7\xE3o"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478276
+    m_Localized: Linguagem
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478277
+    m_Localized: Avaliar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478278
+    m_Localized: "Cr\xE9ditos"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51929047478279
+    m_Localized: Apoiar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54961265029120
+    m_Localized: Personagem
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54961265029121
+    m_Localized: "N\xEDvel"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54961265029122
+    m_Localized: Objetivos
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54961265029123
+    m_Localized: Colete ovos
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54961265029124
+    m_Localized: "Poss\xEDveis recompensas"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54961269223424
+    m_Localized: "Iniciar n\xEDvel"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58391471697920
+    m_Localized: "Acesso r\xE1pido"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58391475892224
+    m_Localized: "Voc\xEA pode levar at\xE9 3 itens em cada miss\xE3o.\nSelecione
+      os que deseja ou gaste ouro para comprar novos."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58391475892225
+    m_Localized: "Invent\xE1rio"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58391475892226
+    m_Localized: Vender
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58391475892227
+    m_Localized: Custo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58391475892228
+    m_Localized: "Miss\xF5es"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62709616717824
+    m_Localized: Pausa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62709646077952
+    m_Localized: Continuar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62709646077953
+    m_Localized: "Configura\xE7\xF5es"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62709646077954
+    m_Localized: Reiniciar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62709646077955
+    m_Localized: "Selecione o n\xEDvel"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62709646077956
+    m_Localized: Desistir
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []
