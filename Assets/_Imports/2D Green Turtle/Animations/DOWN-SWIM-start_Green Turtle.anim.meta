@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 48af2ef049a05e34582ad126205b91ce
+timeCreated: 1516995965
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110255
+  packageName: 2D Green Turtle
+  packageVersion: 1.5
+  assetPath: Assets/2D Green Turtle/Animations/DOWN-SWIM-start_Green Turtle.anim
+  uploadId: 410302

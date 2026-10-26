@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 330159abb0773994db989e1d3257f8d7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 143866
+  packageName: Fantasy Underwater
+  packageVersion: 1.0
+  assetPath: Assets/Underwater_pack/scene_demo/animations/algae_long_40000.controller
+  uploadId: 304714

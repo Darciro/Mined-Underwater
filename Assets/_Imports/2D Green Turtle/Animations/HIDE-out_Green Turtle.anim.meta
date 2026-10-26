@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 91da11781863e3b49b3825cc43c97db1
+timeCreated: 1516994289
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110255
+  packageName: 2D Green Turtle
+  packageVersion: 1.5
+  assetPath: Assets/2D Green Turtle/Animations/HIDE-out_Green Turtle.anim
+  uploadId: 410302

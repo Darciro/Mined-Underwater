@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0cdd1f9147a82ca469f7c91bd52a3ac9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 143866
+  packageName: Fantasy Underwater
+  packageVersion: 1.0
+  assetPath: Assets/Underwater_pack/effects/particle_fish_001/fish_001.prefab
+  uploadId: 304714

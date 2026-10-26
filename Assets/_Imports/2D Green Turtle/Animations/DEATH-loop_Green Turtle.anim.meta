@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: ecfd04faf4d6d6b439087ca7d5384360
+timeCreated: 1516994290
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110255
+  packageName: 2D Green Turtle
+  packageVersion: 1.5
+  assetPath: Assets/2D Green Turtle/Animations/DEATH-loop_Green Turtle.anim
+  uploadId: 410302

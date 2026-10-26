@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6102e1f55390b244f9be11499db88418
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 143866
+  packageName: Fantasy Underwater
+  packageVersion: 1.0
+  assetPath: Assets/Underwater_pack/effects/light_2.prefab
+  uploadId: 304714

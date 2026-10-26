@@ -46,7 +46,7 @@ Thumbs.db
 *.tmproj
 
 # ========== Imports ==========
-Assets/_Imports/
+# Assets/_Imports/
 
 # ========== AI Helpers and others ==========
 ARCHITECTURE.md

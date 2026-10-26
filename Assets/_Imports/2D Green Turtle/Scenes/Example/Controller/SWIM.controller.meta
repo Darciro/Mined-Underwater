@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 44f93d2ba1d5fe84686726bddd06d35a
+timeCreated: 1517079562
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110255
+  packageName: 2D Green Turtle
+  packageVersion: 1.5
+  assetPath: Assets/2D Green Turtle/Scenes/Example/Controller/SWIM.controller
+  uploadId: 410302

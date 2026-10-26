@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f06db2f55cddb6c4cb6948e9e185dd2d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 143866
+  packageName: Fantasy Underwater
+  packageVersion: 1.0
+  assetPath: Assets/Underwater_pack/fish/fish_003/Idle/fish_003_idle.anim
+  uploadId: 304714

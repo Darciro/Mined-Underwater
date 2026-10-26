@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 6e4a2652d88b982409a4192dd5778bee
+timeCreated: 1517079671
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110255
+  packageName: 2D Green Turtle
+  packageVersion: 1.5
+  assetPath: Assets/2D Green Turtle/Scenes/Example/Controller/Up-DOWN.controller
+  uploadId: 410302

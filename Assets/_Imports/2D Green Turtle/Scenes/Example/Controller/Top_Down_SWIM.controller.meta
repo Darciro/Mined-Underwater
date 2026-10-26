@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fcb5b8b5d8dcb6443a0bea50f35c2569
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110255
+  packageName: 2D Green Turtle
+  packageVersion: 1.5
+  assetPath: Assets/2D Green Turtle/Scenes/Example/Controller/Top_Down_SWIM.controller
+  uploadId: 410302

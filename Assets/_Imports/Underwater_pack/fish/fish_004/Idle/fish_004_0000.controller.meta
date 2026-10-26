@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: cfecd8cabffa215448f2d4c340928e5a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 143866
+  packageName: Fantasy Underwater
+  packageVersion: 1.0
+  assetPath: Assets/Underwater_pack/fish/fish_004/Idle/fish_004_0000.controller
+  uploadId: 304714

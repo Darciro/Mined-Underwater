@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 6dc69b7153ba8e14cbae9d63431db037
+timeCreated: 1516994289
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110255
+  packageName: 2D Green Turtle
+  packageVersion: 1.5
+  assetPath: Assets/2D Green Turtle/Animations/SWIM-turn_Green Turtle.anim
+  uploadId: 410302
