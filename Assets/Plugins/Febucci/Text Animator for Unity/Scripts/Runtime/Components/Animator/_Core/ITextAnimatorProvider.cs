@@ -5,7 +5,7 @@
 // - WEBSITE: https://www.textanimatorforgames.com/
 // =======================================================
 
-using Febucci.Parsing.Regions;
+﻿using Febucci.Parsing.Regions;
 using Febucci.TextAnimatorCore;
 using Febucci.TextAnimatorCore.Text;
 namespace Febucci.TextAnimatorForUnity
@@ -110,8 +110,9 @@ namespace Febucci.TextAnimatorForUnity
         /// Adds text to the already existing one, parsing its rich text tags.
         /// </summary>
         /// <param name="appendedText">New text that you want to append</param>
-        /// <param name="hideText"></param>
-        public void AppendText(string appendedText, bool hideText = false);
+        /// <param name="hideText">if you want to hide the new text you're appending</param>
+        /// <param name="skipOldText">if you want to skip (show) the previous text and jump to the appended one directly</param>
+        public void AppendText(string appendedText, bool hideText = false, bool skipOldText = true);
 
         #endregion
 

@@ -20,6 +20,8 @@ Assets/_Recovery*
 *.csproj
 *.unityproj
 *.dll
+!Assets/**/*.dll
+!Packages/**/*.dll
 *.exe
 
 # ========== IDE ==========

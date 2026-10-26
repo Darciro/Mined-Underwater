@@ -10,6 +10,7 @@ using Febucci.TextAnimatorCore.Data;
 using Febucci.TextAnimatorCore;
 using Febucci.TextAnimatorForUnity.Effects;
 using Febucci.TextAnimatorForUnity.Effects.Core;
+using Febucci.TextAnimatorForUnity.Parsing;
 
 namespace Febucci.TextAnimatorForUnity
 {
@@ -33,12 +34,29 @@ namespace Febucci.TextAnimatorForUnity
             }
         }
 
+        // fixes method not available in base class because of generic :C
+        [UnityEngine.ContextMenu("Force rebuild")]
+        public override void ForceBuildRefresh()
+        {
+            base.ForceBuildRefresh();
+        }
+
         protected override void OnBuildOnce()
         {
             base.OnBuildOnce();
             converted = new Dictionary<string, IEffect>();
             foreach (var pair in base.Dictionary)
                 converted.Add(pair.Key, pair.Value);
+        }
+
+        protected override bool IsTagAllowed(string tagId, EffectScriptableBase source)
+        {
+            string sourceTagId = source != null ? source.TagID : tagId;
+            if (!UnityRichTextTagUtility.IsReservedTagName(sourceTagId))
+                return true;
+
+            UnityEngine.Debug.LogWarning($"Text Animator: {UnityRichTextTagUtility.GetReservedTagWarning(sourceTagId)} Skipping...", source);
+            return false;
         }
 
     }

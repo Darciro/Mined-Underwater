@@ -5,7 +5,7 @@
 // - WEBSITE: https://www.textanimatorforgames.com/
 // =======================================================
 
-#if UNITY_2023_2_OR_NEWER
+﻿#if UNITY_2023_2_OR_NEWER
 #define CAN_USE_UXML_DECORATORS
 #endif
 
@@ -15,6 +15,7 @@ using Febucci.Parsing.Core;
 using Febucci.Parsing.Regions;
 using Febucci.TextAnimatorCore.Settings;
 using Febucci.TextAnimatorCore.Text;
+using Febucci.TextAnimatorCore.Time;
 using Febucci.TextAnimatorForUnity.Actions;
 using Febucci.TextAnimatorForUnity.Parsing;
 using UnityEngine;
@@ -240,11 +241,13 @@ namespace Febucci.TextAnimatorForUnity.UIToolkit
 
         TextParser uitkParser;
         UIToolkitLabelTagParser uiToolkitLabelTagParser;
+        UIToolkitLabelTagParser uiToolkitStripTagParser;
         public AnimatedLabelBase()
         {
             try
             {
                 uiToolkitLabelTagParser = new UIToolkitLabelTagParser(this, '<', '/', '>');
+                uiToolkitStripTagParser = new UIToolkitLabelTagParser(this, '<', '/', '>', preserveRichTextTags: false);
             }
             catch(Exception e)
             {
@@ -303,11 +306,14 @@ namespace Febucci.TextAnimatorForUnity.UIToolkit
             animator.effectsDatabase = BehaviorsDatabase;
             animator.stylesDatabase = StyleSheetDatabase;
 
+            ResetAnimationTime();
             RegisterCallback<AttachToPanelEvent>(OnAttachedToPanel);
         }
 
         void OnAttachedToPanel(AttachToPanelEvent evt)
         {
+            ResetAnimationTime();
+
             if (Application.isPlaying && Typewriter != null)
             {
                 Typewriter.ActionProviders = GetActionProviders();
@@ -327,7 +333,8 @@ namespace Febucci.TextAnimatorForUnity.UIToolkit
         public void SwapText(string text) => animator.SwapText(text);
 
         /// <inheritdoc cref="ITextAnimatorProvider.AppendText"/>
-        public void AppendText(string appendedText, bool hideText = false) => animator.AppendText(appendedText, hideText);
+        public void AppendText(string appendedText, bool hideText = false, bool skipOldText = true)
+            => animator.AppendText(appendedText, hideText:hideText, skipOldText:skipOldText);
 
         public TextRegion<IEffectPlayer>[] Disappearances { get; }
         /// <inheritdoc cref="ITextAnimatorProvider.SetVisibilityChar"/>
@@ -359,7 +366,7 @@ namespace Febucci.TextAnimatorForUnity.UIToolkit
         protected virtual void OnTextParsed()
         {
             text = animator.TextWithoutTextAnimatorTags;
-            CharactersCountWithoutTAnimTags = text.Length;
+            CharactersCountWithoutTAnimTags = animator.TextWithoutAnyTag.Length;
             schedule.Execute(MarkDirtyRepaint);
             #if UNITY_6000_3_OR_NEWER
             schedule.Execute(MarkDirtyText);
@@ -372,6 +379,9 @@ namespace Febucci.TextAnimatorForUnity.UIToolkit
             if(!Application.isPlaying)
                 return (float)UnityEditor.EditorApplication.timeSinceStartup;
             #endif
+
+            if (animationSettings?.Settings?.timeScale == TimeScale.Unscaled)
+                return UnityEngine.Time.unscaledTime;
 
             return UnityEngine.Time.time;
         }
@@ -387,6 +397,8 @@ namespace Febucci.TextAnimatorForUnity.UIToolkit
         float lastTime = 0;
         TypewriterSettings settings;
 
+        void ResetAnimationTime() => lastTime = GetCurrentTime();
+
         protected void Animate()
         {
             float currentTime = GetCurrentTime();
@@ -394,6 +406,28 @@ namespace Febucci.TextAnimatorForUnity.UIToolkit
             lastTime = currentTime;
             animator.Animate(delta);
         }
+
+
+        /// <summary>
+        /// Returns true if text animator is currently paused
+        /// </summary>
+        public bool IsAnimationPaused
+            => animator.isAnimationPaused;
+
+
+        /// <summary>
+        /// Resumes animation starting from pause point
+        /// </summary>
+        public void PauseAnimation()
+            => animator.PauseAnimation();
+
+
+        /// <summary>
+        /// Pauses animation and freezes current char's status
+        /// </summary>
+        public void ResumeAnimation()
+            => animator.ResumeAnimation();
+
 
         public void SetTextToSource(string text)
         {
@@ -410,7 +444,7 @@ namespace Febucci.TextAnimatorForUnity.UIToolkit
 
         public string GetStrippedTextWithoutAnyTags(string textWithoutTAnimTags)
         {
-            return uitkParser.ParseText(textWithoutTAnimTags, uiToolkitLabelTagParser);
+            return uitkParser.ParseText(textWithoutTAnimTags, uiToolkitStripTagParser);
         }
 
         public abstract string GetFullText();
@@ -419,7 +453,7 @@ namespace Febucci.TextAnimatorForUnity.UIToolkit
         public abstract bool HasChangedMeshRenderingSettings();
 
         public int GetFirstCharacterIndexInsidePage() => 0;
-        public int GetRenderedCharactersCountInsidePage(int charactersCount) => int.MaxValue;
+        public int GetRenderedCharactersCountInsidePage(int charactersCount) => charactersCount;
     }
 
 }

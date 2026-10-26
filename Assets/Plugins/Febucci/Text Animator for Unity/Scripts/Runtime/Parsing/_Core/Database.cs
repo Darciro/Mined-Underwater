@@ -28,6 +28,26 @@ namespace Febucci.TextAnimatorForUnity
             //Prevents database from not refreshing on
             //different domain reload settings
             built = false;
+            #if UNITY_EDITOR
+            UnityEditor.EditorApplication.playModeStateChanged += EditModeChanged;
+#endif
+
+        }
+
+        #if UNITY_EDITOR
+        void EditModeChanged(UnityEditor.PlayModeStateChange state)
+        {
+            //Prevents database from not refreshing on
+            //different domain reload settings
+            if(state == UnityEditor.PlayModeStateChange.EnteredPlayMode) built = false;
+        }
+        #endif
+
+        void OnDisable()
+        {
+                        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.playModeStateChanged -= EditModeChanged;
+#endif
         }
 
         [SerializeReference] System.Collections.Generic.List<T> data = new List<T>();
@@ -42,7 +62,18 @@ namespace Febucci.TextAnimatorForUnity
             if (built && UnityEngine.Application.isPlaying)
             {
                 string tag = element.TagID;
-                if (dictionary.ContainsKey(tag))
+
+                if (string.IsNullOrEmpty(tag))
+                {
+                    UnityEngine.Debug.LogError($"Text Animator: Tag is null or empty. Skipping...");
+                    return;
+                }
+
+                if (!IsCaseSensitive) tag = tag.ToLowerInvariant();
+
+                if (!IsTagAllowed(tag, element))
+                    return;
+                else if (dictionary.ContainsKey(tag))
                     UnityEngine.Debug.LogError($"Text Animator: Tag {tag} is already present in the database. Skipping...");
                 else
                     dictionary.Add(tag, element);
@@ -63,8 +94,7 @@ namespace Febucci.TextAnimatorForUnity
             }
         }
 
-        [ContextMenu("Force rebuild")]
-        public void ForceBuildRefresh()
+        public virtual void ForceBuildRefresh()
         {
             built = false;
 
@@ -91,13 +121,17 @@ namespace Febucci.TextAnimatorForUnity
                     continue;
 
                 tagId = source.TagID;
-                if (!IsCaseSensitive) tagId = tagId.ToLowerInvariant();
 
                 if (string.IsNullOrEmpty(tagId))
                 {
                     UnityEngine.Debug.LogError($"Text Animator: Tag is null or empty. Skipping...");
                     continue;
                 }
+
+                if (!IsCaseSensitive) tagId = tagId.ToLowerInvariant();
+
+                if (!IsTagAllowed(tagId, source))
+                    continue;
 
                 if (dictionary.ContainsKey(tagId))
                 {
@@ -112,6 +146,8 @@ namespace Febucci.TextAnimatorForUnity
         }
 
         protected virtual void OnBuildOnce() { }
+
+        protected virtual bool IsTagAllowed(string tagId, T source) => true;
 
         public bool ContainsKey(string key)
         {

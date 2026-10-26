@@ -5,7 +5,7 @@
 // - WEBSITE: https://www.textanimatorforgames.com/
 // =======================================================
 
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Febucci.TextAnimatorCore.Data;
 using Febucci.TextAnimatorCore.Settings;
@@ -33,6 +33,24 @@ namespace Febucci.TextAnimatorForUnity
         internal ITextAnimatorProvider textAnimatorProvider;
 
         [SerializeField] TypingsTimingsScriptableBase timingsScriptableBase;
+
+        /// <summary>
+        /// The timing configuration for the typewriter (e.g., TypingDelaysByCharacter or TypingDelaysByWord).
+        /// Can be changed at runtime to switch between delay modes.
+        /// </summary>
+        public TypingsTimingsScriptableBase TimingSettings
+        {
+            get => timingsScriptableBase;
+            set
+            {
+                timingsScriptableBase = value;
+                if (_wrapper != null)
+                {
+                    _wrapper.timingsProvider = value;
+                }
+            }
+        }
+
         TypewriterCore _wrapper;
         TypewriterCore Wrapper
         {
@@ -263,6 +281,9 @@ namespace Febucci.TextAnimatorForUnity
         /// <inheritdoc cref="ITypewriterProvider.SkipTypewriter"/>
         public void SkipTypewriter() => Wrapper.SkipTypewriter();
 
+        /// <inheritdoc cref="ITypewriterProvider.SkipCurrentAction"/>
+        public bool SkipCurrentAction() => Wrapper.SkipCurrentAction();
+
 
         #region Typewriter
 
@@ -271,6 +292,9 @@ namespace Febucci.TextAnimatorForUnity
 
         /// <inheritdoc cref="ITypewriterProvider.IsShowingText"/>
         public bool IsShowingText => Wrapper.IsShowingText;
+
+        /// <inheritdoc cref="ITypewriterProvider.IsWaitingForAction"/>
+        public bool IsWaitingForAction => Wrapper.IsWaitingForAction;
 
 
         /// <inheritdoc cref="ITypewriterProvider.StartShowingText"/>
@@ -352,6 +376,20 @@ namespace Febucci.TextAnimatorForUnity
 
         /// <inheritdoc cref="ITypewriterProvider.TriggerVisibleEvents"/>
         public void TriggerVisibleEvents() => Wrapper.TriggerVisibleEvents();
+
+        /// <summary>
+        /// Calculates the approximate total duration for the typewriter to show all characters,
+        /// by summing up the wait time for each character. Does not account for action tags,
+        /// callbacks, or effect durations.
+        /// </summary>
+        public float GetApproximateShowDuration() => Wrapper.GetApproximateShowDuration();
+
+        /// <summary>
+        /// Calculates the approximate total duration for the typewriter to hide all characters,
+        /// by summing up the disappearance wait time for each character. Does not account for
+        /// callbacks or effect durations.
+        /// </summary>
+        public float GetApproximateHideDuration() => Wrapper.GetApproximateHideDuration();
         #endregion
 
 
@@ -419,6 +457,8 @@ namespace Febucci.TextAnimatorForUnity
         {
             if(!initialized) return;
 
+            if (localSettings == null) return;
+
             if (!localSettings.useTypeWriter)
                 return;
 
@@ -452,6 +492,16 @@ namespace Febucci.TextAnimatorForUnity
             _wrapper?.Dispose();
             initialized = false;
         }
+
+#if UNITY_EDITOR
+        void OnValidate()
+        {
+            if (Application.isPlaying && _wrapper != null)
+            {
+                _wrapper.timingsProvider = timingsScriptableBase;
+            }
+        }
+#endif
 
         #region BACKWARDS COMPATIBILITY
 
