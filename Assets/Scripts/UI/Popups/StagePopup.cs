@@ -34,6 +34,13 @@ public class StagePopup : MonoBehaviour
     [Tooltip("Prefab with an ObjectiveItemUI component used to display each objective")]
     [SerializeField] private ObjectiveItemUI objectiveItemPrefab;
 
+    [Header("Rewards Preview")]
+    [Tooltip("Container where reward items are spawned (e.g. a HorizontalLayoutGroup + ContentSizeFitter)")]
+    [SerializeField] private Transform rewardsContainer;
+
+    [Tooltip("Prefab with a RewardItemUI component used to display each reward")]
+    [SerializeField] private RewardItemUI rewardItemPrefab;
+
     private int selectedStageIndex = -1;
 
     #region Unity Lifecycle
@@ -77,6 +84,7 @@ public class StagePopup : MonoBehaviour
         // Update UI elements
         UpdateStageInfo(stageIndex);
         PopulateObjectives(stageIndex);
+        PopulateRewards(stageIndex);
 
         // Enable the popup
         gameObject.SetActive(true);
@@ -137,6 +145,29 @@ public class StagePopup : MonoBehaviour
             if (data == null) continue;
             var item = Instantiate(objectiveItemPrefab, objectivesContainer);
             item.InitializeStatic(data);
+        }
+    }
+
+    private void PopulateRewards(int stageIndex)
+    {
+        if (rewardsContainer == null || rewardItemPrefab == null) return;
+
+        // Clear only previously spawned RewardItemUI items
+        for (int i = rewardsContainer.childCount - 1; i >= 0; i--)
+        {
+            var child = rewardsContainer.GetChild(i);
+            if (child.GetComponent<RewardItemUI>() != null)
+                Destroy(child.gameObject);
+        }
+
+        if (ObjectivesManager.Instance == null || ObjectivesManager.Instance.Database == null) return;
+
+        var rewards = ObjectivesManager.Instance.Database.GetRewardsForStage(stageIndex);
+        foreach (var reward in rewards)
+        {
+            if (reward == null || !reward.IsValid) continue;
+            var item = Instantiate(rewardItemPrefab, rewardsContainer);
+            item.Initialize(reward);
         }
     }
 

@@ -11,6 +11,9 @@ public class LevelManager : MonoBehaviour
 
     public static LevelManager Instance { get; private set; }
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => Instance = null;
+
     #endregion
 
     [SerializeField] private SceneTransition sceneTransition;

@@ -42,6 +42,9 @@ public class CameraShakeManager : MonoBehaviour
     // Singleton instance for easy access
     public static CameraShakeManager Instance { get; private set; }
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => Instance = null;
+
     private void Awake()
     {
         // Setup singleton

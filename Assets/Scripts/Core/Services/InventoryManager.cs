@@ -175,7 +175,14 @@ public class InventoryManager : MonoBehaviour
         return false;
     }
 
-    public bool AddItemOnStoreData(Item item)
+    public bool AddItemOnStoreData(Item item) => AddItemToSave(item, inventorySlots.Length, maxStackSize);
+
+    /// <summary>
+    /// Adds one unit of <paramref name="item"/> straight to the saved inventory, without touching any scene UI.
+    /// Use it from scenes that have no live slots for the target indices (e.g. Shop, Win).
+    /// Returns false when every slot is taken.
+    /// </summary>
+    public static bool AddItemToSave(Item item, int totalSlots, int maxStackSize)
     {
         InventorySaveData saveData;
 
@@ -204,7 +211,6 @@ public class InventoryManager : MonoBehaviour
             }
         }
 
-        int totalSlots = inventorySlots.Length;
         for (int i = 0; i < totalSlots; i++)
         {
             bool occupied = false;
@@ -438,6 +444,11 @@ public class InventoryManager : MonoBehaviour
         string rawJson = PlayerPrefs.GetString(SaveKey);
 
         InventorySaveData saveData = JsonUtility.FromJson<InventorySaveData>(rawJson);
+        if (saveData == null || saveData.slots == null || allItems == null)
+        {
+            Debug.LogWarning("InventoryManager: inventory save is empty/invalid or allItems is not assigned.");
+            return;
+        }
 
         foreach (InventorySlotData slotData in saveData.slots)
         {

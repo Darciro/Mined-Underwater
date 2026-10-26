@@ -7,6 +7,9 @@ public class InventorySlot : MonoBehaviour, IDropHandler, IPointerClickHandler
 {
     public static event Action<InventoryItem> OnSlotClicked;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => OnSlotClicked = null;
+
     public GameObject alternativePosition;
     [SerializeField] private Image image;
     [SerializeField] private Color selectedColor, defaultColor;

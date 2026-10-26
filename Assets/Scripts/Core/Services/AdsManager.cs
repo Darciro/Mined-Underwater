@@ -32,14 +32,23 @@ public class AdsManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => Instance = null;
+
+    // Duplicates (one per scene that has an AdsManager) are destroyed in Awake, but Unity still
+    // runs their OnEnable/OnDisable; the Instance checks keep them away from the SDK.
     private void OnEnable()
     {
+        if (Instance != this) return;
+
         LevelPlay.OnInitSuccess += OnSdkInitialized;
         LevelPlay.OnInitFailed += OnSdkInitFailed;
     }
 
     private void Start()
     {
+        if (Instance != this) return;
+
         LevelPlay.Init(androidAppKey);
 
         // Subscribe here instead of OnEnable so that GameManager.Instance
@@ -50,6 +59,8 @@ public class AdsManager : MonoBehaviour
 
     private void OnDisable()
     {
+        if (Instance != this) return;
+
         LevelPlay.OnInitSuccess -= OnSdkInitialized;
         LevelPlay.OnInitFailed -= OnSdkInitFailed;
 

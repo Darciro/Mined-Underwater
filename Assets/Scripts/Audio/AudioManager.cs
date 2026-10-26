@@ -5,6 +5,9 @@ public class AudioManager : MonoBehaviour
 {
     public static AudioManager instance { get; private set; }
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => instance = null;
+
     [Header("Mixer")]
     [SerializeField] private AudioMixerGroup sfxMixerGroup;
 

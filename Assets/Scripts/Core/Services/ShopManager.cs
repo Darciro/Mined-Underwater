@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -23,10 +22,9 @@ public class ShopManager : MonoBehaviour
     {
         if (itemInfo != null)
         {
-            if (item.itemType == ItemType.Upgrade)
-                itemInfo.Show(item, 1, false);
-            else
-                itemInfo.Show(item, 1);
+            bool isUpgrade = item.itemType == ItemType.Upgrade;
+            itemInfo.Show(item, 1, !isUpgrade);
+            itemInfo.SetCanBuy(CanBuyItem(item, out _, isUpgrade, logReason: false));
         }
     }
 
@@ -37,27 +35,54 @@ public class ShopManager : MonoBehaviour
 
         Item item = itemInfo.CurrentItem;
 
-        if (!CanBuyItem(item, out int cost))
-            return;
+        bool isUpgrade = item.itemType == ItemType.Upgrade;
 
-        if (item.itemType == ItemType.Upgrade)
+        if (!CanBuyItem(item, out int cost, isUpgrade))
         {
-            item.effect.Use(playerController);
-            GameManager.Instance.SpendEggs(cost);
+            RejectPurchase();
+            return;
+        }
+
+        if (isUpgrade)
+        {
+            // Pay first so a failing effect can never grant a free upgrade
+            if (!GameManager.Instance.SpendEggs(cost))
+            {
+                RejectPurchase();
+                return;
+            }
+
+            if (item.effect != null)
+                item.effect.Use(playerController);
         }
         else
         {
-            inventoryManager.AddItemOnStoreData(item);
+            if (!inventoryManager.AddItemOnStoreData(item))
+            {
+                RejectPurchase();
+                return;
+            }
+
             GameManager.Instance.SpendCoins(cost);
         }
 
-        if (shopSucessPanel != null) { }
-        shopSucessPanel.SetActive(true);
+        // The balance changed: the same item may no longer be affordable
+        itemInfo.SetCanBuy(CanBuyItem(item, out _, isUpgrade, logReason: false));
+
+        if (shopSucessPanel != null)
+            shopSucessPanel.SetActive(true);
 
         Debug.Log($"Bought '{item.name}' for {(item.itemType == ItemType.Upgrade ? cost + " eggs" : cost + " coins")}.");
     }
 
-    private bool CanBuyItem(Item item, out int cost, bool upgrade = false)
+    private void RejectPurchase()
+    {
+        itemInfo.SetCanBuy(false);
+        itemInfo.Shake();
+    }
+
+    /// <param name="logReason">False when only probing (e.g. to color the price), so the Console is not spammed</param>
+    private bool CanBuyItem(Item item, out int cost, bool upgrade = false, bool logReason = true)
     {
         cost = 0;
 
@@ -77,7 +102,8 @@ public class ShopManager : MonoBehaviour
         {
             if (GameManager.Instance.TotalEggs < cost)
             {
-                Debug.Log($"Not enough eggs to buy '{item.name}'. Have {GameManager.Instance.TotalEggs}, need {cost}.");
+                if (logReason)
+                    Debug.Log($"Not enough eggs to buy '{item.name}'. Have {GameManager.Instance.TotalEggs}, need {cost}.");
                 return false;
             }
         }
@@ -85,13 +111,15 @@ public class ShopManager : MonoBehaviour
         {
             if (GameManager.Instance.TotalCoins < cost)
             {
-                Debug.Log($"Not enough coins to buy '{item.name}'. Have {GameManager.Instance.TotalCoins}, need {cost}.");
+                if (logReason)
+                    Debug.Log($"Not enough coins to buy '{item.name}'. Have {GameManager.Instance.TotalCoins}, need {cost}.");
                 return false;
             }
 
             if (!inventoryManager.CanAddItem(item))
             {
-                Debug.Log($"Inventory is full. Cannot buy '{item.name}'.");
+                if (logReason)
+                    Debug.Log($"Inventory is full. Cannot buy '{item.name}'.");
                 return false;
             }
         }

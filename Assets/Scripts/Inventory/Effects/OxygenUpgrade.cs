@@ -12,6 +12,7 @@ public class OxygenUpgrade : ItemEffect
         int current = PlayerPrefs.GetInt("UpgradeLevel_AirUpgrade", 0);
         PlayerPrefs.SetInt("UpgradeLevel_AirUpgrade", current + oxygenIncrease);
         PlayerPrefs.Save();
-        player.IncreaseMaxOxygen(oxygenIncrease);
+        if (player != null)
+            player.IncreaseMaxOxygen(oxygenIncrease);
     }
 }

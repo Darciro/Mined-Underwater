@@ -12,6 +12,7 @@ public class HealthUpgrade : ItemEffect
         int current = PlayerPrefs.GetInt("UpgradeLevel_HealthUpgrade", 0);
         PlayerPrefs.SetInt("UpgradeLevel_HealthUpgrade", current + healthIncrease);
         PlayerPrefs.Save();
-        player.IncreaseMaxHealth(healthIncrease);
+        if (player != null)
+            player.IncreaseMaxHealth(healthIncrease);
     }
 }

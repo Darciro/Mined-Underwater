@@ -32,6 +32,14 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI totalCoinsText;
     [SerializeField] private TextMeshProUGUI eggRequirementText;
 
+    [Header("Win Scene Rewards")]
+    [Tooltip("Container where earned rewards are spawned (e.g. a HorizontalLayoutGroup + ContentSizeFitter)")]
+    [SerializeField] private Transform rewardsContainer;
+    [Tooltip("Prefab with a RewardItemUI component used to display each earned reward")]
+    [SerializeField] private RewardItemUI rewardItemPrefab;
+    [Tooltip("Optional object shown only when at least one reward was earned (e.g. the rewards panel title)")]
+    [SerializeField] private GameObject rewardsPanel;
+
     [Header("Star Rating")]
     [Tooltip("GameObject shown when the player earns at least 1 star")]
     [SerializeField] private GameObject star1;
@@ -57,6 +65,14 @@ public class UIManager : MonoBehaviour
 
     private int previousEggs = 0;
     private int previousCoins = 0;
+
+    // Last values pushed to the HUD; Update only rewrites text/sliders when these change
+    private int lastHealth = int.MinValue;
+    private int lastMaxHealth = int.MinValue;
+    private int lastAir = int.MinValue;
+    private int lastMaxAir = int.MinValue;
+    private int lastLevelEggs = int.MinValue;
+    private int lastEggRequirement = int.MinValue;
 
     private Coroutine eggsAnimationCoroutine;
     private Coroutine coinsAnimationCoroutine;
@@ -176,17 +192,22 @@ public class UIManager : MonoBehaviour
     {
         if (playerController == null) return;
 
+        int health = playerController.GetHealth();
+        int maxHealth = playerController.GetMaxHealth();
+        if (health == lastHealth && maxHealth == lastMaxHealth) return;
+
+        lastHealth = health;
+        lastMaxHealth = maxHealth;
+
         if (playerHealthSlider != null)
         {
-            playerHealthSlider.value =
-                (float)playerController.GetHealth() / playerController.GetMaxHealth();
+            playerHealthSlider.value = (float)health / maxHealth;
         }
 
         if (playerHealthtext != null)
         {
-            int currentHealth = Mathf.Max(0, playerController.GetHealth());
-            playerHealthtext.text =
-                $"{currentHealth} / {playerController.GetMaxHealth()}";
+            int currentHealth = Mathf.Max(0, health);
+            playerHealthtext.text = $"{currentHealth} / {maxHealth}";
         }
     }
 
@@ -198,7 +219,14 @@ public class UIManager : MonoBehaviour
     {
         if (playerController == null) return;
 
-        float airValue = (float)playerController.GetAir() / playerController.GetMaxAir();
+        int air = playerController.GetAir();
+        int maxAir = playerController.GetMaxAir();
+        if (air == lastAir && maxAir == lastMaxAir) return;
+
+        lastAir = air;
+        lastMaxAir = maxAir;
+
+        float airValue = (float)air / maxAir;
 
         if (airSlider != null)
         {
@@ -212,9 +240,8 @@ public class UIManager : MonoBehaviour
 
         if (airText != null)
         {
-            int currentAir = Mathf.Max(0, playerController.GetAir());
-            airText.text =
-                $"{currentAir} / {playerController.GetMaxAir()}";
+            int currentAir = Mathf.Max(0, air);
+            airText.text = $"{currentAir} / {maxAir}";
         }
     }
 
@@ -338,6 +365,10 @@ public class UIManager : MonoBehaviour
 
         int levelEggs = GameManager.Instance.LevelEggs;
         int eggRequirement = GameManager.Instance.GetEggRequirement();
+        if (levelEggs == lastLevelEggs && eggRequirement == lastEggRequirement) return;
+
+        lastLevelEggs = levelEggs;
+        lastEggRequirement = eggRequirement;
 
         if (eggProgressText != null)
             eggProgressText.text = $"{levelEggs}/{eggRequirement}";
@@ -396,6 +427,34 @@ public class UIManager : MonoBehaviour
         if (star1 != null) star1.SetActive(stars == 1);
         if (star2 != null) star2.SetActive(stars == 2);
         if (star3 != null) star3.SetActive(stars == 3);
+
+        DisplayWinRewards();
+    }
+
+    /// <summary>
+    /// Spawns one RewardItemUI per reward granted for the completed level
+    /// </summary>
+    private void DisplayWinRewards()
+    {
+        if (rewardsContainer == null || rewardItemPrefab == null) return;
+
+        // Clear only previously spawned RewardItemUI items
+        for (int i = rewardsContainer.childCount - 1; i >= 0; i--)
+        {
+            var child = rewardsContainer.GetChild(i);
+            if (child.GetComponent<RewardItemUI>() != null)
+                Destroy(child.gameObject);
+        }
+
+        var rewards = GameManager.Instance.LastGrantedRewards;
+        foreach (var reward in rewards)
+        {
+            var item = Instantiate(rewardItemPrefab, rewardsContainer);
+            item.Initialize(reward, showDropChance: false);
+        }
+
+        if (rewardsPanel != null)
+            rewardsPanel.SetActive(rewards.Count > 0);
     }
 
     /// <summary>

@@ -142,6 +142,8 @@ public class PlayerController : MonoBehaviour
     private int movementTouchId = -1;     // finger assigned to movement
     private Vector2 smoothedTouchInput;   // smoothing accumulator
 
+    private readonly List<RaycastResult> uiRaycastResults = new List<RaycastResult>();
+
     // Options
     private bool useSimpleMovement = true;
 
@@ -517,9 +519,9 @@ public class PlayerController : MonoBehaviour
             position = screenPos
         };
 
-        var results = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(data, results);
-        return results.Count > 0;
+        uiRaycastResults.Clear();
+        EventSystem.current.RaycastAll(data, uiRaycastResults);
+        return uiRaycastResults.Count > 0;
     }
 
     private bool IsTouchInMovementZone(Vector2 screenPos)
@@ -793,7 +795,8 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        if (isInvincible)
+        // isDead: avoids running Die() (and the game-over scene load) twice
+        if (isInvincible || isDead)
         {
             return;
         }
@@ -1102,14 +1105,14 @@ public class PlayerController : MonoBehaviour
         }
 
         Color originalColor = Color.white;
-        float blinkInterval = 0.15f;
+        var blinkWait = new WaitForSeconds(0.15f);
 
         while (currentAir <= 0 && !isDead)
         {
             spriteRenderer.color = Color.red;
-            yield return new WaitForSeconds(blinkInterval);
+            yield return blinkWait;
             spriteRenderer.color = originalColor;
-            yield return new WaitForSeconds(blinkInterval);
+            yield return blinkWait;
         }
 
         spriteRenderer.color = originalColor;
@@ -1380,9 +1383,15 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator DefenseBoostCoroutine(float bonusPercentage, float duration)
     {
-        damageReductionPercentage = Mathf.Clamp(damageReductionPercentage + bonusPercentage, 0f, 100f);
+        // Remove only what was actually added: when the clamp at 100% cuts the bonus,
+        // subtracting the full bonus would permanently lower the base defense.
+        float before = damageReductionPercentage;
+        damageReductionPercentage = Mathf.Clamp(before + bonusPercentage, 0f, 100f);
+        float appliedBonus = damageReductionPercentage - before;
+
         yield return new WaitForSeconds(duration);
-        damageReductionPercentage = Mathf.Clamp(damageReductionPercentage - bonusPercentage, 0f, 100f);
+
+        damageReductionPercentage = Mathf.Clamp(damageReductionPercentage - appliedBonus, 0f, 100f);
     }
 
     /// <summary>

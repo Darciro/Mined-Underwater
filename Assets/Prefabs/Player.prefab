@@ -5138,9 +5138,14 @@ MonoBehaviour:
   fingerFollowDistanceWorld: 1.5
   fingerDeadZoneWorld: 0.05
   fingerInputSmoothing: 18
+  inventorySlotLeft: {fileID: 0}
+  inventorySlotCenter: {fileID: 0}
+  inventorySlotRight: {fileID: 0}
   damagePopupPrefab: {fileID: 8386932574030945141, guid: 3944d0652e5f1784088a9de13651a74b, type: 3}
   healPopupPrefab: {fileID: 8386932574030945141, guid: 6795e1eb00e0d454a955a4af9fcf2e46, type: 3}
   eggCollectionPopupPrefab: {fileID: 0}
   coinCollectionPopupPrefab: {fileID: 0}
+  debugItems: []
   animationDeadZone: 0.15
   animationSnapValue: 1
+  globalVolume: {fileID: 0}

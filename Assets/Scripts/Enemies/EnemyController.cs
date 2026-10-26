@@ -116,22 +116,24 @@ public class EnemyController : MonoBehaviour
     public void TakeDamage(int damage)
     {
         health -= damage;
-        CameraShakeManager.Instance.ShakeHeavy();
+        if (CameraShakeManager.Instance != null)
+            CameraShakeManager.Instance.ShakeHeavy();
         PlayHitParticles();
 
         if (health <= 0)
             Die();
 
-        hitFeedback?.PlayFeedbacks();
+        // Explicit != null: ?. bypasses Unity's null check (unassigned/destroyed objects)
+        if (hitFeedback != null) hitFeedback.PlayFeedbacks();
     }
 
     private void Die()
     {
         isDead = true;
 
-        scoreManager?.AddCoin();
-        GetComponent<EnemyPickup>()?.SpawnPickup();
-        dieFeedback?.PlayFeedbacks();
+        if (scoreManager != null) scoreManager.AddCoin();
+        if (TryGetComponent(out EnemyPickup enemyPickup)) enemyPickup.SpawnPickup();
+        if (dieFeedback != null) dieFeedback.PlayFeedbacks();
 
         ObjectivesManager.Instance?.ReportEnemyKilled(enemyTypeName);
 

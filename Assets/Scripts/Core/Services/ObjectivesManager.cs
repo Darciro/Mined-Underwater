@@ -18,6 +18,9 @@ public class ObjectivesManager : MonoBehaviour
 
     public static ObjectivesManager Instance { get; private set; }
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => Instance = null;
+
     #endregion
 
     #region Inspector

@@ -12,6 +12,8 @@ public class ParallaxManager : MonoBehaviour
 
     private float farthestBg;
 
+    private static readonly int MainTexId = Shader.PropertyToID("_MainTex");
+
     [Range(0.01f, 0.05f)]
     public float parallaxSpeed = 0.02f;
 
@@ -52,7 +54,7 @@ public class ParallaxManager : MonoBehaviour
         for (int i = 0; i < backgrounds.Length; i++)
         {
             float speed = backSpeed[i] * parallaxSpeed;
-            mat[i].SetTextureOffset("_MainTex", new Vector2(distance, 0) * speed);
+            mat[i].SetTextureOffset(MainTexId, new Vector2(distance, 0) * speed);
         }
     }
 }

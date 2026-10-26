@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,6 +12,10 @@ public class GameManager : MonoBehaviour
     #region Singleton
 
     public static GameManager Instance { get; private set; }
+
+    // Keeps the singleton valid if "Enter Play Mode Options" ever disables domain reload
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => Instance = null;
 
     #endregion
 
@@ -41,6 +46,12 @@ public class GameManager : MonoBehaviour
 
     [Header("Level Complete")]
     [SerializeField] private GameObject letterbox;
+
+    [Header("Level Rewards")]
+    [Tooltip("Total inventory slots rewards can go into. Must match the InventoryManager in the Inventory/Shop scenes.")]
+    [SerializeField, Min(1)] private int rewardInventorySlotCount = 19;
+    [Tooltip("Max stack per slot for reward items. Must match InventoryManager.maxStackSize.")]
+    [SerializeField, Min(1)] private int rewardMaxStackSize = 4;
 
     [Header("Spawner Managers")]
     [SerializeField] private SpawnerManager[] spawnerManagers;
@@ -211,6 +222,10 @@ public class GameManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // Runs before the scene's Start methods, so the Win UI already sees the granted rewards
+        if (scene.name == "Win")
+            GrantPendingRewards();
+
         if (scene.name != "Main" && scene.name != "_Playground") return;
 
         // Re-discover spawner managers from the freshly loaded scene (stale references
@@ -239,6 +254,10 @@ public class GameManager : MonoBehaviour
 
         // Handle time scale based on state
         HandleTimeScale(newState);
+
+        // End of a run: persist the eggs/coins collected during it
+        if (newState == GameStateEnum.GameOver || newState == GameStateEnum.LevelComplete)
+            PlayerPrefs.Save();
 
         // Notify subscribers
         OnGameStateChanged?.Invoke(newState);
@@ -333,7 +352,9 @@ public class GameManager : MonoBehaviour
     {
         levelEggs++;
         totalEggs++;
-        SavePersistentData();
+        // Pickups happen mid-gameplay: skip the synchronous disk flush here.
+        // It happens on GameOver/LevelComplete, pause/quit and any purchase.
+        SavePersistentData(flushToDisk: false);
 
         RefreshDebug();
 
@@ -348,7 +369,7 @@ public class GameManager : MonoBehaviour
     {
         levelCoins++;
         totalCoins++;
-        SavePersistentData();
+        SavePersistentData(flushToDisk: false);
         RefreshDebug();
     }
 
@@ -592,11 +613,15 @@ public class GameManager : MonoBehaviour
         if (currentLevel == 0)
             LastStarRating = 3;
 
+        RollLevelRewards();
+
         // Activate letterbox and play its feedbacks
         if (letterbox != null)
         {
             letterbox.SetActive(true);
-            letterbox.GetComponent<MoreMountains.Feedbacks.MMF_Player>()?.PlayFeedbacks();
+            // TryGetComponent instead of ?. : GetComponent returns a "fake null" in the Editor that ?. does not catch
+            if (letterbox.TryGetComponent(out MoreMountains.Feedbacks.MMF_Player letterboxFeedback))
+                letterboxFeedback.PlayFeedbacks();
         }
 
         // Change to level complete state
@@ -604,6 +629,86 @@ public class GameManager : MonoBehaviour
 
         // Invoke level complete event
         OnLevelComplete?.Invoke(currentLevel);
+    }
+
+    #endregion
+
+    #region Level Rewards
+
+    // Rolled on win, granted once the Win scene loads (no scene inventory UI there to overwrite the save)
+    private readonly List<ObjectivesDatabase.StageReward> pendingRewards = new();
+    private readonly List<ObjectivesDatabase.StageReward> lastGrantedRewards = new();
+
+    /// <summary>
+    /// Rewards granted for the last completed level, with the amounts actually received.
+    /// Read by the Win scene UI.
+    /// </summary>
+    public IReadOnlyList<ObjectivesDatabase.StageReward> LastGrantedRewards => lastGrantedRewards;
+
+    /// <summary>
+    /// Rolls the current stage's reward table from the ObjectivesDatabase.
+    /// </summary>
+    private void RollLevelRewards()
+    {
+        pendingRewards.Clear();
+        lastGrantedRewards.Clear();
+
+        if (ObjectivesManager.Instance == null || ObjectivesManager.Instance.Database == null) return;
+
+        pendingRewards.AddRange(ObjectivesManager.Instance.Database.RollRewardsForStage(currentLevel));
+    }
+
+    /// <summary>
+    /// Adds the pending rewards to the lifetime totals and the saved inventory, then saves.
+    /// Pending rewards are cleared, so each roll is granted only once.
+    /// </summary>
+    private void GrantPendingRewards()
+    {
+        if (pendingRewards.Count == 0) return;
+
+        lastGrantedRewards.Clear();
+
+        foreach (var reward in pendingRewards)
+        {
+            int granted = 0;
+
+            switch (reward.type)
+            {
+                case RewardType.Coins:
+                    totalCoins += reward.amount;
+                    granted = reward.amount;
+                    break;
+                case RewardType.Eggs:
+                    totalEggs += reward.amount;
+                    granted = reward.amount;
+                    break;
+                default:
+                    while (granted < reward.amount &&
+                           InventoryManager.AddItemToSave(reward.item, rewardInventorySlotCount, rewardMaxStackSize))
+                        granted++;
+
+                    if (granted < reward.amount)
+                        Debug.LogWarning($"[GameManager] Inventory full: only {granted}/{reward.amount} '{reward.item.name}' rewarded.");
+                    break;
+            }
+
+            if (granted > 0)
+            {
+                lastGrantedRewards.Add(new ObjectivesDatabase.StageReward
+                {
+                    type = reward.type,
+                    item = reward.item,
+                    amount = granted,
+                    dropChance = reward.dropChance
+                });
+            }
+        }
+
+        pendingRewards.Clear();
+        SavePersistentData();
+        RefreshDebug();
+
+        Debug.Log($"[GameManager] Granted {lastGrantedRewards.Count} reward(s) for stage {currentLevel}.");
     }
 
     #endregion
@@ -780,13 +885,16 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// Saves all persistent data to PlayerPrefs
     /// </summary>
-    private void SavePersistentData()
+    /// <param name="flushToDisk">False keeps the values in memory only (PlayerPrefs.Save is a synchronous disk write)</param>
+    private void SavePersistentData(bool flushToDisk = true)
     {
         PlayerPrefs.SetInt(LEVEL_SAVE_KEY, currentLevel);
         PlayerPrefs.SetInt(TOTAL_EGGS_SAVE_KEY, totalEggs);
         PlayerPrefs.SetInt(TOTAL_COINS_SAVE_KEY, totalCoins);
         PlayerPrefs.SetInt(HIGHEST_UNLOCKED_STAGE_KEY, highestUnlockedStage);
-        PlayerPrefs.Save();
+
+        if (flushToDisk)
+            PlayerPrefs.Save();
     }
 
     /// <summary>

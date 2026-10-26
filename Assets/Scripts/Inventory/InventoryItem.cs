@@ -8,6 +8,9 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 {
     public static event Action OnItemMoved;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => OnItemMoved = null;
+
     [Header("UI References")]
     [SerializeField] private Image image;
     [SerializeField] private TextMeshProUGUI countText;

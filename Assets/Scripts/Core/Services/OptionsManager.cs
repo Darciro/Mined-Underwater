@@ -82,6 +82,21 @@ public class OptionsManager : MonoBehaviour
 #endif
     }
 
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus && Instance == this)
+            PlayerPrefs.Save();
+    }
+
+    private void OnApplicationQuit()
+    {
+        if (Instance == this)
+            PlayerPrefs.Save();
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => Instance = null;
+
     #endregion
 
     #region Load / Apply
@@ -134,10 +149,10 @@ public class OptionsManager : MonoBehaviour
 
     #region Sound FX
 
+    // Called on every slider drag tick: value stays in memory, flushed in OnApplicationPause/Quit
     public void SetSoundFX(float value)
     {
         PlayerPrefs.SetFloat(SOUND_FX_KEY, value);
-        PlayerPrefs.Save();
 
         ApplySoundFX(value);
         RefreshDebug();
@@ -162,10 +177,10 @@ public class OptionsManager : MonoBehaviour
 
     #region Music
 
+    // Called on every slider drag tick: value stays in memory, flushed in OnApplicationPause/Quit
     public void SetMusic(float value)
     {
         PlayerPrefs.SetFloat(MUSIC_KEY, value);
-        PlayerPrefs.Save();
 
         ApplyMusic(value);
         RefreshDebug();

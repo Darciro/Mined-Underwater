@@ -23670,8 +23670,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 297.5, y: -427.37234}
-  m_SizeDelta: {x: 0, y: 854.7447}
+  m_AnchoredPosition: {x: 297.5, y: -434.703}
+  m_SizeDelta: {x: 0, y: 869.406}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &259448039
 MonoBehaviour:
@@ -79460,8 +79460,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 817.5, y: -427.37234}
-  m_SizeDelta: {x: 0, y: 854.7447}
+  m_AnchoredPosition: {x: 817.5, y: -434.703}
+  m_SizeDelta: {x: 0, y: 869.406}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &663485205
 MonoBehaviour:
@@ -117114,10 +117114,16 @@ MonoBehaviour:
   itemDescriptionText: {fileID: 2124064227}
   itemTypeText: {fileID: 1028574743}
   itemPriceText: {fileID: 1291247155}
+  itemSellPriceText: {fileID: 0}
   iconCoin: {fileID: 412613045}
   eggCoin: {fileID: 1367671642}
   iconImage: {fileID: 256122970}
   closeButton: {fileID: 823045761}
+  cannotBuyPriceColor: {r: 1, g: 0, b: 0, a: 1}
+  shakeTarget: {fileID: 779257615}
+  shakeDuration: 0.35
+  shakeMagnitude: 15
+  shakeFrequency: 12
 --- !u!1 &900949124
 GameObject:
   m_ObjectHideFlags: 0
@@ -171811,8 +171817,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1857.5, y: -427.37234}
-  m_SizeDelta: {x: 0, y: 854.7447}
+  m_AnchoredPosition: {x: 1857.5, y: -434.703}
+  m_SizeDelta: {x: 0, y: 869.406}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1218188876
 MonoBehaviour:
@@ -205555,8 +205561,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1337.5, y: -427.37234}
-  m_SizeDelta: {x: 0, y: 854.7447}
+  m_AnchoredPosition: {x: 1337.5, y: -434.703}
+  m_SizeDelta: {x: 0, y: 869.406}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1448963153
 MonoBehaviour:
